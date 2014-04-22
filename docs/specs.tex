@@ -1,0 +1,22 @@
+en-tete xml
+
+
+Tags :
+machine => Designe une machine finale OU un switch
+	Config => Configuration de la machine(optionnel)
+		=> name : nom de la machine
+		=> portsinput : nombre de ports en entrée
+		=> portsoutput : nombre de ports en sortie
+
+	Messages => Liste des messages générés par une machine
+		message => message unique, attributs : id(obligatoire), destination(obligatoire)
+			=> priority : priorité du message, optionnel, 0
+			=> criticality : criticité du message, optionnel, 0
+			=> period : période, optionnel, 0
+			=> wcet : transmission time, obligatoire
+
+
+	Links : liens
+		=> machinel : machine liée, attribut id(obligatoire)
+
+

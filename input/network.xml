@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Network>
+   	<machine id="1">
+	    <Config>
+	        <name>ES1</name>
+	    </Config>
+	    <Messages>
+	        <message id="1" destination="4">
+	            <priority>0</priority>
+	            <criticality>0</criticality>
+	            <period>6</period>
+	            <offset>1</offset>
+	            <wcet>4</wcet>
+	        </message>
+	    </Messages>
+	    <Links>
+	        <machinel id="3" />
+	    </Links>
+	</machine>
+	<machine id="2">
+	    <Config>
+	        <name>ES2</name>
+	    </Config>
+	    <Messages>
+	        <message id="2" destination="4">
+	            <priority>0</priority>
+	            <criticality>0</criticality>
+	            <period>0</period>
+	            <offset>0</offset>
+	            <wcet>5</wcet>
+	        </message>
+	    </Messages>
+	    <Links>
+	        <machinel id="3" />
+	    </Links>
+	</machine>
+	<machine id="3">
+	    <Config>
+	        <name>ES3</name>
+	    </Config>
+	    <Links>
+	        <machinel id="4" />
+	    </Links>
+	</machine>
+	<machine id="4">
+	    <Config>
+	        <name>ES4</name>
+	    </Config>
+	</machine>
+
+
+
+</Network>

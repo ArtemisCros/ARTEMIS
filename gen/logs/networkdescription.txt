@@ -1,0 +1,37 @@
+Machine 0 {
+	Address:1
+	Outputs:{
+		Address:3
+	}
+	Messages:{
+		MSG:MSG1 WCET:4 PATH:1->3->4->
+	}
+}
+
+Machine 1 {
+	Address:4
+	Outputs:{
+	}
+	Messages:{
+	}
+}
+
+Machine 2 {
+	Address:3
+	Outputs:{
+		Address:4
+	}
+	Messages:{
+	}
+}
+
+Machine 3 {
+	Address:2
+	Outputs:{
+		Address:3
+	}
+	Messages:{
+		MSG:MSG2 WCET:5 PATH:2->3->4->
+	}
+}
+
