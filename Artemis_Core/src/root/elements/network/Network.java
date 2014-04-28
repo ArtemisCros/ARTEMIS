@@ -153,14 +153,15 @@ public class Network extends SimulableElement{
 		return null;
 	}
 
-	/* Creates and builds all the messages path in the current network */
+	/* Creates and builds all the messages path in the current network with a Dijkstra algorithm : deprecated*/
+	@Deprecated
 	public void buildPaths() {
 		
 		for(int machCpt =0; machCpt<machineList.size();machCpt++) {		
 			for(int msgCpt=0;msgCpt<machineList.get(machCpt).messageGenerator.size();msgCpt++) {			
 				Message currentMessage = machineList.get(machCpt).messageGenerator.get(msgCpt);
 				
-				ArrayList<NetworkAddress> networkPath = networkPathBuilder.buildPath(
+				/*ArrayList<NetworkAddress> networkPath = networkPathBuilder.buildPath(
 						machineList.get(machCpt).networkAddress, 
 						currentMessage.networkPath.firstElement());			
 				
@@ -169,7 +170,7 @@ public class Network extends SimulableElement{
 				}	
 				
 				currentMessage.networkPath.add(currentMessage.networkPath.firstElement());
-				currentMessage.networkPath.remove(0);
+				currentMessage.networkPath.remove(0);*/
 				
 				currentMessage.showNetworkPath();
 			}

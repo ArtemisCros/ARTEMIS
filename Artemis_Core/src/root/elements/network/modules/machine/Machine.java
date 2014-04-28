@@ -134,9 +134,9 @@ public class Machine extends NetworkModule {
 					
 					/* We put the copy in the input buffer of the generating node */
 					inputBuffer.add(newMsg);
-					if(currentMsg.period != 0) {
+					if(currentMsg.period.get(0) != 0) {
 						/* Periodic sending */
-						currentMsg.nextSend += currentMsg.period;
+						currentMsg.nextSend += currentMsg.period.get(0);
 					}
 					else {
 						/* Sporadic sending */

@@ -1,5 +1,7 @@
 package root.elements.network.modules.task;
 
+import java.util.ArrayList;
+
 import root.elements.network.modules.NetworkModule;
 
 public class Task extends NetworkModule {
@@ -7,11 +9,10 @@ public class Task extends NetworkModule {
 	public int wcet;
 	
 	/* Optional */
-	public int deadline;
-	public int priority;
-	public int criticality;
-	public int period;
-	public int offset;
+	public ArrayList<Integer> deadline;
+	public ArrayList<Integer> priority;
+	public ArrayList<Integer> period;
+	public ArrayList<Integer> offset;
 	
 	/* Do we want to observe the worst case of this particular packet ? */
 	public boolean observed;
@@ -26,8 +27,12 @@ public class Task extends NetworkModule {
 		super();
 		// TODO Auto-generated constructor stub
 		this.wcet = wcet;
+		deadline = new ArrayList<Integer>();
+		priority = new ArrayList<Integer>();
+		period = new ArrayList<Integer>();
+		offset = new ArrayList<Integer>();
+		
 		observed = false;
-		offset = 0;
 		nextSend = 0;
 		nbExec = 0;
 	}

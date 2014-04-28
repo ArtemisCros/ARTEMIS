@@ -31,19 +31,23 @@ public class XmlHandler extends DefaultHandler{
 		public boolean triggerPeriod;
 		public boolean triggerOffset;
 		public boolean triggerWcet;
+		public boolean triggerPath;
 	
 		/* Machine */
 		public boolean triggerMachine;
 		public boolean triggerLinks;
 		public boolean triggerMachineLink;
 		
-	
+		public int currentCriticality;
+		
 	/* Created elements */
 	public HashMap<String, String>currentMessageProperties;
 	
 	public XmlHandler() {
 		triggerMessage = false;
 		currentMessageProperties = new HashMap<String, String>();
+		currentCriticality = 0;
+		
 		try {
 			mainNet = new Network();
 		} catch (Exception e) {
@@ -66,6 +70,7 @@ public class XmlHandler extends DefaultHandler{
 		if(qualif == XMLNetworkTags.TAG_MESSAGE) {triggerMessage = trigger;	}
 		if(qualif == XMLNetworkTags.TAG_LINKS) {triggerLinks = trigger;	}
 		if(qualif == XMLNetworkTags.TAG_MACHINELINK) {triggerMachineLink = trigger;	}
+		if(qualif == XMLNetworkTags.TAG_PATH) {triggerPath = trigger;	}
 	}
 
 	/* Start element */
@@ -97,6 +102,9 @@ public class XmlHandler extends DefaultHandler{
 			String dest = at.getValue(1);
 			currentMessageProperties.put("DEST", dest);	
 		}
+		if(qualif == XMLNetworkTags.TAG_CRITICALITY) {
+			currentCriticality = Integer.parseInt(at.getValue(0));
+		}
 	}
 	 
 	 /* Called at each element's end */
@@ -108,27 +116,27 @@ public class XmlHandler extends DefaultHandler{
 			 try {
 				Message newMsg = new Message(Integer.parseInt(currentMessageProperties.get("WCET")), 
 						"MSG"+currentMessageProperties.get("ID"));
-				
 				if(currentMessageProperties.containsKey("PERI"))
-					newMsg.period = Integer.parseInt(currentMessageProperties.get("PERI"));
+					newMsg.period.add(currentCriticality,  Integer.parseInt(currentMessageProperties.get("PERI")));
 				
 				if(currentMessageProperties.containsKey("OFFS")) {
-					newMsg.offset = Integer.parseInt(currentMessageProperties.get("OFFS"));
-					newMsg.nextSend = newMsg.offset;
+					newMsg.offset.add(currentCriticality, Integer.parseInt(currentMessageProperties.get("OFFS")));
+					newMsg.nextSend = newMsg.offset.get(currentCriticality);
 				}				
 				
-				if(currentMessageProperties.containsKey("PRIO"))
-					newMsg.priority = Integer.parseInt(currentMessageProperties.get("PRIO"));
-				
-				if(currentMessageProperties.containsKey("CRIT"))
-					newMsg.criticality = Integer.parseInt(currentMessageProperties.get("CRIT"));
-				
-				/* We add the destination as a first node to the path */
-				newMsg.addNodeToPath(
-						(mainNet.findMachine(Integer.parseInt(currentMessageProperties.get("DEST")))).getAddress());
+				if(currentMessageProperties.containsKey("PATH")) {
+					/* We make a loop to build the message path in the network*/
+					String[] path = currentMessageProperties.get("PATH").split(",");
+					for(int i=0; i < path.length ; i++) {
+						/* For each node id in the path, we get its corresponding address */
+						GlobalLogger.debug("PATH:"+path[i]);
+						newMsg.addNodeToPath(
+								(mainNet.findMachine(Integer.parseInt(path[i]))).getAddress());
+					}
+					
+				}		
 				
 				//TODO
-				GlobalLogger.debug("ADD "+newMsg.name+" TO "+currentMachine.name);
 				currentMachine.associateMessage(newMsg);
 				currentMessageProperties.clear();
 			} catch (NumberFormatException e) {
@@ -137,25 +145,25 @@ public class XmlHandler extends DefaultHandler{
 				GlobalLogger.error(Errors.ERROR_CREATING_MESSAGE, "Error in message creation from xml parser");
 			}			 
 		 }
-	}
+	} 
 	 
 	 public void characters(char[] ch,int start, int length) {  
 		String value = new String(ch);
 		value = value.substring(start, start+length);
 		 
-		if(triggerMessage) {
+		if(triggerCriticality) {
 			if(triggerWcet) {
 				 //Save wcet value into a map
 				 currentMessageProperties.put("WCET", value);
 			 }
+			if(triggerPath) {
+				currentMessageProperties.put("PATH", value);
+			}
 			if(triggerPeriod) {
 				 currentMessageProperties.put("PERI", value);
 			}
 			if(triggerPriority) {
 				currentMessageProperties.put("PRIO", value);
-			}
-			if(triggerCriticality) {
-				currentMessageProperties.put("CRIT", value);
 			}
 			if(triggerOffset) {
 				currentMessageProperties.put("OFFS", value);

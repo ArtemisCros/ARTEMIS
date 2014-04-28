@@ -32,7 +32,7 @@ public class PriorityManager {
 		
 		if(ConfigConstants.PRIORITY_POLICY == PriorityPolicy.FIXEDPRIORITY) {
 			for(int cpt_buffer=0;cpt_buffer<buffer.size();cpt_buffer++) {
-				if(rstMessage == null || buffer.get(cpt_buffer).priority < rstMessage.priority) {
+				if(rstMessage == null || buffer.get(cpt_buffer).priority.get(0) < rstMessage.priority.get(0)) {
 					rstMessage = buffer.get(cpt_buffer);
 				}
 			}
