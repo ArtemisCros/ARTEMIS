@@ -9,17 +9,17 @@ Machine 0 {
 }
 
 Machine 1 {
-	Address:4
+	Address:3
 	Outputs:{
+		Address:4
 	}
 	Messages:{
 	}
 }
 
 Machine 2 {
-	Address:3
+	Address:4
 	Outputs:{
-		Address:4
 	}
 	Messages:{
 	}
