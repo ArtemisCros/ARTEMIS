@@ -28,7 +28,7 @@ public class NetworkScheduler implements Runnable{
 	 * Main simulation function 
 	 */
 	public int schedule() {
-		for(int time =0; time < SimuConstants.TIME_LIMIT_SIMULATION;time++) {		
+		for(int time =0; time <= SimuConstants.TIME_LIMIT_SIMULATION;time++) {		
 			GlobalLogger.debug("--------------- START TIME "+time+" ---------------");
 				for(int machineCounter=0; machineCounter < network.machineList.size(); machineCounter++) {
 					Machine currentMachine = network.machineList.get(machineCounter);

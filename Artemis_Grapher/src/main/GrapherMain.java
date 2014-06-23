@@ -2,7 +2,7 @@ package main;
 
 import grapher.MainGrapher;
 
-public class Main {
+public class GrapherMain {
 	public static void main(String[] args) {
 			MainGrapher mainGrapher = new MainGrapher();
 			

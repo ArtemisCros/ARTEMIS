@@ -37,7 +37,7 @@ public class XMLParserLauncher {
 		
 		handler = new XmlHandlerCalculator();
 		handler.idSearchedMsg = idMsg;
-		xmlFileToParse = new File("../gen/xml/"+"Mac"+addressNode+".xml");
+		xmlFileToParse = new File("gen/xml/"+"Mac"+addressNode+".xml");
 	}
 	
 	public int launchParser() {

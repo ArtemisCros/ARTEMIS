@@ -5,7 +5,7 @@ package main;
  * @author olivier
  * Logs into console, xml, txt files
  */
-public class Main {
+public class LoggerMain {
 	public static void main(String[] args) {
 		
 	}

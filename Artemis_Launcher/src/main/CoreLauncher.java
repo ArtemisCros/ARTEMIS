@@ -11,7 +11,7 @@ import utils.Errors;
  * @author olivier
  * Centralizes all core java artemis modules to launch them
  */
-public class Main {
+public class CoreLauncher {
 	public static void main(String[] args) {
 		double startSimulationTime = System.currentTimeMillis();
 		

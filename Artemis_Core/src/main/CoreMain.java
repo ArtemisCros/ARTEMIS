@@ -15,7 +15,7 @@ import utils.Errors;
  * Build for a standalone mode
  * */
 
-public class Main {
+public class CoreMain {
 	public static void main(String[] args) {
 		try {
 			/* Read xml entry file and builds java structure corresponding to it */

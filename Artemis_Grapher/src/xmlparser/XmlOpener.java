@@ -17,6 +17,7 @@ import model.GraphPlot;
 import org.jfree.data.xy.XYSeries;
 
 public class XmlOpener {
+	public int simulationTimeLimit;
 	
 	public String getFileId(String fileName) {
 		return fileName.substring(3, fileName.indexOf('.'));
@@ -44,6 +45,9 @@ public class XmlOpener {
 			Vector<XYSeries> pointSeries = new Vector<XYSeries>();
 			ArrayList<GraphPlot> plots = new ArrayList<GraphPlot>();
 			
+			/*We manually compute the simulation time limit, for optimizing graph size */
+			int timeLength = -1;
+			
 			int previous =  0;
 		    try {
 		      // First, create a new XMLInputFactory
@@ -64,6 +68,7 @@ public class XmlOpener {
 		    	  if(event.isStartElement() ) {
 		    		  StartElement startElement = event.asStartElement();
 		    		  if(startElement.getName().toString().equals("timer")) {
+		    			  timeLength++;
 		    			  Iterator <Attribute> it = startElement.getAttributes();
 			    		  String message = "";
 			    		  int value = 0;
@@ -83,8 +88,8 @@ public class XmlOpener {
 			    		  
 			    		  if(message != "") {
 			    			  if(previous == 0) {
-			    				  plots.add(new GraphPlot(value, graphSize-10));
-			    				  plots.add(new GraphPlot(value, graphSize));	
+			    				  plots.add(new GraphPlot(value, graphSize-5));
+			    				  plots.add(new GraphPlot(value, graphSize));
 			    			  }
 			    			  else {
 			    				  plots.add(new GraphPlot(value, graphSize));
@@ -98,20 +103,20 @@ public class XmlOpener {
 			    				   */
 			    				  if(previous == 1) {
 				    				  plots.add(new GraphPlot(value, graphSize));		
-				    				  plots.add(new GraphPlot(value, graphSize-10));
+				    				  plots.add(new GraphPlot(value, graphSize-5));
 				    			  }
 				    			  else {
-				    				  plots.add(new GraphPlot(value, graphSize-10));
+				    				  plots.add(new GraphPlot(value, graphSize-5));
 				    			  }
 		    					  pointSeries.add(buildPlotSerial(plots, size));
 		    					  message_trigger = false;
 		    				  }
 			    			  if(previous == 1) {
 			    				  plots.add(new GraphPlot(value, graphSize));		
-			    				  plots.add(new GraphPlot(value, graphSize-10));
+			    				  plots.add(new GraphPlot(value, graphSize-5));
 			    			  }
 			    			  else {
-			    				  plots.add(new GraphPlot(value, graphSize-10));
+			    				  plots.add(new GraphPlot(value, graphSize-5));
 			    			  }
 			    			  previous = 0;
 			    			  
@@ -127,6 +132,8 @@ public class XmlOpener {
 
 			pointSeries.add(buildPlotSerial(plots, size));
 			  
+			simulationTimeLimit = timeLength;
+			
 		    return pointSeries;
 	}
 }
