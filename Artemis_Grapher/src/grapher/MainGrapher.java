@@ -44,16 +44,17 @@ public class MainGrapher {
 	 	    * Defaultly, we use the id number to class it
 	 	    */
 	 	   
-	 	   if(fileEntry.getName().endsWith("xml")) {
+	 	   if(fileEntry.getName().endsWith("xml") && (fileEntry.getName().compareTo("network.xml") != 0)) {
 	 		   
 	 		   String machineNum = xmlOpener.getFileId(fileEntry.getName());
 		    	   
-	 		   for(i=0;i<orderedFileName.size();i++) {
+	 		   /*for(i=0;i<orderedFileName.size();i++) {
 		    		   if(Integer.parseInt(machineNum) > Integer.parseInt(xmlOpener.getFileId(orderedFileName.get(i)))) {
 		    			   break;
 		    		   }
-		    	}    	  
+		    	}  */  	  
 	 		    orderedFileName.add(i, fileEntry.getName());
+	 		    i++;
 	 	   }
 		}
  	   
@@ -67,7 +68,7 @@ public class MainGrapher {
 	       int width = 1000;
 	       int height = 400; 
 	       
-	       File folder = new File("gen/xml"); 
+	       File folder = new File("../gen/xml/"); 
 	       XmlOpener xmlOpener = new XmlOpener();
 	       
 	       /* Sorting the files by node order in the network */
@@ -103,10 +104,12 @@ public class MainGrapher {
 		       /* To organize the different graphs, we define their position on the height of the y axis */
 		       /* Starting from xml infos, we build the different graphs */
 	    	   Vector<XYSeries> plotSeries = xmlOpener.readFile(
- 				   number, "gen/xml/"+orderedFileName.get(j), j*10);
+ 				   number, "../gen/xml/"+orderedFileName.get(j), j*10);
 	    	   
-	    	   ValueAxis domain = xyplot.getDomainAxis();
+	    	   NumberAxis domain = (NumberAxis) xyplot.getDomainAxis();
+
 		       domain.setRange(0, xmlOpener.simulationTimeLimit);
+		       domain.setTickUnit(new NumberTickUnit(2));
 		       
 	    	   XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true, false);  
 	    	   
@@ -117,8 +120,8 @@ public class MainGrapher {
 	    	       xyplot.setRenderer(dataset_num, renderer);
 	    	       xyplot.setDataset(dataset_num, plotSerial);
 	    	       
-	    	       String annotation = orderedFileName.get(j).substring(3);
-	    	       annotation = "Node " + annotation.substring(0,annotation.length()-4);
+	    	       String annotation = orderedFileName.get(j);//.substring(3);
+	    	       annotation = annotation.substring(0,annotation.length()-4);
 	    	       // Node legend
 	    	       xyplot.addAnnotation(new XYTextAnnotation(annotation, 3, (j*10)-2));
 	    	       dataset_num++;
@@ -128,7 +131,7 @@ public class MainGrapher {
 	       }
 	       
 	       try {
-	           ChartUtilities.saveChartAsPNG(new File("gen/histos/histogram_network.PNG"), chart, width, height);
+	           ChartUtilities.saveChartAsPNG(new File("../gen/histos/histogram_network.PNG"), chart, width, height);
 	           } 
 	       catch (IOException e) {
 	    	   e.printStackTrace();

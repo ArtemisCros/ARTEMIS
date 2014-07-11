@@ -8,5 +8,5 @@ public class ConfigConstants {
 	public static final PriorityPolicy PRIORITY_POLICY = PriorityPolicy.FIFO;
 	
 	
-	public static final String NETWORK_INPUT_PATH = "input/network.xml";
+	public static final String NETWORK_INPUT_PATH = "../input/network.xml";
 }

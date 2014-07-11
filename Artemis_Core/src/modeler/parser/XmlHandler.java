@@ -22,6 +22,7 @@ public class XmlHandler extends DefaultHandler{
 	/* Network to create */
 	protected Network mainNet;
 	protected Machine currentMachine;
+	protected String currentMachineName;
 	
 	/* Parser triggers */
 		/* Messages */
@@ -81,18 +82,28 @@ public class XmlHandler extends DefaultHandler{
 			//End of machine markup
 			//We get the specific id, then create the machine
 			int idAddr = 0;
+			currentMachineName = "";
 			for(int cptAttr=0;cptAttr < at.getLength();cptAttr++) {
 				if(at.getLocalName(cptAttr) == "id") {
 					idAddr = Integer.parseInt(at.getValue(cptAttr));
-				}				
+					if(currentMachineName == "") {
+						currentMachineName = "Node "+idAddr;
+					}
+				}		
+				if(at.getLocalName(cptAttr) == "name") {
+					currentMachineName = at.getValue(cptAttr);
+				}
 			}
 			/* We check if machine has already been created in the network */
-			currentMachine = mainNet.findMachine(idAddr);
+			currentMachine = mainNet.findMachine(idAddr, currentMachineName);
+			/* We set the name of this new machine */
+			currentMachine.name = currentMachineName;
+			GlobalLogger.debug("NAME:"+currentMachineName);
 		}
 		if(qualif == XMLNetworkTags.TAG_MACHINELINK) {
 			/* If finding a tag for, machine link, we search for the corresponding machines to bind them */
 			String idMachineToLink = at.getValue(0);
-			mainNet.linkMachines(currentMachine, mainNet.findMachine(Integer.parseInt(idMachineToLink)));
+			mainNet.linkMachines(currentMachine, mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name));
 		}
 		/* If new message, we just get its id */
 		if(qualif == XMLNetworkTags.TAG_MESSAGE) { 
@@ -129,7 +140,7 @@ public class XmlHandler extends DefaultHandler{
 					String[] path = currentMessageProperties.get("PATH").split(",");
 					for(int i=0; i < path.length ; i++) {
 						/* For each node id in the path, we get its corresponding address */
-						GlobalLogger.debug("PATH:"+path[i]);
+						// TODO GlobalLogger.debug("PATH:"+path[i]);
 						newMsg.addNodeToPath(
 								(mainNet.findMachine(Integer.parseInt(path[i]))).getAddress());
 					}

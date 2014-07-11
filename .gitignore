@@ -1,2 +1,8 @@
 *.class
+bin/
+libs/
+gen/
+gen/xml/
+Artemis_Core/bin/
+./gen/histos/
 .metadata/

@@ -34,9 +34,11 @@ public class NetworkBuilder {
 			parser.parse(fichier, handler);
 			
 			mainNet = handler.getNetwork();
+			mainNet.computeLoads();
+			
 			
 			/* Builds a list of paths for each message, according to Dijkstra algo */
-			mainNet.buildPaths();
+			//mainNet.buildPaths();
 			
 			/* Generate log files for configuration */
 			mainNet.generateNetworkGraph();

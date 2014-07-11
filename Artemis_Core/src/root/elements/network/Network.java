@@ -11,6 +11,7 @@ import root.elements.network.modules.link.Link;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.Message;
 import root.util.constants.ConfigConstants;
+import root.util.constants.SimuConstants;
 import root.util.tools.NetworkAddress;
 import utils.ConfigLogger;
 import utils.Errors;
@@ -33,21 +34,65 @@ public class Network extends SimulableElement{
 		networkPathBuilder = new DijkstraBuilder(this.machineList);
  	}
 	
- 	public Machine findMachine(int idAddr) {
+ 	/* Compute network load for each machine */
+ 	public int computeLoads() {
+ 		/* The load to compute */
+		double period = 0.0;
+		
+		/* For each machine, we get each generated message */
+ 		for(int cptMachine=0; cptMachine < machineList.size(); cptMachine++) {
+ 			Machine currentMachine = machineList.get(cptMachine);
+ 			
+ 			/* For each generated message, we add its load to each machine in its path */
+ 			for(int i=0;i<currentMachine.messageGenerator.size();i++) {
+ 				Message currentMsg = currentMachine.messageGenerator.get(i);
+ 				
+ 				for(int pathNodeCpt=0;pathNodeCpt<currentMsg.networkPath.size();pathNodeCpt++) {
+ 					period = (double)currentMsg.period.get(0);
+ 					if(period == 0.0) {
+ 						period = SimuConstants.TIME_LIMIT_SIMULATION;
+ 					}
+ 					(this.findMachine(currentMsg.networkPath.get(pathNodeCpt).value)).nodeLoad +=
+ 							(double)currentMsg.wcet/period;
+ 				}
+ 			}
+ 		}
+ 		
+ 		/* We display the results (debug purposes) */
+ 		for(int cptMachine=0; cptMachine < machineList.size(); cptMachine++) {
+ 			GlobalLogger.debug("Machine "+machineList.get(cptMachine).name+
+ 					" load:"+machineList.get(cptMachine).nodeLoad);
+ 		}
+ 		return 0;
+ 	}
+ 	
+ 	public Machine findMachine(int idAddr, String machineName) {
  		/* We check if machine has already been created in the network */
  		Machine rst = this.getMachineForAddressValue(idAddr);
 				
 		if(rst == null) {
-			return this.createMachine(idAddr);
+			GlobalLogger.debug("TEST2:"+machineName);
+			return this.createMachine(idAddr, machineName);
+		}
+		else {
+			/* This solves a bug about machine name's computation in xml network file */
+			GlobalLogger.debug("TEST3:"+machineName);
+			if(rst.name != machineName && rst.name == ""+idAddr)
+				rst.name = machineName;
 		}
 		return rst;
  	}
  	
+ 	public Machine findMachine(int idAddr) {
+ 		GlobalLogger.debug("TEST");
+ 		return findMachine(idAddr, ""+idAddr);
+ 	}
+ 	
  	/* Add new machine to the network */
- 	protected Machine createMachine(NetworkAddress addr) {
+ 	protected Machine createMachine(NetworkAddress addr, String machineName) {
  		try {
  			/* Create machine */
-			Machine currentMachine = new Machine(addr);
+			Machine currentMachine = new Machine(addr, machineName);
 			currentMachine.networkAddress.machine = currentMachine;
 			
 			/* Add it to the list of the machines in the network */
@@ -62,13 +107,15 @@ public class Network extends SimulableElement{
 		return null;
  	}
  	
- 	protected Machine createMachine(int idAddr) {
-		NetworkAddress newAddr = new NetworkAddress(idAddr);
-		return this.createMachine(newAddr);
-	}
+ 	protected Machine createMachine(int idAddr, String machineName) {
+ 		NetworkAddress newAddr = new NetworkAddress(idAddr);
+		return createMachine(newAddr, machineName);
+ 	}
  	
- 	protected Machine createMachine() {
-			return createMachine(addressGenerator.generateAddress());
+ 	protected Machine createMachine(String machineName) {
+ 		/* We generate a specific id */
+ 		NetworkAddress generatedAddr = addressGenerator.generateAddress();
+		return createMachine(generatedAddr, machineName);
 	}
 	
  	/* Create a network link between two machines */

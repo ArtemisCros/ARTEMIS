@@ -12,10 +12,14 @@ import root.elements.network.modules.NetworkModule;
 import root.elements.network.modules.link.Link;
 import root.elements.network.modules.task.Message;
 import root.util.constants.ConfigConstants;
+import root.util.constants.SimuConstants;
 import root.util.tools.NetworkAddress;
 
 public class Machine extends NetworkModule {
 	public NetworkAddress networkAddress;
+	/* Indicates the total load for the node */
+	public double nodeLoad;
+	
 	public Link[] portsOutput;
 	public Link[] portsInput;
 	
@@ -43,7 +47,7 @@ public class Machine extends NetworkModule {
 	
 	public boolean needReload;
 	
-	public Machine(String name_, NetworkAddress addr_) throws Exception {
+	public Machine(NetworkAddress addr_, String name_) throws Exception {
 		super();
 		name = name_;
 		openPorts(ConfigConstants.CONST_PORT_NUMBER);
@@ -52,12 +56,12 @@ public class Machine extends NetworkModule {
 		inputBuffer  = new Vector<Message>();
 		messageGenerator = new ArrayList<Message>();
 		analyseTime = 0;
-		createXMLLog();
 		needReload = true;
+		nodeLoad = 0.0;
 	}
 	
 	public Machine(NetworkAddress addr_) throws Exception {
-		this(""+addr_.value, addr_);
+		this(addr_, ""+addr_.value);
 	}
 	
 	public void openPorts(int ports_) {
@@ -202,10 +206,11 @@ public class Machine extends NetworkModule {
 	}
 	
 	public int createXMLLog() {
-		xmlLogger = new XmlLogger("Mac"+name+".xml");
+		xmlLogger = new XmlLogger(this.name+".xml");
 		xmlLogger.createDocument();
 		xmlLogger.createRoot("machine");
-		xmlLogger.getRoot().setAttribute("id", this.name);
+		//xmlLogger.getRoot().setAttribute("id", this.networkAddress.value);
+		xmlLogger.getRoot().setAttribute("name", this.name);
 		return 0;
 	}
 }
