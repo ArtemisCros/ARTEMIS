@@ -8,6 +8,7 @@ import javax.xml.parsers.SAXParserFactory;
 import modeler.parser.XmlHandler;
 import root.elements.network.Network;
 import root.util.constants.ConfigConstants;
+import utils.ConfigLogger;
 
 /**
  * @author olivier
@@ -28,7 +29,7 @@ public class NetworkBuilder {
 			
 			//Building the parser handler
 			XmlHandler handler = new XmlHandler();
-			File fichier = new File(ConfigConstants.NETWORK_INPUT_PATH);
+			File fichier = new File(ConfigLogger.NETWORK_INPUT_PATH);
 			
 			//Launch the parser
 			parser.parse(fichier, handler);

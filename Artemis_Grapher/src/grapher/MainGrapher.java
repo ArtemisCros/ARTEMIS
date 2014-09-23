@@ -9,70 +9,40 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import main.GraphBuilder;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYTextAnnotation;
-import org.jfree.chart.axis.Axis;
-import org.jfree.chart.axis.AxisSpace;
-import org.jfree.chart.axis.AxisState;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleEdge;
 
+import utils.ConfigLogger;
 import xmlparser.XmlOpener;
 
 public class MainGrapher {
 	
-	public ArrayList<String> sortXMLGraphFiles(File folder, XmlOpener xmlOpener) {
-		ArrayList<String> orderedFileName = new ArrayList<String>();
-		
-		int i = 0;
-		
-		for (File fileEntry : folder.listFiles()) {
- 	   
-	 	   /* 
-	 	    * We have to list the files in the same order that in the network
-	 	    * Defaultly, we use the id number to class it
-	 	    */
-	 	   
-	 	   if(fileEntry.getName().endsWith("xml") && (fileEntry.getName().compareTo("network.xml") != 0)) {
-	 		   
-	 		   String machineNum = xmlOpener.getFileId(fileEntry.getName());
-		    	   
-	 		   /*for(i=0;i<orderedFileName.size();i++) {
-		    		   if(Integer.parseInt(machineNum) > Integer.parseInt(xmlOpener.getFileId(orderedFileName.get(i)))) {
-		    			   break;
-		    		   }
-		    	}  */  	  
-	 		    orderedFileName.add(i, fileEntry.getName());
-	 		    i++;
-	 	   }
-		}
- 	   
- 	   return orderedFileName;
-    }
-	
-	
 	/* Starting from a list of xml files, draw the network graph */
 	public void drawGraph() {
-	       int number = 20;
+			int number = 20;
 	       int width = 1000;
 	       int height = 400; 
-	       
-	       File folder = new File("../gen/xml/"); 
-	       XmlOpener xmlOpener = new XmlOpener();
+	       GraphBuilder gBuilder = new GraphBuilder();
+		   XmlOpener xmlOpener = new XmlOpener();
+		   
+	       File folder = new File(ConfigLogger.GENERATED_FILES_PATH+"xml/"); 
 	       
 	       /* Sorting the files by node order in the network */
-	       ArrayList<String> orderedFileName  = sortXMLGraphFiles(folder, xmlOpener); 
+	       ArrayList<String> orderedFileName  = gBuilder.sortXMLGraphFiles(folder, xmlOpener); 
 	       
 	       int sizeHeightGraph = 1+(orderedFileName.size()*10);
 	       
@@ -101,21 +71,21 @@ public class MainGrapher {
 		       ValueAxis range = xyplot.getRangeAxis();
 		       range.setVisible(false);
 		       
+		       
 		       /* To organize the different graphs, we define their position on the height of the y axis */
 		       /* Starting from xml infos, we build the different graphs */
-	    	   Vector<XYSeries> plotSeries = xmlOpener.readFile(
- 				   number, "../gen/xml/"+orderedFileName.get(j), j*10);
+	    	   Vector<XYSeries> plotSeries = gBuilder.buildPlotsFromFile(
+ 				   number, ConfigLogger.GENERATED_FILES_PATH+"xml/"+orderedFileName.get(j), j*10, xmlOpener);
 	    	   
 	    	   NumberAxis domain = (NumberAxis) xyplot.getDomainAxis();
 
 		       domain.setRange(0, xmlOpener.simulationTimeLimit);
 		       domain.setTickUnit(new NumberTickUnit(2));
-		       
-	    	   XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true, false);  
 	    	   
 	    	   for(int cpt_series=0;cpt_series<plotSeries.size();cpt_series++) {
 	    		   XYSeriesCollection plotSerial = new XYSeriesCollection(plotSeries.get(cpt_series));
-	    		        	      
+	    		   XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true, false); 
+	    		   
 	    	       //One dataset per message/node    		   
 	    	       xyplot.setRenderer(dataset_num, renderer);
 	    	       xyplot.setDataset(dataset_num, plotSerial);
@@ -124,14 +94,21 @@ public class MainGrapher {
 	    	       annotation = annotation.substring(0,annotation.length()-4);
 	    	       // Node legend
 	    	       xyplot.addAnnotation(new XYTextAnnotation(annotation, 3, (j*10)-2));
+	    	       
+	    	       int red 		= (int) (255*Math.random());
+	    	       int green 	= (int) (255*Math.random());
+	    	       int blue		= (int) (255*Math.random());
+	    	       
 	    	       dataset_num++;
+	    	       renderer.setSeriesPaint(0, new Color(red, green, blue));
+	    	       
 	    	   }
-	    	   renderer.setSeriesPaint(0, Color.RED);
-	             
+	    	 //  renderer.setSeriesPaint(0, Color.RED);
+	    	  // renderer.setSeriesPaint(1, Color.BLUE);
 	       }
 	       
 	       try {
-	           ChartUtilities.saveChartAsPNG(new File("../gen/histos/histogram_network.PNG"), chart, width, height);
+	           ChartUtilities.saveChartAsPNG(new File(ConfigLogger.GENERATED_FILES_PATH+"histos/histogram_network.PNG"), chart, width, height);
 	           } 
 	       catch (IOException e) {
 	    	   e.printStackTrace();

@@ -6,7 +6,4 @@ public class ConfigConstants {
 	public static final int CONST_PORT_NUMBER 	= 500;
 	public static final int CONST_PORT_NUMBER_IN = 500;
 	public static final PriorityPolicy PRIORITY_POLICY = PriorityPolicy.FIFO;
-	
-	
-	public static final String NETWORK_INPUT_PATH = "../input/network.xml";
 }
