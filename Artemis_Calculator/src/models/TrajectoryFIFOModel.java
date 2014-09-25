@@ -5,21 +5,8 @@ import java.util.ArrayList;
 import logger.GlobalLogger;
 import model.Task;
 
-public class TrajectoryModel {
-	public static double computeFIFO(Task[] tasks) {
-		double endToEndDelay = 0.0;
-	
-		/*For each task, we compute its worst-case delay */
-		for(int cptTask=0;cptTask < tasks.length;cptTask++) {
-			double delay = Math.floor(1000*computeFIFOForOneTask(tasks, tasks[cptTask]))/1000;
-			GlobalLogger.debug("Task "+tasks[cptTask].id+"\tWCET:"+tasks[cptTask].wcet+"\tPeriod:"+tasks[cptTask].period+"\tFIFO Delay:"+delay);
-			System.out.println("-------------------------------");
-		}
-		
-		return endToEndDelay;
-	}
-	
-	public static double computeFIFOForOneTask(Task[] tasks, Task task) {
+public class TrajectoryFIFOModel implements IComputationModel{
+	public double computeDelay(Task[] tasks, Task task) {
 		/* Computing the max response time, depending on offset */
 		double responseTime = 0.0;
 		double temp = 0.0;
@@ -38,7 +25,7 @@ public class TrajectoryModel {
 		return responseTime;
 	}
 	
-	public static double computeWiLast(Task[] tasks, Task task) {
+	public double computeWiLast(Task[] tasks, Task task) {
 		double endToEndDelay = 0.0;
 		
 		double inducedDelay 	= 0.0;
@@ -227,9 +214,5 @@ public class TrajectoryModel {
 		aij = SmaxC - Smin + SmaxD - Mih;
 	
 		return aij;
-	}
-	
-	public static double computeFIFOS() {
-		return 0;
 	}
 }

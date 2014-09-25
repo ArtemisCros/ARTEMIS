@@ -3,9 +3,11 @@ package main;
 import java.util.ArrayList;
 
 import generator.TaskGenerator;
+import logger.GlobalLogger;
 import model.Task;
 import models.HandBuiltModel;
-import models.TrajectoryModel;
+import models.TrajectoryFIFOModel;
+import models.TrajectoryFIFOSModel;
 import xmlparser.XMLParserLauncher;
 
 /**
@@ -18,14 +20,18 @@ import xmlparser.XMLParserLauncher;
 public class Main {
 	public static void main(String[] args) {	
 		/* First, we need a task model */
+		double chronoStart = System.currentTimeMillis();
+		
 		int numberOfTasks 	= 20;
-		double networkLoad 	= 0.8;
-		int	timeLimit		= 500;
-		double variance 		= 0.05;
+		double networkLoad 	= 0.9;
+		int	timeLimit		= 4000;
+		double variance 	= 0.05;
 		
 		TaskGenerator taskGen = new TaskGenerator(numberOfTasks, networkLoad, timeLimit, variance);
-		//Task[] tasks 	= taskGen.generateTaskList();
-		Task[] tasks = new Task[4];
+		
+		
+		/*Task[] tasks = new Task[4];
+		
 		tasks[0] = new Task();
 		tasks[0].wcet = 40;
 		tasks[0].period = 50;
@@ -56,7 +62,7 @@ public class Main {
 		tasks[3].path.add(3);
 		tasks[3].id = 4;
 		
-		/*tasks[4] = new Task();
+		tasks[4] = new Task();
 		tasks[4].wcet = 30;
 		tasks[4].period = 4000;
 		tasks[4].path = new ArrayList<Integer>();
@@ -80,9 +86,47 @@ public class Main {
 		tasks[6].path.add(3);
 		tasks[6].id = 7;*/
 		
-		/* Once we have the task model, we need a topology */ 
 		
-		/* Then, we apply the trajectory approach on this topology */
-		TrajectoryModel.computeFIFO(tasks);
+		System.out.print("+    Load    +  FIFO Delay + FIFOS Delay +  Time(ms)  +\n");
+		System.out.print("+------------+-------------+-------------+------------+\n");
+		for(networkLoad=0.2;networkLoad<0.99;networkLoad+=0.01) {
+			double totalDelayFIFO = 0.0;
+			double totalDelayFIFOS = 0.0;
+			taskGen.setNetworkLoad(networkLoad);
+			
+			/* Once we have the task model, we need a topology */ 
+			/* Then, we apply the trajectory approach on this topology */
+			for(int cptTests=0;cptTests < 30;cptTests++) {		
+				Task[] tasks 	= taskGen.generateTaskList();
+				
+				/*For each task, we compute its worst-case delay */
+				for(int cptTask=0;cptTask < tasks.length;cptTask++) {
+					TrajectoryFIFOModel fifoModel = new TrajectoryFIFOModel();		
+					double delayFIFO = Math.floor(1000*fifoModel.computeDelay(tasks, tasks[cptTask]))/1000;
+					
+					TrajectoryFIFOSModel fifosModel = new TrajectoryFIFOSModel();
+					double delayFIFOS =  Math.floor(1000*fifosModel.computeDelay(tasks, tasks[cptTask]))/1000;
+					
+					if(cptTask == 0) {
+						/*GlobalLogger.debug("Test n¡"+cptTests+"\tTask "+tasks[cptTask].id+"\tWCET:"+tasks[cptTask].wcet+
+								"\tPeriod:"+tasks[cptTask].period+"\tFIFO Delay:"+delayFIFO+"\tFIFOS Delay:"+delayFIFOS);*/
+						totalDelayFIFO += delayFIFO;
+						totalDelayFIFOS += delayFIFOS;
+					}
+				}
+			}
+			
+			double chronoEnd = System.currentTimeMillis();
+			
+			System.out.format("+ %010.3f + %010.3f  + %010.3f  + %010.3f +\n", 
+					(Math.floor(networkLoad*100)/100), 
+					Math.floor(totalDelayFIFO*100/3)/1000, 
+					Math.floor(totalDelayFIFOS*100/3)/1000, 
+					(chronoEnd - chronoStart));
+			/*		"+"++
+					" in "++" ms");*/
+		}
+		
+			
 	}
 }

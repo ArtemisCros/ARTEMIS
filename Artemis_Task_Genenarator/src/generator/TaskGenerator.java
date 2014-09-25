@@ -1,5 +1,9 @@
 package generator;
 
+import java.util.ArrayList;
+
+import javax.xml.bind.JAXBElement.GlobalScope;
+
 import model.RandomGaussian;
 import model.RandomGenerator;
 import model.Task;
@@ -10,6 +14,10 @@ public class TaskGenerator {
 	int timeLimit;
 	double variance;
 	
+	public void setNetworkLoad(double nLoad) {
+		networkLoad = nLoad;
+	}
+	
 	public TaskGenerator(int PnumberOfTasks,  double PnetworkLoad, int PtimeLimit, double Pvariance) {
 		numberOfTasks 	= PnumberOfTasks;
 		networkLoad 	= PnetworkLoad;
@@ -17,6 +25,29 @@ public class TaskGenerator {
 		variance		= Pvariance;
 	}
 	
+	/* Generate random path */
+	public void generatePath(Task[] tasks) {
+		int limit = 0;
+		
+		/* Basic topology : 5 consecutive nodes */
+		
+		for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {
+			tasks[cptTasks].path = new ArrayList<Integer>();
+			
+			if(cptTasks == 0) {
+				limit = 1;
+			}
+			else {
+				limit = 1+(int)Math.floor(Math.random() * 4);
+			}
+			
+			for(int cptNodesNumber=limit;cptNodesNumber<5;cptNodesNumber++) {
+				tasks[cptTasks].path.add(cptNodesNumber);
+			}
+			
+			//tasks[cptTasks].displayPath();
+		}
+	}
 	
 	public Task[] generateTaskList() {
 		/*Generated tasks list */
@@ -53,18 +84,21 @@ public class TaskGenerator {
 				}
 			
 				/* Computes wcet from utilisation */
-				double wcet = Math.floor(utilisation * period * 1000)/1000;
+				double wcet = Math.floor(utilisation * period * 100)/100;
 				
 				/* Saving results */
 				//System.out.print("\tLoad:"+utilisation+"\n");
 				newTask.period = period;
 				newTask.wcet = wcet;
+				newTask.id = cptTask;
 				tasks[cptTask-1] = newTask;	
 				
 				globalLoad += utilisation;
 			}
-			System.out.print("\tGlobal load:"+globalLoad+"\t Counter:"+counterSet+"\n");
+			//System.out.print("\tGlobal load:"+globalLoad+"\t Counter:"+counterSet+"\n");
 		}
+		
+		generatePath(tasks);
 		
 		return tasks;
 	}
