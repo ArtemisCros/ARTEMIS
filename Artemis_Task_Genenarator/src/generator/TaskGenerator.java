@@ -55,6 +55,7 @@ public class TaskGenerator {
 		double globalLoad = 0;
 		RandomGenerator randGen = new RandomGenerator();
 		
+		double errorMargin = 0.01;
 		boolean validSet = false;
 		int counterSet = 0;
 		
@@ -79,8 +80,6 @@ public class TaskGenerator {
 				
 				if(cptTask == numberOfTasks) {
 					utilisation = networkLoad - globalLoad;
-					if(utilisation >= 0)
-						validSet = true;
 				}
 			
 				/* Computes wcet from utilisation */
@@ -94,6 +93,9 @@ public class TaskGenerator {
 				tasks[cptTask-1] = newTask;	
 				
 				globalLoad += utilisation;
+				
+				if(Math.abs(networkLoad - globalLoad) <= errorMargin)
+					validSet = true;
 			}
 			//System.out.print("\tGlobal load:"+globalLoad+"\t Counter:"+counterSet+"\n");
 		}

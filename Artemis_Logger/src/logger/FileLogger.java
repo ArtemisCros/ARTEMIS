@@ -17,7 +17,7 @@ public class FileLogger extends Logger {
 				file.createNewFile();
 			}
  
-			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
 			BufferedWriter bw = new BufferedWriter(fw);
 			bw.write(message);
 			bw.close();

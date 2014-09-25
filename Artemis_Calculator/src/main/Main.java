@@ -3,6 +3,7 @@ package main;
 import java.util.ArrayList;
 
 import generator.TaskGenerator;
+import logger.FileLogger;
 import logger.GlobalLogger;
 import model.Task;
 import models.HandBuiltModel;
@@ -29,7 +30,11 @@ public class Main {
 		
 		TaskGenerator taskGen = new TaskGenerator(numberOfTasks, networkLoad, timeLimit, variance);
 		
-		
+		/* Simulation parameters */
+		double limiteBasse = 0.1;
+		double limiteHaute = 1.0;
+		double scale	   = 0.01;
+		double numberTests = 50;
 		/*Task[] tasks = new Task[4];
 		
 		tasks[0] = new Task();
@@ -86,19 +91,20 @@ public class Main {
 		tasks[6].path.add(3);
 		tasks[6].id = 7;*/
 		
+		FileLogger.logToFile("# Load\t FIFO\t FIFOS\t Time\n", "results.txt");
 		
 		System.out.print("+    Load    +  FIFO Delay + FIFOS Delay +  Time(ms)  +\n");
 		System.out.print("+------------+-------------+-------------+------------+\n");
-		for(networkLoad=0.2;networkLoad<0.99;networkLoad+=0.01) {
+		
+		for(networkLoad=limiteBasse;networkLoad<limiteHaute;networkLoad+=scale) {
 			double totalDelayFIFO = 0.0;
 			double totalDelayFIFOS = 0.0;
 			taskGen.setNetworkLoad(networkLoad);
 			
 			/* Once we have the task model, we need a topology */ 
 			/* Then, we apply the trajectory approach on this topology */
-			for(int cptTests=0;cptTests < 30;cptTests++) {		
+			for(int cptTests=0;cptTests < numberTests;cptTests++) {		
 				Task[] tasks 	= taskGen.generateTaskList();
-				
 				/*For each task, we compute its worst-case delay */
 				for(int cptTask=0;cptTask < tasks.length;cptTask++) {
 					TrajectoryFIFOModel fifoModel = new TrajectoryFIFOModel();		
@@ -108,7 +114,7 @@ public class Main {
 					double delayFIFOS =  Math.floor(1000*fifosModel.computeDelay(tasks, tasks[cptTask]))/1000;
 					
 					if(cptTask == 0) {
-						/*GlobalLogger.debug("Test n¡"+cptTests+"\tTask "+tasks[cptTask].id+"\tWCET:"+tasks[cptTask].wcet+
+						/*GlobalLogger.debug("Test nï¿½"+cptTests+"\tTask "+tasks[cptTask].id+"\tWCET:"+tasks[cptTask].wcet+
 								"\tPeriod:"+tasks[cptTask].period+"\tFIFO Delay:"+delayFIFO+"\tFIFOS Delay:"+delayFIFOS);*/
 						totalDelayFIFO += delayFIFO;
 						totalDelayFIFOS += delayFIFOS;
@@ -118,13 +124,19 @@ public class Main {
 			
 			double chronoEnd = System.currentTimeMillis();
 			
-			System.out.format("+ %010.3f + %010.3f  + %010.3f  + %010.3f +\n", 
-					(Math.floor(networkLoad*100)/100), 
-					Math.floor(totalDelayFIFO*100/3)/1000, 
-					Math.floor(totalDelayFIFOS*100/3)/1000, 
-					(chronoEnd - chronoStart));
+			FileLogger.logToFile(/*("+ %010.3f + %010.3f  + %010.3f  + %010.3f +\n", */
+					(""+Math.floor(networkLoad*100)/100)+"\t"+
+					Math.floor(totalDelayFIFO*1000/numberTests)/1000+"\t"+
+					Math.floor(totalDelayFIFOS*1000/numberTests)/1000+"\t"+
+					(chronoEnd - chronoStart)+"\n", "results.txt");
 			/*		"+"++
 					" in "++" ms");*/
+			
+			System.out.format("+ %05.4f + %010.3f  + %010.3f  + %010.3f +\n",
+					(Math.floor(networkLoad*100)/100),
+					Math.floor(totalDelayFIFO*1000/numberTests)/1000,
+					Math.floor(totalDelayFIFOS*1000/numberTests)/1000,
+					(chronoEnd - chronoStart));
 		}
 		
 			
