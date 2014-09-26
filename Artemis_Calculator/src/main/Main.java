@@ -93,8 +93,8 @@ public class Main {
 		
 		FileLogger.logToFile("# Load\t FIFO\t FIFOS\t Time\n", "results.txt");
 		
-		System.out.print("+    Load    +  FIFO Delay + FIFOS Delay +  Time(ms)  +\n");
-		System.out.print("+------------+-------------+-------------+------------+\n");
+		System.out.print("+  Load  +  FIFO Delay + FIFOS Delay +  Time(ms)  +\n");
+		System.out.print("+--------+-------------+-------------+------------+\n");
 		
 		for(networkLoad=limiteBasse;networkLoad<limiteHaute;networkLoad+=scale) {
 			double totalDelayFIFO = 0.0;

@@ -33,6 +33,23 @@ public class TrajectoryFIFOSModel implements IComputationModel{
 		double wcetCorrect		= 0.0;	
 		
 		/* Term 1 : Induced delay */
+		double quotient = 0.0;
+		for(int cptTask=0;cptTask<tasks.length; cptTask++) {
+			for(int cptNodes=0;cptNodes < tasks.length;cptNodes++) {	
+				/* If there is at least one common node */
+					if(task.path.contains(tasks[cptTask].path.get(cptNodes))) {
+						double aij = TrajectoryFIFOModel.computeAij(tasks, task, tasks[cptTask]);
+						quotient =  Math.floor(Math.min(tasks[cptTask].offset, aij) /(tasks[cptTask].period));
+						
+						inducedDelay += (tasks[cptTask].wcet)*(1+quotient);
+						
+						break;
+				}
+			}
+		}
+		
+		
+		
 		
 		/* Term 2 : Non-preemptive delay */
 		int cptNodes = 0;
