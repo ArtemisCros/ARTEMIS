@@ -44,13 +44,14 @@ public class TrajectoryFIFOModel implements IComputationModel{
 				if(task.path.contains(tasks[cptTask].path.get(cptNodes))) {
 					double aij = computeAij(tasks, task, tasks[cptTask]);
 					quotient = Math.floor((task.offset + aij)/(tasks[cptTask].period));
-					
+
 					inducedDelay += (tasks[cptTask].wcet)*(1+quotient);
-					
+
 					break;
 				}
 			}
 		}
+		
 		
 		/* Term 2 : Non-preemptive effect */
 		int cptNodes = 0;
