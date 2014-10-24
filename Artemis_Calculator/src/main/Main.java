@@ -6,6 +6,7 @@ import generator.TaskGenerator;
 import logger.FileLogger;
 import logger.GlobalLogger;
 import model.Task;
+import models.ComputationConstants;
 import models.HandBuiltModel;
 import models.TrajectoryFIFOModel;
 import models.TrajectoryFIFOSModel;
@@ -23,18 +24,17 @@ public class Main {
 		/* First, we need a task model */
 		double chronoStart = System.currentTimeMillis();
 		
-		int numberOfTasks 	= 20;
-		double networkLoad 	= 0.9;
-		int	timeLimit		= 4000;
-		double variance 	= 0.05;
-		
-		TaskGenerator taskGen = new TaskGenerator(numberOfTasks, networkLoad, timeLimit, variance);
-		
-		/* Simulation parameters */
+		/* Constants initializers */
 		double limiteBasse = 0.1;
 		double limiteHaute = 1.0;
-		double scale	   = 0.01;
-		double numberTests = 50;
+		double networkLoad 	= 0.9;
+		
+		TaskGenerator taskGen = new TaskGenerator(ComputationConstants.GENERATED_TASKS, 
+				networkLoad, 
+				ComputationConstants.TIME_LIMIT, 
+				ComputationConstants.VARIANCE);
+		
+		
 		/*Task[] tasks = new Task[4];
 		
 		tasks[0] = new Task();
@@ -96,22 +96,22 @@ public class Main {
 		System.out.print("+  Load  +  FIFO Delay + FIFOS Delay +  Time(ms)  +\n");
 		System.out.print("+--------+-------------+-------------+------------+\n");
 		
-		for(networkLoad=limiteBasse;networkLoad<limiteHaute;networkLoad+=scale) {
+		for(networkLoad=limiteBasse;networkLoad<limiteHaute;networkLoad+= ComputationConstants.LOAD_STEP) {
 			double totalDelayFIFO = 0.0;
 			double totalDelayFIFOS = 0.0;
 			taskGen.setNetworkLoad(networkLoad);
 			
 			/* Once we have the task model, we need a topology */ 
 			/* Then, we apply the trajectory approach on this topology */
-			for(int cptTests=0;cptTests < numberTests;cptTests++) {		
+			for(int cptTests=0;cptTests < ComputationConstants.NUMBER_TESTS; cptTests++) {		
 				Task[] tasks 	= taskGen.generateTaskList();
 				/*For each task, we compute its worst-case delay */
 				for(int cptTask=0;cptTask < tasks.length;cptTask++) {
 					TrajectoryFIFOModel fifoModel = new TrajectoryFIFOModel();		
-					double delayFIFO = Math.floor(1000*fifoModel.computeDelay(tasks, tasks[cptTask]))/1000;
+					double delayFIFO = Math.floor(ComputationConstants.PRECISION*fifoModel.computeDelay(tasks, tasks[cptTask]))/ComputationConstants.PRECISION;
 					
 					TrajectoryFIFOSModel fifosModel = new TrajectoryFIFOSModel();
-					double delayFIFOS =  Math.floor(1000*fifosModel.computeDelay(tasks, tasks[cptTask]))/1000;
+					double delayFIFOS =  Math.floor(ComputationConstants.PRECISION*fifosModel.computeDelay(tasks, tasks[cptTask]))/ComputationConstants.PRECISION;
 					
 					if(cptTask == 0) {
 						/*GlobalLogger.debug("Test n�"+cptTests+"\tTask "+tasks[cptTask].id+"\tWCET:"+tasks[cptTask].wcet+
@@ -125,17 +125,17 @@ public class Main {
 			double chronoEnd = System.currentTimeMillis();
 			
 			FileLogger.logToFile(/*("+ %010.3f + %010.3f  + %010.3f  + %010.3f +\n", */
-					(""+Math.floor(networkLoad*100)/100)+"\t"+
-					Math.floor(totalDelayFIFO*1000/numberTests)/1000+"\t"+
-					Math.floor(totalDelayFIFOS*1000/numberTests)/1000+"\t"+
+					(""+Math.floor(networkLoad*ComputationConstants.PRECISION)/ComputationConstants.PRECISION)+"\t"+
+					Math.floor(totalDelayFIFO*ComputationConstants.PRECISION/ComputationConstants.NUMBER_TESTS)/ComputationConstants.PRECISION+"\t"+
+					Math.floor(totalDelayFIFOS*ComputationConstants.PRECISION/ComputationConstants.NUMBER_TESTS)/ComputationConstants.PRECISION+"\t"+
 					(chronoEnd - chronoStart)+"\n", "results.txt");
 			/*		"+"++
 					" in "++" ms");*/
 			
-			System.out.format("+ %05.4f + %010.3f  + %010.3f  + %010.3f +\n",
-					(Math.floor(networkLoad*100)/100),
-					Math.floor(totalDelayFIFO*1000/numberTests)/1000,
-					Math.floor(totalDelayFIFOS*1000/numberTests)/1000,
+			System.out.format("+ %05.4f + %010.3f  + %010.3f  + %010.1f +\n",
+					(Math.floor(networkLoad*ComputationConstants.PRECISION)/ComputationConstants.PRECISION),
+					Math.floor(totalDelayFIFO*ComputationConstants.PRECISION/ComputationConstants.NUMBER_TESTS)/ComputationConstants.PRECISION,
+					Math.floor(totalDelayFIFOS*ComputationConstants.PRECISION/ComputationConstants.NUMBER_TESTS)/ComputationConstants.PRECISION,
 					(chronoEnd - chronoStart));
 		}
 		
