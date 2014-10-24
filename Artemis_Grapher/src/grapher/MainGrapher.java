@@ -74,8 +74,10 @@ public class MainGrapher {
 		       
 		       /* To organize the different graphs, we define their position on the height of the y axis */
 		       /* Starting from xml infos, we build the different graphs */
-	    	   Vector<XYSeries> plotSeries = gBuilder.buildPlotsFromFile(
- 				   number, ConfigLogger.GENERATED_FILES_PATH+"xml/"+orderedFileName.get(j), j*10, xmlOpener);
+	    	   Vector<XYSeries> plotSeries = xmlOpener.readFile(number, 
+	    			   ConfigLogger.GENERATED_FILES_PATH+"xml/"+orderedFileName.get(j),
+	    			   j*10); /*gBuilder.buildPlotsFromFile(
+ 				   number, ConfigLogger.GENERATED_FILES_PATH+"xml/"+orderedFileName.get(j), j*10, xmlOpener);*/
 	    	   
 	    	   NumberAxis domain = (NumberAxis) xyplot.getDomainAxis();
 

@@ -22,8 +22,7 @@ public class XmlOpener {
 	public int simulationTimeLimit;
 	
 	public String getFileId(String fileName) {
-		return fileName.substring(3, fileName.indexOf('.'));
-		
+		return fileName.substring(0, fileName.indexOf('.'));
 	}
 	
 	/* Build a new dataserie from a plot list*/
@@ -43,9 +42,8 @@ public class XmlOpener {
 	}
 	
 	/* Builds all plots from a file */
-	public Vector<GraphSerial> readFile(String configFile) {
-			Vector<GraphSerial> serialPlots = new Vector<GraphSerial>();
-			
+	public Vector<XYSeries> readFile(int size, String configFile, int graphSize) {
+			Vector<XYSeries> pointSeries = new Vector<XYSeries>();
 			ArrayList<GraphPlot> plots = new ArrayList<GraphPlot>();
 			
 			/*We manually compute the simulation time limit, for optimizing graph size */
@@ -64,42 +62,65 @@ public class XmlOpener {
     		  boolean message_trigger = false;
     		  
 		      // read the XML document
+
 		      while (eventReader.hasNext()) {
 		    	  XMLEvent event = eventReader.nextEvent();
-		    	  serialPlots.add(new GraphSerial());
 		    	  
 		    	  if(event.isStartElement() ) {
 		    		  StartElement startElement = event.asStartElement();
-		    		  String message = "";
-		    		  
 		    		  if(startElement.getName().toString().equals("timer")) {
 		    			  timeLength++;
 		    			  Iterator <Attribute> it = startElement.getAttributes();
-			    		  
+			    		  String message = "";
 			    		  int value = 0;
 			    		  
+			    		  
 			    		  while(it.hasNext()) {
-			    			  /* First, we scan xml attributes of each timer tag */
 			    			  Attribute attr = it.next();
 			    			  
 			    			  if(attr.getName().toString().equals("message")) {
 			    				  message = attr.getValue().toString();
+			    				  message_trigger = true;
 			    			  }
 			    			  else if(attr.getName().toString().equals("value")) {
 			    				  value = Integer.parseInt(attr.getValue().toString());
 			    			  }
 			    		  }
 			    		  
-			    		  /* If there is a message, we add it to our stack */
 			    		  if(message != "") {
-			    			  /* If it's a new message, we create a new serial */
-			    			  if(serialPlots.lastElement().message != "" && serialPlots.lastElement().message != message) {
-			    				  serialPlots.add(new GraphSerial());
+			    			  if(previous == 0) {
+			    				  plots.add(new GraphPlot(value, graphSize-5));
+			    				  plots.add(new GraphPlot(value, graphSize));
 			    			  }
-			    				     			  
-			    			  serialPlots.lastElement().timeSlots.add(value); 
-			    			  serialPlots.lastElement().message = message;
-			    			  message = "";
+			    			  else {
+			    				  plots.add(new GraphPlot(value, graphSize));
+			    			  }
+			    			  previous = 1;
+			    		  }
+			    		  else {
+			    			  if(message_trigger) {  
+			    				  /*At each end of message display, we build a new dataset 
+			    				   * from built plot list
+			    				   */
+			    				  if(previous == 1) {
+				    				  plots.add(new GraphPlot(value, graphSize));		
+				    				  plots.add(new GraphPlot(value, graphSize-5));
+				    			  }
+				    			  else {
+				    				  plots.add(new GraphPlot(value, graphSize-5));
+				    			  }
+		    					  pointSeries.add(buildPlotSerial(plots, size));
+		    					  message_trigger = false;
+		    				  }
+			    			  if(previous == 1) {
+			    				  plots.add(new GraphPlot(value, graphSize));		
+			    				  plots.add(new GraphPlot(value, graphSize-5));
+			    			  }
+			    			  else {
+			    				  plots.add(new GraphPlot(value, graphSize-5));
+			    			  }
+			    			  previous = 0;
+			    			  
 			    		  }
 		    		  }
 		    	  }
@@ -109,9 +130,11 @@ public class XmlOpener {
 		    	e.printStackTrace();
 		    	return null;
 		    }
+
+			pointSeries.add(buildPlotSerial(plots, size));
 			  
 			simulationTimeLimit = timeLength;
 			
-		    return serialPlots;
+		    return pointSeries;
 	}
 }
