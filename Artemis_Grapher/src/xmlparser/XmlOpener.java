@@ -1,5 +1,7 @@
 package xmlparser;
 
+import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -16,10 +18,19 @@ import logger.GlobalLogger;
 import model.GraphPlot;
 import model.GraphSerial;
 
+import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.chart.annotations.XYTextAnnotation;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.event.AnnotationChangeListener;
+import org.jfree.chart.plot.PlotRenderingInfo;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 
 public class XmlOpener {
 	public int simulationTimeLimit;
+	
+	/* Annotations to put on the graph */
+	public Vector<XYTextAnnotation> annotations;
 	
 	public String getFileId(String fileName) {
 		return fileName.substring(0, fileName.indexOf('.'));
@@ -42,8 +53,11 @@ public class XmlOpener {
 	}
 	
 	/* Builds all plots from a file */
-	public Vector<XYSeries> readFile(int size, String configFile, int graphSize) {
-			Vector<XYSeries> pointSeries = new Vector<XYSeries>();
+	public XYSeries readFile(int size, String configFile, int graphSize) {
+			/* Graph annotations and messages ids */
+			annotations = new Vector<XYTextAnnotation>();
+		
+			XYSeries pointSeries;
 			ArrayList<GraphPlot> plots = new ArrayList<GraphPlot>();
 			
 			/*We manually compute the simulation time limit, for optimizing graph size */
@@ -63,6 +77,9 @@ public class XmlOpener {
     		  
 		      // read the XML document
 
+    		  String message = "";
+    		  String previous_message = "";
+    		  
 		      while (eventReader.hasNext()) {
 		    	  XMLEvent event = eventReader.nextEvent();
 		    	  
@@ -71,9 +88,8 @@ public class XmlOpener {
 		    		  if(startElement.getName().toString().equals("timer")) {
 		    			  timeLength++;
 		    			  Iterator <Attribute> it = startElement.getAttributes();
-			    		  String message = "";
 			    		  int value = 0;
-			    		  
+			    		  message = "";
 			    		  
 			    		  while(it.hasNext()) {
 			    			  Attribute attr = it.next();
@@ -95,9 +111,18 @@ public class XmlOpener {
 			    			  else {
 			    				  plots.add(new GraphPlot(value, graphSize));
 			    			  }
+			    			  
+			    			  /* Add message id on the graph on the beginning of its transmission time */
+			    			  if(previous_message == "" || message.compareTo(previous_message) != 0) {
+			    				  previous_message = message;
+			    				  annotations.add(new XYTextAnnotation(""+message.substring(3), value+0.7, graphSize-2));
+			    				  plots.add(new GraphPlot(value, graphSize-5));
+			    				  plots.add(new GraphPlot(value, graphSize));
+			    			  }
 			    			  previous = 1;
 			    		  }
 			    		  else {
+			    			  previous_message = "";
 			    			  if(message_trigger) {  
 			    				  /*At each end of message display, we build a new dataset 
 			    				   * from built plot list
@@ -109,7 +134,6 @@ public class XmlOpener {
 				    			  else {
 				    				  plots.add(new GraphPlot(value, graphSize-5));
 				    			  }
-		    					  pointSeries.add(buildPlotSerial(plots, size));
 		    					  message_trigger = false;
 		    				  }
 			    			  if(previous == 1) {
@@ -131,7 +155,7 @@ public class XmlOpener {
 		    	return null;
 		    }
 
-			pointSeries.add(buildPlotSerial(plots, size));
+			pointSeries = buildPlotSerial(plots, size);
 			  
 			simulationTimeLimit = timeLength;
 			

@@ -134,6 +134,7 @@ public class Machine extends NetworkModule {
 					newMsg = ((Message)messageGenerator.get(i).copy());
 					newMsg.currentNode = 1;
 					newMsg.name = currentMsg.name + "_" + currentMsg.nbExec;
+					newMsg.nextSend = currentTime;
 					currentMsg.nbExec++;
 					
 					/* We put the copy in the input buffer of the generating node */

@@ -4,5 +4,8 @@ public enum PriorityPolicy {
 	FIFO,
 	FIFOISOLATED,
 	FIXEDPRIORITY,
+	FIFOSTAR,
+	RM,
+	EDF,
 	
 }

@@ -48,7 +48,7 @@ public class NetworkScheduler implements Runnable{
 				
 				/* Loading messages from input port */
 				msgManager.loadMessage(currentMachine, time);
-				
+				currentMachine.displayInputBuffer();
 				/* Analyze messages in each node */
 				msgManager.analyzeMessage(currentMachine, time);
 				

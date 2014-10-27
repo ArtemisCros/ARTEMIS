@@ -20,7 +20,10 @@ public class Task extends NetworkModule {
 	public int nbExec;
 	
 	/* Monitoring messages */
+	/* Arrival time at the next node */
 	public int timerArrival;
+	
+	/* Used also as activation instant for scheduling policies */
 	public int nextSend;
 	
 	public Task(int wcet) throws Exception {
@@ -31,7 +34,7 @@ public class Task extends NetworkModule {
 		priority = new ArrayList<Integer>();
 		period = new ArrayList<Integer>();
 		offset = new ArrayList<Integer>();
-		
+				
 		observed = false;
 		nextSend = 0;
 		nbExec = 0;
