@@ -50,7 +50,7 @@ public class TaskGenerator {
 		
 		for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {
 			pathFinished = false;
-			System.out.print("Task"+tasks[cptTasks].name +" Path:");
+			System.out.print("--- Task"+tasks[cptTasks].name +" Path:");
 				
 			/* Create a path */
 			tasks[cptTasks].networkPath = new Vector<NetworkAddress>();
@@ -60,32 +60,31 @@ public class TaskGenerator {
 			currentAdress = current.getAddress();
 			tasks[cptTasks].networkPath.add(currentAdress);
 			
+			System.out.print(" "+current.name);
+			
+			/* Link each task with a given set of nodes from the network */		
 			while(!pathFinished) {	
-				/* Link each task with a given set of nodes from the network */
-				
-				current = mainNet.getMachineForAddressValue(currentAdress.value);
-				
 				/* Count the possible nodes */
 				cptLink = 0;
 				while(current.portsOutput[cptLink] != null) {
 					cptLink++;
 				}
-				
+
 				/* Select the next node */
 				if(cptLink != 0) {
 					nodePos = (int)Math.floor(Math.random() * cptLink);
+
 					/* We choose the next machine's adress */
 					currentAdress = current.portsOutput[nodePos].getBindRightMachine().getAddress();
+					current = mainNet.getMachineForAddressValue(currentAdress.value);
+
+					if(!tasks[cptTasks].networkPath.contains(currentAdress)) {			
+						tasks[cptTasks].networkPath.add(currentAdress);
+						System.out.print(" "+current.name);
+					}
 				}
 				else {
-					pathFinished = true;
-				}
-				if(tasks[cptTasks].networkPath.contains(currentAdress)) {
 					break;
-				}
-				else {
-					tasks[cptTasks].networkPath.add(currentAdress);
-					System.out.print(" "+current.name);
 				}
 			}
 			System.out.print("\n");
