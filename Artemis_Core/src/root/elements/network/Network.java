@@ -60,8 +60,8 @@ public class Network extends SimulableElement{
  		
  		/* We display the results (debug purposes) */
  		for(int cptMachine=0; cptMachine < machineList.size(); cptMachine++) {
- 			GlobalLogger.debug("Machine "+machineList.get(cptMachine).name+
- 					" load:"+machineList.get(cptMachine).nodeLoad);
+ 		//	GlobalLogger.debug("Machine "+machineList.get(cptMachine).name+
+ 		//			" load:"+machineList.get(cptMachine).nodeLoad);
  		}
  		return 0;
  	}
@@ -118,7 +118,7 @@ public class Network extends SimulableElement{
  	/* Create a network link between two machines */
 	public void linkMachines(Machine machinea, Machine machineb) {
 		try {
-			GlobalLogger.debug("Create link between "+machinea.networkAddress.value+" and "+machineb.networkAddress.value);
+		//	GlobalLogger.debug("Create link between "+machinea.networkAddress.value+" and "+machineb.networkAddress.value);
 			Link link = new Link(machinea, machineb);
 			linkList.add(link);
 		} catch (Exception e) {

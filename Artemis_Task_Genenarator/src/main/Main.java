@@ -8,8 +8,8 @@ public class Main {
 		double start = System.currentTimeMillis();
 		
 		/* Entry parameters */
-		double networkLoad = 0.4;
-		int numberOfTasks = 20;		
+		double networkLoad = 0.5;
+		int numberOfTasks = 6;		
 		int timeLimit = SimuConstants.TIME_LIMIT_SIMULATION;
 		double variance = 0.05;
 		

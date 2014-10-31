@@ -20,7 +20,7 @@ public class ComputationConstants {
 	public static double VARIANCE = 0.05;
 	
 	/* Number of generated tasks */
-	public static int GENERATED_TASKS = 4;
+	public static int GENERATED_TASKS = 20;
 	
 	/* Precision of the results */
 	public static int PRECISION = 1000;

@@ -6,6 +6,7 @@ import java.util.Vector;
 import root.elements.network.Network;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.Message;
+import root.util.constants.SimuConstants;
 import root.util.tools.NetworkAddress;
 import logger.GlobalLogger;
 import model.RandomGaussian;
@@ -50,8 +51,7 @@ public class TaskGenerator {
 		
 		for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {
 			pathFinished = false;
-			System.out.print("--- Task"+tasks[cptTasks].name +" Path:");
-				
+		
 			/* Create a path */
 			tasks[cptTasks].networkPath = new Vector<NetworkAddress>();
 			
@@ -59,8 +59,6 @@ public class TaskGenerator {
 			current = mainNet.getMachineForAddressValue(mainNet.machineList.get(nodePos).getAddress().value);
 			currentAdress = current.getAddress();
 			tasks[cptTasks].networkPath.add(currentAdress);
-			
-			System.out.print(" "+current.name);
 			
 			/* Link each task with a given set of nodes from the network */		
 			while(!pathFinished) {	
@@ -80,14 +78,12 @@ public class TaskGenerator {
 
 					if(!tasks[cptTasks].networkPath.contains(currentAdress)) {			
 						tasks[cptTasks].networkPath.add(currentAdress);
-						System.out.print(" "+current.name);
 					}
 				}
 				else {
 					break;
 				}
 			}
-			System.out.print("\n");
 		}
 		
 	}
@@ -143,7 +139,7 @@ public class TaskGenerator {
 		Message[] tasks = null;
 		double globalLoad = 0;
 		
-		double errorMargin = 0.01;
+		double errorMargin = SimuConstants.ERROR_MARGIN;
 		boolean validSet = false;
 		
 		while(!validSet) {
@@ -155,28 +151,35 @@ public class TaskGenerator {
 				
 				/* First, we generate a random uniform-distributed value (Unifast method)*/
 				double prob = RandomGenerator.genDouble(Math.log(10), Math.log((timeLimit/10) + 10));
-				int period = (int) (Math.floor(Math.exp(prob)/10)*10);			
-				GlobalLogger.debug("Period:"+period);
-				//System.out.print("Period:"+period);
+				
+				double periodComplete = Math.min(100*(Math.floor(Math.exp(prob)/10)*10), SimuConstants.TIME_LIMIT_SIMULATION);			
 				
 				/* Generate utilisation from a uniform rule */
 				double utilisation = -1;
-				while(utilisation < 0 || utilisation > 1)
+				while(utilisation < 0 || utilisation > 1){
 					utilisation = RandomGaussian.genGauss_(networkLoad/numberOfTasks, variance);
+				}
 				
 				if(cptTask == numberOfTasks) {
 					utilisation = networkLoad - globalLoad;
+					
+					/* In case of invalid sets with negative utilization on the last generated task */
+					if(utilisation <= 0) {
+						validSet = false;
+						break;
+					}
+						
 				}
 			
 				/* Computes wcet from utilisation */
-				int wcet = (int) (Math.floor(utilisation * period * 100)/100);
+				
+				double wcetComplete = Math.floor(utilisation * periodComplete);
 				
 				/* Saving results */
-				//System.out.print("\tLoad:"+utilisation+"\n");
 				try {
-					newTask = new Message(wcet, ""+cptTask);
-					newTask.period.add(0, period);
-					newTask.wcet = wcet;
+					newTask = new Message((int)periodComplete, ""+cptTask);
+					newTask.period.add(0, (int)periodComplete);
+					newTask.wcet = (int)wcetComplete;
 					newTask.id = cptTask;
 					newTask.name = "MSG"+cptTask;
 					tasks[cptTask-1] = newTask;
@@ -187,7 +190,6 @@ public class TaskGenerator {
 					
 				
 				globalLoad += utilisation;
-				
 				if(Math.abs(networkLoad - globalLoad) <= errorMargin)
 					validSet = true;
 			}

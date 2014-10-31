@@ -36,8 +36,8 @@ public class MainGrapher {
 	/* Starting from a list of xml files, draw the network graph */
 	public void drawGraph() {
 			int number = 20;
-	       int width = 1000;
-	       int height = 400; 
+	       int width = 2000;
+	       int height = 500; 
 	       GraphBuilder gBuilder = new GraphBuilder();
 		   XmlOpener xmlOpener = new XmlOpener();
 		   
