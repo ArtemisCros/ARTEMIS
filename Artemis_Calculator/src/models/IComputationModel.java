@@ -1,9 +1,9 @@
 package models;
 
-import model.Task;
+import root.elements.network.modules.task.Message;
 
 public interface IComputationModel {
 	
 	/* Compute end-to-end delay with the given method */
-	public double computeDelay(Task[] tasks, Task task);
+	public double computeDelay(Message[] tasks, Message task);
 }

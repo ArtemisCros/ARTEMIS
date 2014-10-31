@@ -86,8 +86,8 @@ public class MainGrapher {
 	    	   
 	    	   NumberAxis domain = (NumberAxis) xyplot.getDomainAxis();
 
-		       domain.setRange(-8, xmlOpener.simulationTimeLimit);
-		       domain.setTickUnit(new NumberTickUnit(2));
+		       domain.setRange(-20, xmlOpener.simulationTimeLimit);
+		       domain.setTickUnit(new NumberTickUnit(xmlOpener.simulationTimeLimit/40));
     	       
     		   XYSeriesCollection plotSerial = new XYSeriesCollection(plotSeries);
     		   

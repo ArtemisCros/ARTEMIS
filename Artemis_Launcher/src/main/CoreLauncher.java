@@ -1,8 +1,13 @@
 package main;
 
+import generator.TaskGenerator;
 import grapher.MainGrapher;
 import logger.GlobalLogger;
 import modeler.networkbuilder.NetworkBuilder;
+import models.ComputationConstants;
+import root.elements.network.modules.task.Task;
+import root.util.constants.ConfigConstants;
+import root.util.constants.SimuConstants;
 import simulator.schedulable.NetworkScheduler;
 import utils.Errors;
 
@@ -14,14 +19,31 @@ import utils.Errors;
 public class CoreLauncher {
 	public static void main(String[] args) {
 		double startSimulationTime = System.currentTimeMillis();
-		
+	
 		/* Create and simulate network */
-		try {		
+		try {	
 			/* Initalizes scheduler */
 			NetworkScheduler nScheduler = null;
 			
 			/* Modelises network */
-			NetworkBuilder nBuilder = new NetworkBuilder();
+			NetworkBuilder nBuilder;
+			
+			/* Manual generation or automatic generation */
+			if(ConfigConstants.AUTOMATIC_TASK_GENERATION) {
+				/* Get builder from automatic task generator */
+				TaskGenerator tGenerator = new TaskGenerator(ComputationConstants.GENERATED_TASKS, 
+						0.5, 
+						SimuConstants.TIME_LIMIT_SIMULATION, 
+						ComputationConstants.VARIANCE);
+				
+				tGenerator.generateTaskList();
+				nBuilder = tGenerator.getNetworkBuilder();
+			}
+			else {
+				/* Get a new builder */
+				nBuilder = new NetworkBuilder();
+			}
+			
 			if(nBuilder.getMainNetwork() != null) {
 				nScheduler = new NetworkScheduler(nBuilder.getMainNetwork());
 			}

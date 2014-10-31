@@ -104,6 +104,7 @@ public class XmlHandler extends DefaultHandler{
 			/* If finding a tag for, machine link, we search for the corresponding machines to bind them */
 			String idMachineToLink = at.getValue(0);
 			mainNet.linkMachines(currentMachine, mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name));
+			GlobalLogger.debug("link between "+currentMachineName +" and "+mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name).name);
 		}
 		/* If new message, we just get its id */
 		if(qualif == XMLNetworkTags.TAG_MESSAGE) { 

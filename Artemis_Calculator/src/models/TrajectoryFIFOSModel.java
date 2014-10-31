@@ -2,30 +2,31 @@ package models;
 
 import java.util.ArrayList;
 
-import model.Task;
+import root.elements.network.modules.task.Message;
+import root.util.tools.NetworkAddress;
 
 public class TrajectoryFIFOSModel implements IComputationModel{
 	@Override
-	public double computeDelay(Task[] tasks, Task task) {
+	public double computeDelay(Message[] tasks, Message task) {
 		
 		double responseTime = 0.0;
 		double temp = 0.0;
 		
-		task.offset = 0;
+		task.offset.set(0, 0);
 		
 		/* TODO : limit */
-		while(task.offset < task.period) {
-			temp = computeWiLast(tasks, task) - task.offset + task.wcet;
+		while(task.offset.get(0) < task.period.get(0)) {
+			temp = computeWiLast(tasks, task) - task.offset.get(0) + task.wcet;
 			if(temp > responseTime)
 				responseTime = temp;
-			task.offset++;
+			task.offset.set(0, task.offset.get(0)+1);
 		}
 		
 		
 		return responseTime;
 	}
 	
-	public double computeWiLast(Task[] tasks, Task task) {
+	public double computeWiLast(Message[] tasks, Message task) {
 		double endToEndDelay = 0.0;
 		
 		double inducedDelay 	= 0.0;
@@ -40,7 +41,7 @@ public class TrajectoryFIFOSModel implements IComputationModel{
 		for(int cptTask=0;cptTask<tasks.length; cptTask++) {
 			for(int cptNodes=0;cptNodes < tasks.length;cptNodes++) {	
 				/* If there is at least one common node */
-					if(task.path.contains(tasks[cptTask].path.get(cptNodes))) {
+					if(task.networkPath.contains(tasks[cptTask].networkPath.get(cptNodes))) {
 						quotient =  computeQuotientInducedDelay(tasks, task, tasks[cptTask]);
 
 						inducedDelay += (tasks[cptTask].wcet)*(1+quotient);
@@ -55,16 +56,16 @@ public class TrajectoryFIFOSModel implements IComputationModel{
 		double maxWCET = 0.0;
 		boolean changeWCET = false;
 		
-		int indexNode;
+		NetworkAddress indexNode;
 		nonPreemptiveDel += task.wcet;
 		
 		/* Searching for the max WCET, for each encountered node */
-		while(cptNodes < (task.path.size()-1)) {
-			indexNode = task.path.get(cptNodes);
+		while(cptNodes < (task.networkPath.size()-1)) {
+			indexNode = task.networkPath.get(cptNodes);
 			
 			/* Search for all messages in the node */
 			for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {
-				if(tasks[cptTasks].path.contains(indexNode))  {
+				if(tasks[cptTasks].networkPath.contains(indexNode))  {
 					if(!changeWCET || tasks[cptTasks].wcet > maxWCET) {
 						maxWCET = tasks[cptTasks].wcet;
 						changeWCET = true;
@@ -80,7 +81,7 @@ public class TrajectoryFIFOSModel implements IComputationModel{
 		}
 		
 		/* Term 3 : Switching latency */
-		switchingLatency = task.path.size()*ComputationConstants.SWITCHING_LATENCY;
+		switchingLatency = task.networkPath.size()*ComputationConstants.SWITCHING_LATENCY;
 		
 		/* Term 4 : Serialization */
 		serialization = 0.0;
@@ -93,7 +94,7 @@ public class TrajectoryFIFOSModel implements IComputationModel{
 		return endToEndDelay;
 	}
 	
-	public double computeQuotientInducedDelay(Task[] tasks, Task computedTask, Task delayingTask) {
+	public double computeQuotientInducedDelay(Message[] tasks, Message computedTask, Message delayingTask) {
 		/* Mih */
 		int cptNodes = 0;
 		int cptTasks = 0;
@@ -107,29 +108,29 @@ public class TrajectoryFIFOSModel implements IComputationModel{
 		boolean changeWCET = false;
 		Mih += computedTask.wcet;
 		
-		int encounterNode = -1;
+		NetworkAddress encounterNode = null;
 		int indexEncounterNode = -1;
-		int indexNode;
+		NetworkAddress indexNode;
 		
 		/* Computing the first encounter node */
-		for(cptNodes=0;cptNodes<computedTask.path.size();cptNodes++) {
-			for(cptDelay=0;cptDelay<delayingTask.path.size();cptDelay++) {
-				if(delayingTask.path.get(cptDelay) == computedTask.path.get(cptNodes)) {
+		for(cptNodes=0;cptNodes<computedTask.networkPath.size();cptNodes++) {
+			for(cptDelay=0;cptDelay<delayingTask.networkPath.size();cptDelay++) {
+				if(delayingTask.networkPath.get(cptDelay) == computedTask.networkPath.get(cptNodes)) {
 					/* The shortest arrival time = number of encountered nodes * WCET */
-					encounterNode = delayingTask.path.get(cptDelay);
+					encounterNode = delayingTask.networkPath.get(cptDelay);
 					indexEncounterNode = cptDelay;
 				}
 			}
 		}
 		
 		/* Searching for the min WCET, for each encountered node */
-		while(cptNodes < computedTask.path.size() && 
-				(computedTask.path.get(cptNodes) != encounterNode)) {
-			indexNode = computedTask.path.get(cptNodes);
+		while(cptNodes < computedTask.networkPath.size() && 
+				(computedTask.networkPath.get(cptNodes) != encounterNode)) {
+			indexNode = computedTask.networkPath.get(cptNodes);
 			
 			/* Search for all messages in the node */
 			for(cptTasks=0;cptTasks<tasks.length;cptTasks++) {
-				if(tasks[cptTasks].path.contains(indexNode))  {
+				if(tasks[cptTasks].networkPath.contains(indexNode))  {
 					if(!changeWCET || tasks[cptTasks].wcet < minWCET) {
 						minWCET = tasks[cptTasks].wcet;
 						changeWCET = true;
@@ -150,13 +151,13 @@ public class TrajectoryFIFOSModel implements IComputationModel{
 		
 		ArrayList<Integer> encounterTasks = new ArrayList<Integer>();
 		
-		while(delayingTask.path.get(cptDelay) != encounterNode) {
+		while(delayingTask.networkPath.get(cptDelay) != encounterNode) {
 			SmaxD += delayingTask.wcet;
 			
 			/* Get all messages for current node */
 			for(cptTasks=0;cptTasks<tasks.length;cptTasks++) {
 				/* if the two messages have a node in common and the current node is not the focused node*/
-				if (tasks[cptTasks].path.contains(delayingTask.path.get(cptDelay)) && 
+				if (tasks[cptTasks].networkPath.contains(delayingTask.networkPath.get(cptDelay)) && 
 						tasks[cptTasks].id != delayingTask.id) {
 					
 					/* If this common node is before the encounter node and the flow hasn't been encountered yet*/
@@ -172,11 +173,11 @@ public class TrajectoryFIFOSModel implements IComputationModel{
 		}
 		
 		/* Computing first term of the min */
-		double firstTerm = delayingTask.offset - Mih + SmaxD;
+		double firstTerm = delayingTask.offset.get(0) - Mih + SmaxD;
 		
 		double aij = TrajectoryFIFOModel.computeAij(tasks, computedTask, delayingTask);
 		
-		double quotient = Math.floor(Math.max(0.0, Math.min(firstTerm, aij))/(delayingTask.period));
+		double quotient = Math.floor(Math.max(0.0, Math.min(firstTerm, aij))/(delayingTask.period.get(0)));
 
 		return quotient;
 	}

@@ -7,5 +7,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Artemis_Grapher"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Artemis_Core_Sim"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Artemis_Logger"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Artemis_Task_Genenarator"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

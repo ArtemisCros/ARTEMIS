@@ -1,9 +1,7 @@
 package main;
 
+import root.util.constants.SimuConstants;
 import generator.TaskGenerator;
-import model.RandomGaussian;
-import model.RandomGenerator;
-import model.Task;
 
 public class Main {
 	public static void main(String[] args) {
@@ -12,7 +10,7 @@ public class Main {
 		/* Entry parameters */
 		double networkLoad = 0.4;
 		int numberOfTasks = 20;		
-		int timeLimit = 1500;
+		int timeLimit = SimuConstants.TIME_LIMIT_SIMULATION;
 		double variance = 0.05;
 		
 		TaskGenerator taskGen = new TaskGenerator(numberOfTasks, networkLoad, timeLimit, variance);

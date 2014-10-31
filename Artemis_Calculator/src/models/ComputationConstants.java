@@ -16,15 +16,11 @@ public class ComputationConstants {
 	/* Numer of tests for each load level */
 	public static double NUMBER_TESTS = 100;
 	
-	
-	/* Time limit for the simualtion */
-	public static int TIME_LIMIT = 4000;
-	
 	/* Variance for the task generator */
 	public static double VARIANCE = 0.05;
 	
 	/* Number of generated tasks */
-	public static int GENERATED_TASKS = 20;
+	public static int GENERATED_TASKS = 4;
 	
 	/* Precision of the results */
 	public static int PRECISION = 1000;

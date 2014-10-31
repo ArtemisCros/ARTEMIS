@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import root.elements.network.modules.NetworkModule;
 
 public class Task extends NetworkModule {
+	public int id;
+	
 	/* Needed */
 	public int wcet;
 	
@@ -13,6 +15,7 @@ public class Task extends NetworkModule {
 	public ArrayList<Integer> priority;
 	public ArrayList<Integer> period;
 	public ArrayList<Integer> offset;
+	public ArrayList<Integer> criticalities;
 	
 	/* Do we want to observe the worst case of this particular packet ? */
 	public boolean observed;

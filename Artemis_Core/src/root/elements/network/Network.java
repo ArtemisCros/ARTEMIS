@@ -71,12 +71,10 @@ public class Network extends SimulableElement{
  		Machine rst = this.getMachineForAddressValue(idAddr);
 				
 		if(rst == null) {
-			GlobalLogger.debug("TEST2:"+machineName);
 			return this.createMachine(idAddr, machineName);
 		}
 		else {
 			/* This solves a bug about machine name's computation in xml network file */
-			GlobalLogger.debug("TEST3:"+machineName);
 			if(rst.name != machineName && rst.name == ""+idAddr)
 				rst.name = machineName;
 		}
@@ -84,7 +82,6 @@ public class Network extends SimulableElement{
  	}
  	
  	public Machine findMachine(int idAddr) {
- 		GlobalLogger.debug("TEST");
  		return findMachine(idAddr, ""+idAddr);
  	}
  	
@@ -219,7 +216,7 @@ public class Network extends SimulableElement{
 				currentMessage.networkPath.add(currentMessage.networkPath.firstElement());
 				currentMessage.networkPath.remove(0);*/
 				
-				currentMessage.showNetworkPath();
+				currentMessage.displayPath();
 			}
 		}
 	}

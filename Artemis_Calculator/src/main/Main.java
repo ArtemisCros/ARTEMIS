@@ -2,10 +2,11 @@ package main;
 
 import java.util.ArrayList;
 
+import root.elements.network.modules.task.Message;
+import root.util.constants.SimuConstants;
 import generator.TaskGenerator;
 import logger.FileLogger;
 import logger.GlobalLogger;
-import model.Task;
 import models.ComputationConstants;
 import models.HandBuiltModel;
 import models.TrajectoryFIFOModel;
@@ -31,7 +32,7 @@ public class Main {
 		
 		TaskGenerator taskGen = new TaskGenerator(ComputationConstants.GENERATED_TASKS, 
 				networkLoad, 
-				ComputationConstants.TIME_LIMIT, 
+				SimuConstants.TIME_LIMIT_SIMULATION, 
 				ComputationConstants.VARIANCE);
 		
 		
@@ -104,7 +105,7 @@ public class Main {
 			/* Once we have the task model, we need a topology */ 
 			/* Then, we apply the trajectory approach on this topology */
 			for(int cptTests=0;cptTests < ComputationConstants.NUMBER_TESTS; cptTests++) {		
-				Task[] tasks 	= taskGen.generateTaskList();
+				Message[] tasks 	= taskGen.generateTaskList();
 				/*For each task, we compute its worst-case delay */
 				for(int cptTask=0;cptTask < tasks.length;cptTask++) {
 					TrajectoryFIFOModel fifoModel = new TrajectoryFIFOModel();		

@@ -14,6 +14,7 @@ public class Message extends Task implements Cloneable{
 	
 	public String name;
 	
+	
 	public Message copy() {
 		try {
 			return (Message) this.clone();
@@ -26,6 +27,7 @@ public class Message extends Task implements Cloneable{
 	
 	public Message(int wcet, String name) throws Exception {
 		super(wcet);
+		
 		networkPath = new Vector<NetworkAddress>();	
 		this.name = name;
 		currentNode = 0;
@@ -47,7 +49,7 @@ public class Message extends Task implements Cloneable{
 		return 0;
 	}
 	
-	public int showNetworkPath() {
+	public int displayPath() {
 		String message ="";
 		GlobalLogger.log("Path of "+this.name);
 		for(int i=0;i<networkPath.size();i++) {
@@ -56,5 +58,7 @@ public class Message extends Task implements Cloneable{
 		GlobalLogger.log(message);
 		return 0;
 	}
+	
+	
 
 }
