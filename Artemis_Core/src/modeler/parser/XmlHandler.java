@@ -14,6 +14,7 @@ import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.Message;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigConstants;
+import root.util.tools.NetworkAddress;
 import utils.Errors;
 
 
@@ -136,8 +137,10 @@ public class XmlHandler extends DefaultHandler{
 					newMsg = new MCMessage(""); 
 				 }
 				 else {
-					newMsg = new NetworkMessage(Integer.parseInt(currentMessageProperties.get("WCET")),"MSG"+currentMessageProperties.get("ID")); 
+					newMsg = new NetworkMessage(Integer.parseInt(currentMessageProperties.get("WCET")),
+							"MSG"+currentMessageProperties.get("ID")); 
 				 }
+				
 				if(currentMessageProperties.containsKey("PERI"))
 					//newMsg.period.add(currentCriticality,  Integer.parseInt(currentMessageProperties.get("PERI")));
 				
@@ -151,18 +154,19 @@ public class XmlHandler extends DefaultHandler{
 					String[] path = currentMessageProperties.get("PATH").split(",");
 					for(int i=0; i < path.length ; i++) {
 						/* For each node id in the path, we get its corresponding address */
-						// TODO GlobalLogger.debug("PATH:"+path[i]);
-						newMsg.addNodeToPath(
-								(mainNet.findMachine(Integer.parseInt(path[i]))).getAddress());
+						
+						NetworkAddress currentAddress = mainNet.findMachine(Integer.parseInt(path[i])).getAddress();
+						newMsg.addNodeToPath(currentAddress); 
 					}
 					
-				}		
+				}	
 				
-				//TODO
 				currentMachine.associateMessage(newMsg);
 				currentMessageProperties.clear();
 			} catch (NumberFormatException e) {
 				GlobalLogger.error(Errors.WCET_NOT_AN_INT, "WCET is not an int");
+			} catch(NullPointerException e) {
+				GlobalLogger.error(Errors.CREATED_MESSAGE_NULL, "New message is null");
 			} catch (Exception e) {
 				GlobalLogger.error(Errors.ERROR_CREATING_MESSAGE, "Error in message creation from xml parser");
 			}			 

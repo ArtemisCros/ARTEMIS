@@ -16,12 +16,96 @@ public abstract class Message extends Task implements ISchedulable, Cloneable{
 	public Message(String name) throws Exception {
 		super();	
 		
-		/* Initialization of common parts */
-		networkPath = new Vector<NetworkAddress>();	
+		this.networkPath = new Vector<NetworkAddress>();
 		this.name = name;
 		currentNode = 0;
 	}
 
+	@Override
+	public int getId() {
+		return this.id;
+	}
+
+	@Override
+	public void setId(int id) {
+		this.id = id;
+		
+	}
+	
+	@Override
+	public String getName() {
+		return this.name;
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+		
+	}
+	
+
+	@Override
+	public int getNextSend() {
+		return this.nextSend;
+	}
+
+	@Override
+	public void setNextSend(int nextSend) {
+		this.nextSend = nextSend;
+	}
+	
+	@Override
+	public int getTimerArrival() {
+		return this.timerArrival;
+	}
+
+	@Override
+	public void setTimerArrival(int timer) {
+		this.timerArrival = timer;
+	}
+	
+	@Override
+	public int getOffset() {
+		// TODO Auto-generated method stub
+		return this.offset;
+	}
+
+	@Override
+	public void setOffset(int offset) {
+		this.offset = offset;
+	}
+	
+	@Override
+	public Vector<NetworkAddress> getNetworkPath() {
+		return this.networkPath;
+	}
+
+	@Override
+	public void setNetworkPath(Vector<NetworkAddress> path) {
+		this.networkPath = path;
+	}
+	
+	@Override
+	public int getCurrentNode() {
+		return this.currentNode;
+	}
+
+	@Override
+	public void setCurrentNode(int node) {
+		this.currentNode = node;
+		
+	}
+	
+	@Override
+	public void increaseNbExec() {
+		this.nbExec++;
+		
+	}
+
+	@Override
+	public int getNbExec() {
+		return this.nbExec;
+	}
 	
 	public Message copy() {
 		try {

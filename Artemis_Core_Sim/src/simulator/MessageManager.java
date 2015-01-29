@@ -28,6 +28,7 @@ public class MessageManager {
 		if(!fromMachine.inputBuffer.isEmpty() && fromMachine.analyseTime == 0) {
 			/* If no message is treated AND input buffer not empty */
 			ISchedulable messageToAnalyse;
+			
 			if(ConfigConstants.MIXED_CRITICALITY) {
 				messageToAnalyse = (MCMessage) priorityManager.getNextMessage(fromMachine.inputBuffer);
 			}

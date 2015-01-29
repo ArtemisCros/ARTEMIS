@@ -33,7 +33,7 @@ public interface ISchedulable {
 	public int getNbExec();
 	
 	public int getPeriod();
-	public int setPeriod(int period);
+	public void setPeriod(int period);
 	
 	public int getWcet();
 	public void setWcet(int wcet);

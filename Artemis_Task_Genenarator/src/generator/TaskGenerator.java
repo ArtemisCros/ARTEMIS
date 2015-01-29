@@ -12,6 +12,7 @@ import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigConstants;
 import root.util.constants.SimuConstants;
 import root.util.tools.NetworkAddress;
+import logger.GlobalLogger;
 import model.RandomGaussian;
 import model.RandomGenerator;
 import modeler.networkbuilder.NetworkBuilder;
@@ -56,12 +57,13 @@ public class TaskGenerator {
 			pathFinished = false;
 		
 			/* Create a path */
-			tasks[cptTasks].setNetworkPath(new Vector<NetworkAddress>());
+			//tasks[cptTasks].setNetworkPath(new Vector<NetworkAddress>());
 			
 			nodePos = (int)Math.floor(Math.random() * mainNet.machineList.size());
 			current = mainNet.getMachineForAddressValue(mainNet.machineList.get(nodePos).getAddress().value);
 			currentAdress = current.getAddress();
 			tasks[cptTasks].getNetworkPath().add(currentAdress);
+			GlobalLogger.debug("TEST");
 			
 			/* Link each task with a given set of nodes from the network */		
 			while(!pathFinished) {	
@@ -78,9 +80,13 @@ public class TaskGenerator {
 					/* We choose the next machine's adress */
 					currentAdress = current.portsOutput[nodePos].getBindRightMachine().getAddress();
 					current = mainNet.getMachineForAddressValue(currentAdress.value);
-
+					GlobalLogger.debug("CURR:"+current.getAddress().value);
+					
 					if(!tasks[cptTasks].getNetworkPath().contains(currentAdress)) {			
 						tasks[cptTasks].getNetworkPath().add(currentAdress);
+					}
+					else {
+						break;
 					}
 				}
 				else {
@@ -111,10 +117,9 @@ public class TaskGenerator {
 				nBuilder.getMainNetwork().getMachineForAddressValue(tasks[cptTasks].getNetworkPath().get(0).value)
 					.messageGenerator.add(tasks[cptTasks]);
 				
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			
 			}
 		
@@ -201,16 +206,17 @@ public class TaskGenerator {
 						newTask = new NetworkMessage((int)periodComplete, ""+cptTask);
 					}
 					newTask.setCurrentPeriod((int)periodComplete);
-					newTask.setCurrentWcet((int)wcetComplete);
+					newTask.setWcet((int)wcetComplete);
 					newTask.setId(cptTask);
 					newTask.setName("MSG"+cptTask);
+					
 					tasks[cptTask-1] = newTask;
+					
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-					
-				
+
 				globalLoad += utilisation;
 				if(Math.abs(networkLoad - globalLoad) <= errorMargin)
 					validSet = true;
@@ -218,6 +224,7 @@ public class TaskGenerator {
 		}
 		
 		linkToPath(tasks);
+		GlobalLogger.debug("TEST");
 		linkTasksetToNetwork(tasks);
 		
 		

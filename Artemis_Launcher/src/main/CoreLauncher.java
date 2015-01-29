@@ -28,21 +28,30 @@ public class CoreLauncher {
 			/* Modelises network */
 			NetworkBuilder nBuilder;
 			
+			GlobalLogger.log("------------ LAUNCHING MODELIZER ------------");
+			
 			/* Manual generation or automatic generation */
 			if(ConfigConstants.AUTOMATIC_TASK_GENERATION) {
+				GlobalLogger.log("------------ LAUNCHING AUTOMATIC TASK GENERATOR ------------");
 				/* Get builder from automatic task generator */
 				TaskGenerator tGenerator = new TaskGenerator(ComputationConstants.GENERATED_TASKS, 
 						0.5, 
 						SimuConstants.TIME_LIMIT_SIMULATION, 
 						ComputationConstants.VARIANCE);
 				
+				GlobalLogger.log("------------ TASKLIST READY ------------");
+				
 				tGenerator.generateTaskList();
+				
+				GlobalLogger.log("------------ TASKLIST GENERATED ------------");
 				nBuilder = tGenerator.getNetworkBuilder();
 			}
 			else {
 				/* Get a new builder */
 				nBuilder = new NetworkBuilder();
 			}
+			
+			GlobalLogger.log("------------ LAUNCHING SCHEDULER ------------");
 			
 			if(nBuilder.getMainNetwork() != null) {
 				nScheduler = new NetworkScheduler(nBuilder.getMainNetwork());

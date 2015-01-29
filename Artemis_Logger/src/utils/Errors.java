@@ -25,5 +25,6 @@ public class Errors {
 	/*XML Parser errors  */
 	public static final int WCET_NOT_AN_INT				= 10400;
 	public static final int ERROR_CREATING_MESSAGE		= 10401;
-	public static final int FAIL_CREATING_NETWORK			= 10402;
+	public static final int FAIL_CREATING_NETWORK		= 10402;
+	public static final int CREATED_MESSAGE_NULL		= 10403;
 }
