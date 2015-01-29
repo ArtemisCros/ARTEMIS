@@ -1,15 +1,20 @@
-package simulator.manager;
+package simulator;
 
 import logger.GlobalLogger;
 import root.elements.network.Network;
 import root.elements.network.modules.machine.Machine;
+import root.elements.network.modules.task.ISchedulable;
+import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.Message;
+import root.elements.network.modules.task.NetworkMessage;
+import root.util.constants.ConfigConstants;
 import root.util.tools.NetworkAddress;
 
 /* Author : Olivier Cros
  * Bind and generate messages with machines 
  * */
 
+/* Class to select, transmit and simulate the behavior of packets */
 public class MessageManager {
 	public Network network;
 	public PriorityManager priorityManager;
@@ -22,14 +27,20 @@ public class MessageManager {
 	public int loadMessage(Machine fromMachine, int time) {
 		if(!fromMachine.inputBuffer.isEmpty() && fromMachine.analyseTime == 0) {
 			/* If no message is treated AND input buffer not empty */
-			Message messageToAnalyse = priorityManager.getNextMessage(fromMachine.inputBuffer);
-			GlobalLogger.debug("LOADMSG "+messageToAnalyse.name+" MACHINE "+fromMachine.name);
+			ISchedulable messageToAnalyse;
+			if(ConfigConstants.MIXED_CRITICALITY) {
+				messageToAnalyse = (MCMessage) priorityManager.getNextMessage(fromMachine.inputBuffer);
+			}
+			else {
+				messageToAnalyse = (NetworkMessage) priorityManager.getNextMessage(fromMachine.inputBuffer);
+			}
+			
 			/* We get first message of input buffer(FIFO or other policy) and put it into the node */
 			fromMachine.currentlyTransmittedMsg = messageToAnalyse;
 			fromMachine.inputBuffer.remove(messageToAnalyse);
 			
 			/* We make the machine waiting */
-			fromMachine.analyseTime += messageToAnalyse.wcet;
+			fromMachine.analyseTime += messageToAnalyse.getCurrentWcet();
 		}
 	
 		return 0;
@@ -44,7 +55,7 @@ public class MessageManager {
 	public int analyzeMessage(Machine fromMachine, int time) {
 		if(fromMachine.currentlyTransmittedMsg != null) {
 			fromMachine.analyseTime--;
-			GlobalLogger.debug("TREATING MSG "+fromMachine.currentlyTransmittedMsg.name+" MACHINE "+fromMachine.name);
+			GlobalLogger.debug("TREATING MSG "+fromMachine.currentlyTransmittedMsg.getName()+" MACHINE "+fromMachine.name);
 		}	
 		
 		/* If no message is being transmitted */
@@ -69,17 +80,25 @@ public class MessageManager {
 	public int sendMessages(Machine fromMachine, int time) {
 		/* For each output port of current machine */
 		while(!fromMachine.outputBuffer.isEmpty()) {
-			Message currentMsg = fromMachine.outputBuffer.firstElement();
+			ISchedulable currentMsg;
+			
+			if(ConfigConstants.MIXED_CRITICALITY) {
+				 currentMsg = (MCMessage) fromMachine.outputBuffer.firstElement();
+			}
+			else {
+				 currentMsg = (NetworkMessage) fromMachine.outputBuffer.firstElement();
+			}
+			
 			
 			/* If there's still nodes in the message's path */
-			if(currentMsg.currentNode < currentMsg.networkPath.size()) {
+			if(currentMsg.getCurrentNode() < currentMsg.getNetworkPath().size()) {
 				/* We put the message in the code, then clear it from path */
-				NetworkAddress nextAddress = currentMsg.networkPath.elementAt(currentMsg.currentNode);
-				currentMsg.currentNode++;
+				NetworkAddress nextAddress = currentMsg.getNetworkPath().elementAt(currentMsg.getCurrentNode());
+				currentMsg.setCurrentNode(currentMsg.getCurrentNode()+1);;
 				
 				/* Message transmission */
 				nextAddress.machine.inputBuffer.add(currentMsg);
-				currentMsg.timerArrival = time;
+				currentMsg.setTimerArrival(time);
 			}	
 			fromMachine.outputBuffer.remove(currentMsg);
 			

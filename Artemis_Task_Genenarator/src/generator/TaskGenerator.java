@@ -5,10 +5,13 @@ import java.util.Vector;
 
 import root.elements.network.Network;
 import root.elements.network.modules.machine.Machine;
+import root.elements.network.modules.task.ISchedulable;
+import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.Message;
+import root.elements.network.modules.task.NetworkMessage;
+import root.util.constants.ConfigConstants;
 import root.util.constants.SimuConstants;
 import root.util.tools.NetworkAddress;
-import logger.GlobalLogger;
 import model.RandomGaussian;
 import model.RandomGenerator;
 import modeler.networkbuilder.NetworkBuilder;
@@ -36,7 +39,7 @@ public class TaskGenerator {
 	}
 	
 	/* Link messages to a random computed path */
-	public void linkToPath(Message[] tasks) {
+	public void linkToPath(ISchedulable[] tasks) {
 		/* Read the topology */
 		int nodePos = 0;
 		boolean pathFinished = false;
@@ -53,12 +56,12 @@ public class TaskGenerator {
 			pathFinished = false;
 		
 			/* Create a path */
-			tasks[cptTasks].networkPath = new Vector<NetworkAddress>();
+			tasks[cptTasks].setNetworkPath(new Vector<NetworkAddress>());
 			
 			nodePos = (int)Math.floor(Math.random() * mainNet.machineList.size());
 			current = mainNet.getMachineForAddressValue(mainNet.machineList.get(nodePos).getAddress().value);
 			currentAdress = current.getAddress();
-			tasks[cptTasks].networkPath.add(currentAdress);
+			tasks[cptTasks].getNetworkPath().add(currentAdress);
 			
 			/* Link each task with a given set of nodes from the network */		
 			while(!pathFinished) {	
@@ -76,8 +79,8 @@ public class TaskGenerator {
 					currentAdress = current.portsOutput[nodePos].getBindRightMachine().getAddress();
 					current = mainNet.getMachineForAddressValue(currentAdress.value);
 
-					if(!tasks[cptTasks].networkPath.contains(currentAdress)) {			
-						tasks[cptTasks].networkPath.add(currentAdress);
+					if(!tasks[cptTasks].getNetworkPath().contains(currentAdress)) {			
+						tasks[cptTasks].getNetworkPath().add(currentAdress);
 					}
 				}
 				else {
@@ -89,15 +92,23 @@ public class TaskGenerator {
 	}
 	
 	/* Link tasks to network */
-	public int linkTasksetToNetwork(Message[] tasks) {
+	public int linkTasksetToNetwork(ISchedulable[] tasks) {
 		for(int cptMachine=0; cptMachine < nBuilder.getMainNetwork().machineList.size(); cptMachine++) {
-			nBuilder.getMainNetwork().machineList.get(cptMachine).messageGenerator = new ArrayList<Message>();
+			nBuilder.getMainNetwork().machineList.get(cptMachine).messageGenerator = new ArrayList<ISchedulable>();
 		}
 		
 		for(int cptTasks=0; cptTasks < tasks.length; cptTasks++) {
 			try {
-				Message message = new Message(tasks[cptTasks].wcet, ""+cptTasks);
-				nBuilder.getMainNetwork().getMachineForAddressValue(tasks[cptTasks].networkPath.get(0).value)
+				ISchedulable message;
+				
+				if(ConfigConstants.MIXED_CRITICALITY) {
+					message = new MCMessage( ""+cptTasks);
+				}
+				else {
+					message = new NetworkMessage(tasks[cptTasks].getCurrentWcet(), ""+cptTasks);
+				}
+				 
+				nBuilder.getMainNetwork().getMachineForAddressValue(tasks[cptTasks].getNetworkPath().get(0).value)
 					.messageGenerator.add(tasks[cptTasks]);
 				
 			} catch (Exception e) {
@@ -134,20 +145,26 @@ public class TaskGenerator {
 		}
 	}
 	
-	public Message[] generateTaskList() {
+	public ISchedulable[] generateTaskList() {
 		/*Generated tasks list */
-		Message[] tasks = null;
+		ISchedulable[] tasks = null;
 		double globalLoad = 0;
 		
 		double errorMargin = SimuConstants.ERROR_MARGIN;
 		boolean validSet = false;
 		
 		while(!validSet) {
-			tasks = new Message[numberOfTasks];
+			if(ConfigConstants.MIXED_CRITICALITY) {
+				tasks = new MCMessage[numberOfTasks];
+			}
+			else {
+				tasks = new NetworkMessage[numberOfTasks];
+			}
+			
 			globalLoad = 0;
 			
 			for(int cptTask=1; cptTask <= numberOfTasks; cptTask++) {
-				Message newTask;
+				ISchedulable newTask;
 				
 				/* First, we generate a random uniform-distributed value (Unifast method)*/
 				double prob = RandomGenerator.genDouble(Math.log(10), Math.log((timeLimit/10) + 10));
@@ -177,11 +194,16 @@ public class TaskGenerator {
 				
 				/* Saving results */
 				try {
-					newTask = new Message((int)periodComplete, ""+cptTask);
-					newTask.period.add(0, (int)periodComplete);
-					newTask.wcet = (int)wcetComplete;
-					newTask.id = cptTask;
-					newTask.name = "MSG"+cptTask;
+					if(ConfigConstants.MIXED_CRITICALITY) {
+						newTask = new MCMessage("");
+					}
+					else {
+						newTask = new NetworkMessage((int)periodComplete, ""+cptTask);
+					}
+					newTask.setCurrentPeriod((int)periodComplete);
+					newTask.setCurrentWcet((int)wcetComplete);
+					newTask.setId(cptTask);
+					newTask.setName("MSG"+cptTask);
 					tasks[cptTask-1] = newTask;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block

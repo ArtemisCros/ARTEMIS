@@ -20,6 +20,7 @@ public class Errors {
 	
 	/*Scheduling errors */
 	public static final int NULL_SCHEDULER_AT_LAUNCH		= 10300;
+	public static final int NULL_POLICY						= 10301;
 
 	/*XML Parser errors  */
 	public static final int WCET_NOT_AN_INT				= 10400;

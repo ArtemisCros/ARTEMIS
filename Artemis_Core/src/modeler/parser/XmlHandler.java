@@ -9,7 +9,11 @@ import logger.GlobalLogger;
 import modeler.parser.tags.XMLNetworkTags;
 import root.elements.network.Network;
 import root.elements.network.modules.machine.Machine;
+import root.elements.network.modules.task.ISchedulable;
+import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.Message;
+import root.elements.network.modules.task.NetworkMessage;
+import root.util.constants.ConfigConstants;
 import utils.Errors;
 
 
@@ -126,14 +130,20 @@ public class XmlHandler extends DefaultHandler{
 		 //End of message markup : creating a message
 		 if(qName == XMLNetworkTags.TAG_MESSAGE) {
 			 try {
-				Message newMsg = new Message(Integer.parseInt(currentMessageProperties.get("WCET")), 
-						"MSG"+currentMessageProperties.get("ID"));
+				 ISchedulable newMsg;
+				 
+				 if(ConfigConstants.MIXED_CRITICALITY) {
+					newMsg = new MCMessage(""); 
+				 }
+				 else {
+					newMsg = new NetworkMessage(Integer.parseInt(currentMessageProperties.get("WCET")),"MSG"+currentMessageProperties.get("ID")); 
+				 }
 				if(currentMessageProperties.containsKey("PERI"))
-					newMsg.period.add(currentCriticality,  Integer.parseInt(currentMessageProperties.get("PERI")));
+					//newMsg.period.add(currentCriticality,  Integer.parseInt(currentMessageProperties.get("PERI")));
 				
 				if(currentMessageProperties.containsKey("OFFS")) {
-					newMsg.offset.add(currentCriticality, Integer.parseInt(currentMessageProperties.get("OFFS")));
-					newMsg.nextSend = newMsg.offset.get(currentCriticality);
+					//newMsg.offset.add(currentCriticality, Integer.parseInt(currentMessageProperties.get("OFFS")));
+					newMsg.setNextSend(newMsg.getOffset());
 				}				
 				
 				if(currentMessageProperties.containsKey("PATH")) {

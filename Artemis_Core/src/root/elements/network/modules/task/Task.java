@@ -7,15 +7,10 @@ import root.elements.network.modules.NetworkModule;
 public class Task extends NetworkModule {
 	public int id;
 	
-	/* Needed */
-	public int wcet;
-	
 	/* Optional */
-	public ArrayList<Integer> deadline;
-	public ArrayList<Integer> priority;
-	public ArrayList<Integer> period;
-	public ArrayList<Integer> offset;
-	public ArrayList<Integer> criticalities;
+	public int deadline;
+	public int priority;
+	public int offset;
 	
 	/* Do we want to observe the worst case of this particular packet ? */
 	public boolean observed;
@@ -29,14 +24,11 @@ public class Task extends NetworkModule {
 	/* Used also as activation instant for scheduling policies */
 	public int nextSend;
 	
-	public Task(int wcet) throws Exception {
+	public Task() throws Exception {
 		super();
+		
 		// TODO Auto-generated constructor stub
-		this.wcet = wcet;
-		deadline = new ArrayList<Integer>();
-		priority = new ArrayList<Integer>();
-		period = new ArrayList<Integer>();
-		offset = new ArrayList<Integer>();
+
 				
 		observed = false;
 		nextSend = 0;

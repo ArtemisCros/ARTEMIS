@@ -2,32 +2,33 @@ package models;
 
 import java.util.ArrayList;
 
+import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.Message;
 import root.elements.network.modules.task.Task;
 import root.util.tools.NetworkAddress;
 import logger.GlobalLogger;
 
 public class TrajectoryFIFOModel implements IComputationModel{
-	public double computeDelay(Message[] tasks, Message task) {
+	public double computeDelay(ISchedulable[] tasks, ISchedulable task) {
 		/* Computing the max response time, depending on offset */
 		double responseTime = 0.0;
 		double temp = 0.0;
 		
-		task.offset.set(0, 0);
+		task.setOffset(0);
 		
 		/* TODO : limit */
-		while(task.offset.get(0) < task.period.get(0)) {
-			temp = computeWiLast(tasks, task) - task.offset.get(0) + task.wcet;
+		while(task.getOffset() < task.getPeriod()) {
+			temp = computeWiLast(tasks, task) - task.getOffset() + task.getWcet();
 			if(temp > responseTime)
 				responseTime = temp;
-			task.offset.set(0, task.offset.get(0)+1);
+			task.setOffset(task.getOffset()+1);
 		}
 		
 		
 		return responseTime;
 	}
 	
-	public double computeWiLast(Message[] tasks, Message task) {
+	public double computeWiLast(ISchedulable[] tasks, ISchedulable task) {
 		double endToEndDelay = 0.0;
 		
 		double inducedDelay 	= 0.0;
@@ -42,12 +43,12 @@ public class TrajectoryFIFOModel implements IComputationModel{
 		/*Term 1 : Induced delay */
 		for(int cptTask=0;cptTask < tasks.length;cptTask++) {	
 			/* If there is at least one common node */
-			for(int cptNodes=0;cptNodes<tasks[cptTask].networkPath.size(); cptNodes++) {
-				if(task.networkPath.contains(tasks[cptTask].networkPath.get(cptNodes))) {
+			for(int cptNodes=0;cptNodes<tasks[cptTask].getNetworkPath().size(); cptNodes++) {
+				if(task.getNetworkPath().contains(tasks[cptTask].getNetworkPath().get(cptNodes))) {
 					double aij = computeAij(tasks, task, tasks[cptTask]);
-					quotient = Math.floor((task.offset.get(0) + aij)/(tasks[cptTask].period.get(0)));
+					quotient = Math.floor((task.getOffset() + aij)/(tasks[cptTask].getPeriod()));
 
-					inducedDelay += (tasks[cptTask].wcet)*(1+quotient);
+					inducedDelay += (tasks[cptTask].getWcet())*(1+quotient);
 
 					break;
 				}
@@ -62,17 +63,17 @@ public class TrajectoryFIFOModel implements IComputationModel{
 		boolean changeWCET = false;
 		
 		NetworkAddress indexNode;
-		nonPreemptiveDel += task.wcet;
+		nonPreemptiveDel += task.getWcet();
 		
 		/* Searching for the max WCET, for each encountered node */
-		while(cptNodes < (task.networkPath.size()-1)) {
-			indexNode = task.networkPath.get(cptNodes);
+		while(cptNodes < (task.getNetworkPath().size()-1)) {
+			indexNode = task.getNetworkPath().get(cptNodes);
 			
 			/* Search for all messages in the node */
 			for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {
-				if(tasks[cptTasks].networkPath.contains(indexNode))  {
-					if(!changeWCET || tasks[cptTasks].wcet > maxWCET) {
-						maxWCET = tasks[cptTasks].wcet;
+				if(tasks[cptTasks].getNetworkPath().contains(indexNode))  {
+					if(!changeWCET || tasks[cptTasks].getWcet() > maxWCET) {
+						maxWCET = tasks[cptTasks].getWcet();
 						changeWCET = true;
 					}
 				}
@@ -86,20 +87,20 @@ public class TrajectoryFIFOModel implements IComputationModel{
 		}
 		
 		/* Term 3 : Switching latency */
-		switchingLatency = task.networkPath.size()*ComputationConstants.SWITCHING_LATENCY;
+		switchingLatency = task.getNetworkPath().size()*ComputationConstants.SWITCHING_LATENCY;
 		
 		/* Term 4 : Serialization */
 		serialization = 0.0;
 		
 		/* Term 5 : WCET */
-		wcetCorrect = task.wcet;
+		wcetCorrect = task.getWcet();
 		
 		endToEndDelay = inducedDelay + nonPreemptiveDel + switchingLatency - serialization - wcetCorrect;
 		
 		return endToEndDelay;
 	}
 	
-	public static double computeAij(Message[] tasks, Message computedTask, Message delayingTask) {
+	public static double computeAij(ISchedulable[] tasks, ISchedulable computedTask, ISchedulable delayingTask) {
 		NetworkAddress encounterNode = null;
 		int indexEncounterNode = -1;
 		
@@ -120,12 +121,13 @@ public class TrajectoryFIFOModel implements IComputationModel{
 		/* We proceed in 4 terms : Smin, Smax(delaying task) and Smax, Mih(computed task) */
 		
 		/* Smin */
-		for(int cptNodes=0;cptNodes<computedTask.networkPath.size();cptNodes++) {
-			for(cptDelay=0;cptDelay<delayingTask.networkPath.size();cptDelay++) {
-				if(delayingTask.networkPath.get(cptDelay) == computedTask.networkPath.get(cptNodes)) {
+		for(int cptNodes=0;cptNodes<computedTask.getNetworkPath().size();cptNodes++) {
+			for(cptDelay=0;cptDelay<delayingTask.getNetworkPath().size();cptDelay++) {
+				if(delayingTask.getNetworkPath().get(cptDelay) == computedTask.getNetworkPath().get(cptNodes)) {
 					/* The shortest arrival time = number of encountered nodes * WCET */
-					Smin = (cptDelay+1) * delayingTask.wcet;
-					encounterNode = delayingTask.networkPath.get(cptDelay);
+					Smin = (cptDelay+1) * delayingTask.getWcet();
+					
+					encounterNode = delayingTask.getNetworkPath().get(cptDelay);
 					indexEncounterNode = cptDelay;
 				}
 			}
@@ -133,24 +135,24 @@ public class TrajectoryFIFOModel implements IComputationModel{
 		
 		/* Smax */
 		cptDelay = 0;
-		SmaxD += delayingTask.wcet;
+		SmaxD += delayingTask.getWcet();
 		
 		ArrayList<Integer> encounterTasks = new ArrayList<Integer>();
 		
-		while(delayingTask.networkPath.get(cptDelay) != encounterNode) {
-			SmaxD += delayingTask.wcet;
+		while(delayingTask.getNetworkPath().get(cptDelay) != encounterNode) {
+			SmaxD += delayingTask.getWcet();
 			
 			/* Get all messages for current node */
 			for(cptTasks=0;cptTasks<tasks.length;cptTasks++) {
 				/* if the two messages have a node in common and the current node is not the focused node*/
-				if (tasks[cptTasks].networkPath.contains(delayingTask.networkPath.get(cptDelay)) && 
-						tasks[cptTasks].id != delayingTask.id) {
+				if (tasks[cptTasks].getNetworkPath().contains(delayingTask.getNetworkPath().get(cptDelay)) && 
+						tasks[cptTasks].getId() != delayingTask.getId()) {
 					
 					/* If this common node is before the encounter node and the flow hasn't been encountered yet*/
 					if(cptDelay <= indexEncounterNode && 
-							!encounterTasks.contains(tasks[cptTasks].id)) {
-						SmaxD += tasks[cptTasks].wcet;
-						encounterTasks.add(tasks[cptTasks].id);
+							!encounterTasks.contains(tasks[cptTasks].getId())) {
+						SmaxD += tasks[cptTasks].getWcet();
+						encounterTasks.add(tasks[cptTasks].getId());
 					}
 					
 				}
@@ -163,20 +165,20 @@ public class TrajectoryFIFOModel implements IComputationModel{
 		/* TODO : infinite value */
 		double minWCET = 0;
 		boolean changeWCET = false;
-		Mih += computedTask.wcet;
+		Mih += computedTask.getWcet();
 		
 		NetworkAddress indexNode;
 		
 		/* Searching for the min WCET, for each encountered node */
-		while(cptNodes < computedTask.networkPath.size() && 
-				(computedTask.networkPath.get(cptNodes) != encounterNode)) {
-			indexNode = computedTask.networkPath.get(cptNodes);
+		while(cptNodes < computedTask.getNetworkPath().size() && 
+				(computedTask.getNetworkPath().get(cptNodes) != encounterNode)) {
+			indexNode = computedTask.getNetworkPath().get(cptNodes);
 			
 			/* Search for all messages in the node */
 			for(cptTasks=0;cptTasks<tasks.length;cptTasks++) {
-				if(tasks[cptTasks].networkPath.contains(indexNode))  {
-					if(!changeWCET || tasks[cptTasks].wcet < minWCET) {
-						minWCET = tasks[cptTasks].wcet;
+				if(tasks[cptTasks].getNetworkPath().contains(indexNode))  {
+					if(!changeWCET || tasks[cptTasks].getWcet() < minWCET) {
+						minWCET = tasks[cptTasks].getWcet();
 						changeWCET = true;
 					}
 				}
@@ -190,23 +192,23 @@ public class TrajectoryFIFOModel implements IComputationModel{
 		}
 		
 		/* SmaxC */
-		SmaxC += computedTask.wcet;
+		SmaxC += computedTask.getWcet();
 		cptDelay = 0;
 		
-		while(computedTask.networkPath.get(cptDelay) != encounterNode) {
-			SmaxC += computedTask.wcet;
+		while(computedTask.getNetworkPath().get(cptDelay) != encounterNode) {
+			SmaxC += computedTask.getWcet();
 			
 			/* Get all messages for current node */
 			for(cptTasks=0;cptTasks<tasks.length;cptTasks++) {
 				/* if the two messages have a node in common and the current node is not the focused node*/
-				if (tasks[cptTasks].networkPath.contains(computedTask.networkPath.get(cptDelay)) && 
-						tasks[cptTasks].id != computedTask.id) {
+				if (tasks[cptTasks].getNetworkPath().contains(computedTask.getNetworkPath().get(cptDelay)) && 
+						tasks[cptTasks].getId() != computedTask.getId()) {
 					
 					/* If this common node is before the encounter node and the flow hasn't been encountered yet*/
 					if(cptDelay <= indexEncounterNode && 
-							!encounterTasks.contains(tasks[cptTasks].id)) {
-						SmaxC += tasks[cptTasks].wcet;
-						encounterTasks.add(tasks[cptTasks].id);
+							!encounterTasks.contains(tasks[cptTasks].getId())) {
+						SmaxC += tasks[cptTasks].getWcet();
+						encounterTasks.add(tasks[cptTasks].getId());
 					}
 					
 				}

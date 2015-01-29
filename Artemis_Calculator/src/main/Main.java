@@ -2,6 +2,7 @@ package main;
 
 import java.util.ArrayList;
 
+import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.Message;
 import root.util.constants.SimuConstants;
 import generator.TaskGenerator;
@@ -105,7 +106,7 @@ public class Main {
 			/* Once we have the task model, we need a topology */ 
 			/* Then, we apply the trajectory approach on this topology */
 			for(int cptTests=0;cptTests < ComputationConstants.NUMBER_TESTS; cptTests++) {		
-				Message[] tasks 	= taskGen.generateTaskList();
+				ISchedulable[] tasks 	= taskGen.generateTaskList();
 				/*For each task, we compute its worst-case delay */
 				for(int cptTask=0;cptTask < tasks.length;cptTask++) {
 					TrajectoryFIFOModel fifoModel = new TrajectoryFIFOModel();		

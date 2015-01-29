@@ -8,7 +8,7 @@ import models.ComputationConstants;
 import root.elements.network.modules.task.Task;
 import root.util.constants.ConfigConstants;
 import root.util.constants.SimuConstants;
-import simulator.schedulable.NetworkScheduler;
+import simulator.NetworkScheduler;
 import utils.Errors;
 
 /**

@@ -9,7 +9,10 @@ import root.elements.SimulableElement;
 import root.elements.network.address.AddressGenerator;
 import root.elements.network.modules.link.Link;
 import root.elements.network.modules.machine.Machine;
+import root.elements.network.modules.task.ISchedulable;
+import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.Message;
+import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigConstants;
 import root.util.constants.SimuConstants;
 import root.util.tools.NetworkAddress;
@@ -45,15 +48,22 @@ public class Network extends SimulableElement{
  			
  			/* For each generated message, we add its load to each machine in its path */
  			for(int i=0;i<currentMachine.messageGenerator.size();i++) {
- 				Message currentMsg = currentMachine.messageGenerator.get(i);
+ 				ISchedulable currentMsg;
+ 				if(ConfigConstants.MIXED_CRITICALITY) {
+ 					currentMsg = (MCMessage) currentMachine.messageGenerator.get(i);
+ 				}
+ 				else {
+ 					currentMsg = (NetworkMessage) currentMachine.messageGenerator.get(i);
+ 				}
  				
- 				for(int pathNodeCpt=0;pathNodeCpt<currentMsg.networkPath.size();pathNodeCpt++) {
- 					period = (double)currentMsg.period.get(0);
+ 				
+ 				for(int pathNodeCpt=0;pathNodeCpt<currentMsg.getNetworkPath().size();pathNodeCpt++) {
+ 					period = (double)currentMsg.getPeriod();
  					if(period == 0.0) {
  						period = SimuConstants.TIME_LIMIT_SIMULATION;
  					}
- 					(this.findMachine(currentMsg.networkPath.get(pathNodeCpt).value)).nodeLoad +=
- 							(double)currentMsg.wcet/period;
+ 					(this.findMachine(currentMsg.getNetworkPath().get(pathNodeCpt).value)).nodeLoad +=
+ 							(double)currentMsg.getWcet()/period;
  				}
  			}
  		}
@@ -152,12 +162,19 @@ public class Network extends SimulableElement{
 			networkDescription += "\tMessages:{\n";
 			
 			for(int j=0;j<currentMachine.messageGenerator.size();j++) {
-				Message currentMsg = currentMachine.messageGenerator.get(j);
-				networkDescription +="\t\tMSG:"+currentMsg.name+" WCET:"+currentMsg.wcet;	
+				ISchedulable currentMsg;
+				if(ConfigConstants.MIXED_CRITICALITY) {
+					currentMsg = (MCMessage) currentMachine.messageGenerator.get(j);
+				}
+				else {
+					currentMsg = (NetworkMessage) currentMachine.messageGenerator.get(j);
+				}
+				
+				networkDescription +="\t\tMSG:"+currentMsg.getName()+" WCET:"+currentMsg.getWcet();	
 				networkDescription +=" PATH:";
 
-				for(int cptPath=0;cptPath<currentMsg.networkPath.size();cptPath++) {
-					networkDescription += currentMsg.networkPath.get(cptPath).value+"->";
+				for(int cptPath=0;cptPath<currentMsg.getNetworkPath().size();cptPath++) {
+					networkDescription += currentMsg.getNetworkPath().get(cptPath).value+"->";
 				}
 				networkDescription +="\n";
 			}
@@ -202,8 +219,14 @@ public class Network extends SimulableElement{
 	public void buildPaths() {
 		
 		for(int machCpt =0; machCpt<machineList.size();machCpt++) {		
-			for(int msgCpt=0;msgCpt<machineList.get(machCpt).messageGenerator.size();msgCpt++) {			
-				Message currentMessage = machineList.get(machCpt).messageGenerator.get(msgCpt);
+			for(int msgCpt=0;msgCpt<machineList.get(machCpt).messageGenerator.size();msgCpt++) {
+				ISchedulable currentMessage;
+				if(ConfigConstants.MIXED_CRITICALITY) {
+					 currentMessage = (MCMessage) machineList.get(machCpt).messageGenerator.get(msgCpt);
+				}
+				else {
+					 currentMessage = (NetworkMessage) machineList.get(machCpt).messageGenerator.get(msgCpt);
+				}
 				
 				/*ArrayList<NetworkAddress> networkPath = networkPathBuilder.buildPath(
 						machineList.get(machCpt).networkAddress, 

@@ -5,15 +5,23 @@ import java.util.Vector;
 import logger.GlobalLogger;
 import root.util.tools.NetworkAddress;
 
-public class Message extends Task implements Cloneable{
+public abstract class Message extends Task implements ISchedulable, Cloneable{
 	/* Destination addresses */
 	public Vector<NetworkAddress> networkPath;
 	
 	/* Node number of the path */
 	public int currentNode;
-	
 	public String name;
 	
+	public Message(String name) throws Exception {
+		super();	
+		
+		/* Initialization of common parts */
+		networkPath = new Vector<NetworkAddress>();	
+		this.name = name;
+		currentNode = 0;
+	}
+
 	
 	public Message copy() {
 		try {
@@ -23,14 +31,6 @@ public class Message extends Task implements Cloneable{
 			e.printStackTrace();
 		}
 		return null;
-	}
-	
-	public Message(int wcet, String name) throws Exception {
-		super(wcet);
-		
-		networkPath = new Vector<NetworkAddress>();	
-		this.name = name;
-		currentNode = 0;
 	}
 	
 	public int buildNetworkPath(Vector<NetworkAddress> path) {
@@ -58,7 +58,4 @@ public class Message extends Task implements Cloneable{
 		GlobalLogger.log(message);
 		return 0;
 	}
-	
-	
-
 }

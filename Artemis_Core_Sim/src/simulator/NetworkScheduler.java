@@ -1,16 +1,16 @@
-package simulator.schedulable;
+package simulator;
 
 import logger.GlobalLogger;
 import root.elements.network.Network;
 import root.elements.network.modules.machine.Machine;
 import root.util.constants.SimuConstants;
-import simulator.manager.MessageManager;
 
 /*
  * Author : Olivier Cros
  * Schedules all the messages shared by the machines through the network
  */
 
+/* Scheduling time along the network */
 public class NetworkScheduler implements Runnable{
 	/* Network to schedule */
 	public Network network;
@@ -48,6 +48,7 @@ public class NetworkScheduler implements Runnable{
 				
 				/* Loading messages from input port */
 				msgManager.loadMessage(currentMachine, time);
+				
 				currentMachine.displayInputBuffer();
 				/* Analyze messages in each node */
 				msgManager.analyzeMessage(currentMachine, time);

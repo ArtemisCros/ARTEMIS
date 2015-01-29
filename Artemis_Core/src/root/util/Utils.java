@@ -1,8 +1,6 @@
 package root.util;
 
-import root.SubObject;
-
-public class Utils extends SubObject{
+public class Utils{
 	public Utils() {
 		
 	}
