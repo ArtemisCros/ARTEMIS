@@ -7,8 +7,7 @@ import modeler.networkbuilder.NetworkBuilder;
 import models.ComputationConstants;
 import root.elements.network.modules.task.Task;
 import root.util.constants.ConfigConstants;
-import root.util.constants.SimuConstants;
-import simulator.NetworkScheduler;
+import simulator.managers.NetworkScheduler;
 import utils.Errors;
 
 /**
@@ -36,7 +35,7 @@ public class CoreLauncher {
 				/* Get builder from automatic task generator */
 				TaskGenerator tGenerator = new TaskGenerator(ComputationConstants.GENERATED_TASKS, 
 						0.5, 
-						SimuConstants.TIME_LIMIT_SIMULATION, 
+						ConfigConstants.TIME_LIMIT_SIMULATION, 
 						ComputationConstants.VARIANCE);
 				
 				GlobalLogger.log("------------ TASKLIST READY ------------");
@@ -50,6 +49,9 @@ public class CoreLauncher {
 				/* Get a new builder */
 				nBuilder = new NetworkBuilder();
 			}
+			
+			GlobalLogger.log("------------ CRITICALITY SWITCHES ------------");
+			nBuilder.getMainNetwork().showCritSwitches();
 			
 			GlobalLogger.log("------------ LAUNCHING SCHEDULER ------------");
 			

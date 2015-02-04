@@ -2,6 +2,7 @@ package root.elements.network.modules.task;
 
 import java.util.Vector;
 
+import root.elements.network.modules.CriticalityLevel;
 import root.util.tools.NetworkAddress;
 
 public interface ISchedulable {
@@ -11,8 +12,9 @@ public interface ISchedulable {
 	
 	/* Get wcet corresponding to current criticality in case of MC-mode */
 	/* Accessors */
-	public int getCurrentWcet();
-	public void setCurrentWcet(int wcet);
+	public double getCurrentWcet();
+	public void setCurrentWcet(double wcet);
+	
 	public int getCurrentPeriod();
 	public void setCurrentPeriod(int period);
 	
@@ -23,6 +25,7 @@ public interface ISchedulable {
 	
 	public int getId();
 	public void setId(int id);
+	
 	public String getName();
 	public void setName(String name);
 	
@@ -35,8 +38,12 @@ public interface ISchedulable {
 	public int getPeriod();
 	public void setPeriod(int period);
 	
-	public int getWcet();
-	public void setWcet(int wcet);
+	public double getWcet();
+	public void setWcet(double wcet);
+	
+	/*MC Management */
+	public double getWcet(CriticalityLevel critLvl);
+	public void setWcet(double wcet, CriticalityLevel critLvl);
 	
 	public int getOffset();
 	public void setOffset(int offset);

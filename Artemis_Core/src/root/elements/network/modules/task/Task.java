@@ -1,7 +1,5 @@
 package root.elements.network.modules.task;
 
-import java.util.ArrayList;
-
 import root.elements.network.modules.NetworkModule;
 
 public class Task extends NetworkModule {

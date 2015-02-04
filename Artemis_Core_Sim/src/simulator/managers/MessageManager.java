@@ -1,7 +1,8 @@
-package simulator;
+package simulator.managers;
 
 import logger.GlobalLogger;
 import root.elements.network.Network;
+import root.elements.network.modules.CriticalityLevel;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
@@ -18,9 +19,29 @@ import root.util.tools.NetworkAddress;
 public class MessageManager {
 	public Network network;
 	public PriorityManager priorityManager;
+	public CriticalityManager criticalityManager;
 	
 	public MessageManager() {
 		priorityManager = new PriorityManager();
+		criticalityManager = new CriticalityManager();	
+	}
+	
+	public int filterCriticalMessages(Machine fromMachine, int time) {
+	/* First, we check changes in criticality level */
+		criticalityManager.checkCriticalityLevel(time);
+		
+		/* We filter the messages unadapted to current criticality level */
+		CriticalityLevel critLvl = criticalityManager.getCurrentLevel();
+		
+		for(int cptMsg=0;cptMsg < fromMachine.inputBuffer.size(); cptMsg++) {
+			MCMessage currentMessage = (MCMessage) fromMachine.inputBuffer.get(cptMsg);
+			
+			if(currentMessage.getWcet(critLvl) == 0) {
+				fromMachine.inputBuffer.remove(currentMessage);
+			}
+		}
+		
+		return 0;
 	}
 	
 	/* Load message from input buffer */

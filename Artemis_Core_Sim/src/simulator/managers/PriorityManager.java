@@ -1,4 +1,4 @@
-package simulator;
+package simulator.managers;
 
 import java.util.Vector;
 
@@ -24,11 +24,6 @@ public class PriorityManager {
 	public ISchedulable getNextMessage(Vector<ISchedulable> buffer) {
 		ISchedulable rstMessage = null;
 		ISchedulingPolicy policy = null;
-		
-		/* Mixed-criticality management */
-		if(ConfigConstants.MIXED_CRITICALITY) {
-			
-		}
 		
 		/* Picking priority policy */
 		switch(ConfigConstants.PRIORITY_POLICY) {

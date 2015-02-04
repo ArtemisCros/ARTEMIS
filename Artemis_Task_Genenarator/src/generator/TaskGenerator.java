@@ -10,7 +10,6 @@ import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.Message;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigConstants;
-import root.util.constants.SimuConstants;
 import root.util.tools.NetworkAddress;
 import logger.GlobalLogger;
 import model.RandomGaussian;
@@ -155,7 +154,7 @@ public class TaskGenerator {
 		ISchedulable[] tasks = null;
 		double globalLoad = 0;
 		
-		double errorMargin = SimuConstants.ERROR_MARGIN;
+		double errorMargin = ConfigConstants.ERROR_MARGIN;
 		boolean validSet = false;
 		
 		while(!validSet) {
@@ -174,7 +173,7 @@ public class TaskGenerator {
 				/* First, we generate a random uniform-distributed value (Unifast method)*/
 				double prob = RandomGenerator.genDouble(Math.log(10), Math.log((timeLimit/10) + 10));
 				
-				double periodComplete = Math.min(100*(Math.floor(Math.exp(prob)/10)*10), SimuConstants.TIME_LIMIT_SIMULATION);			
+				double periodComplete = Math.min(100*(Math.floor(Math.exp(prob)/10)*10), ConfigConstants.TIME_LIMIT_SIMULATION);			
 				
 				/* Generate utilisation from a uniform rule */
 				double utilisation = -1;

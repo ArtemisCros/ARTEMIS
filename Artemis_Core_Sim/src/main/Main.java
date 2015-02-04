@@ -1,6 +1,6 @@
 package main;
 
-import simulator.NetworkScheduler;
+import simulator.managers.NetworkScheduler;
 import utils.Errors;
 import logger.GlobalLogger;
 import modeler.networkbuilder.NetworkBuilder;

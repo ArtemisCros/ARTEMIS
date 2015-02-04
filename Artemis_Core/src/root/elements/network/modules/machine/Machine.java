@@ -6,16 +6,12 @@ import java.util.Vector;
 import logger.GlobalLogger;
 import logger.XmlLogger;
 
-import org.w3c.dom.Element;
-
 import root.elements.network.modules.NetworkModule;
 import root.elements.network.modules.link.Link;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
-import root.elements.network.modules.task.Message;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigConstants;
-import root.util.constants.SimuConstants;
 import root.util.tools.NetworkAddress;
 
 public class Machine extends NetworkModule {

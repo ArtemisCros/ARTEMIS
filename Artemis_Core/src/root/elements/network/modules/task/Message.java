@@ -9,6 +9,9 @@ public abstract class Message extends Task implements ISchedulable, Cloneable{
 	/* Destination addresses */
 	public Vector<NetworkAddress> networkPath;
 	
+	/* Size of the message in bytes */
+	public double size;
+	
 	/* Node number of the path */
 	public int currentNode;
 	public String name;

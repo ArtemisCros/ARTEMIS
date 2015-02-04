@@ -1,12 +1,16 @@
 package root.elements.network;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Vector;
 
 import logger.FileLogger;
 import logger.GlobalLogger;
 import modeler.networkbuilder.DijkstraBuilder;
 import root.elements.SimulableElement;
 import root.elements.network.address.AddressGenerator;
+import root.elements.network.modules.CriticalityLevel;
+import root.elements.network.modules.CriticalitySwitch;
 import root.elements.network.modules.link.Link;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
@@ -14,7 +18,6 @@ import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.Message;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigConstants;
-import root.util.constants.SimuConstants;
 import root.util.tools.NetworkAddress;
 import utils.ConfigLogger;
 import utils.Errors;
@@ -27,7 +30,7 @@ public class Network extends SimulableElement{
 	public ArrayList<Machine> machineList;
 	public AddressGenerator addressGenerator;
 	public DijkstraBuilder networkPathBuilder;
-	
+	public Vector<CriticalitySwitch> critSwitches;
 	
  	public Network() throws Exception {
 		super();
@@ -35,6 +38,7 @@ public class Network extends SimulableElement{
 		machineList = new ArrayList<Machine>();
 		addressGenerator = new AddressGenerator();
 		networkPathBuilder = new DijkstraBuilder(this.machineList);
+		critSwitches = new Vector<CriticalitySwitch>();
  	}
 	
  	/* Compute network load for each machine */
@@ -60,7 +64,7 @@ public class Network extends SimulableElement{
  				for(int pathNodeCpt=0;pathNodeCpt<currentMsg.getNetworkPath().size();pathNodeCpt++) {
  					period = (double)currentMsg.getPeriod();
  					if(period == 0.0) {
- 						period = SimuConstants.TIME_LIMIT_SIMULATION;
+ 						period = ConfigConstants.TIME_LIMIT_SIMULATION;
  					}
  					(this.findMachine(currentMsg.getNetworkPath().get(pathNodeCpt).value)).nodeLoad +=
  							(double)currentMsg.getWcet()/period;
@@ -214,6 +218,12 @@ public class Network extends SimulableElement{
 		return null;
 	}
 
+	public void showCritSwitches() {
+		for(int cptCrit=0;cptCrit < critSwitches.size();cptCrit++) {
+			GlobalLogger.debug("CRIT SWITCH AT TIME:"+critSwitches.get(cptCrit).getTime()+" TO LVL:"
+					+critSwitches.get(cptCrit).getCritLvl());
+		}
+	}
 	/* Creates and builds all the messages path in the current network with a Dijkstra algorithm : deprecated*/
 	@Deprecated
 	public void buildPaths() {

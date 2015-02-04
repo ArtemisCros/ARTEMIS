@@ -1,61 +1,77 @@
 package root.elements.network.modules.task;
 
+import java.util.HashMap;
 import java.util.Vector;
 
+import root.elements.network.modules.CriticalityLevel;
+import root.util.constants.ConfigConstants;
 import root.util.tools.NetworkAddress;
 
 public class MCMessage extends Message implements ISchedulable, Cloneable{	
-	/* Needed */
-	public int wcet;
+	/* Size in bytes */
+	/* Each different size corresponds to a criticality level */
+	public HashMap<CriticalityLevel, Double> size;
+	
+	public double wcet;
+	
+	/* Period of emission */
 	public int period;
 		
 	public MCMessage(String name) throws Exception {
 		super(name);
+		size = new HashMap<CriticalityLevel, Double>();
 	}
 	
-	public int getCurrentWcet() {
+	public double getCurrentWcet() {
 		return 0;
 	}
 	
-	public void setCurrentWcet(int wcet) {
+	public void setCurrentWcet(double wcet) {
 		this.wcet = 0;
 	}
 	
-	
-	@Override
-	
-	public int getCurrentPeriod() {
-		// TODO Auto-generated method stub
+	public int addCriticalityLevel(String critLvlName) {
 		return 0;
 	}
 
 	@Override
+	public int getCurrentPeriod() {
+		return this.period;
+	}
+
+	@Override
 	public void setCurrentPeriod(int period) {
-		// TODO Auto-generated method stub
+		this.period = period;
 		
 	}
 
 	@Override
 	public int getPeriod() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.period;
 	}
 
 	@Override
 	public void setPeriod(int period) {
-		// TODO Auto-generated method stub
+		this.period = period;
 	}
 
 	@Override
-	public int getWcet() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double getWcet() {
+		return size.get(CriticalityLevel.NONCRITICAL)/ConfigConstants.FLOW_DATARATE;
+	}
+	
+	public double getWcet(CriticalityLevel critLvl) {
+		return size.get(critLvl)/ConfigConstants.FLOW_DATARATE;
 	}
 
 	@Override
-	public void setWcet(int wcet) {
-		// TODO Auto-generated method stub
+	public void setWcet(double wcet) {
+		size.put(CriticalityLevel.NONCRITICAL, wcet);
 		
+	}
+	
+	public void setWcet(double wcet, CriticalityLevel critLvl) {
+		size.put(critLvl, wcet);
 	}
 
 	@Override

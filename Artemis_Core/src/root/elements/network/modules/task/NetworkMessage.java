@@ -3,26 +3,27 @@ package root.elements.network.modules.task;
 import java.util.Vector;
 
 import logger.GlobalLogger;
+import root.elements.network.modules.CriticalityLevel;
+import root.util.constants.ConfigConstants;
 import root.util.tools.NetworkAddress;
 
 public class NetworkMessage extends Message implements ISchedulable{
 	
 	/* Needed */
-	public int wcet;
 	public int period;
 	
-	public NetworkMessage(int wcet, String name) throws Exception {
+	public NetworkMessage(double wcet, String name) throws Exception {
 		super(name);
 		
-		this.wcet = wcet;
+		this.size = wcet*ConfigConstants.FLOW_DATARATE;
 	}
 	
-	public int getCurrentWcet() {
-		return wcet;
+	public double getCurrentWcet() {
+		return size/ConfigConstants.FLOW_DATARATE;
 	}
 	
-	public void setCurrentWcet(int wcet) {
-		this.wcet = wcet;
+	public void setCurrentWcet(double wcet) {
+		this.size = wcet*ConfigConstants.FLOW_DATARATE;
 	}
 	
 	public int getCurrentPeriod() {
@@ -46,13 +47,13 @@ public class NetworkMessage extends Message implements ISchedulable{
 	}
 
 	@Override
-	public int getWcet() {
-		return this.wcet;
+	public double getWcet() {
+		return (this.size/ConfigConstants.FLOW_DATARATE);
 	}
 
 	@Override
-	public void setWcet(int wcet) {
-		this.wcet = wcet;
+	public void setWcet(double wcet) {
+		this.size = wcet*ConfigConstants.FLOW_DATARATE;
 		
 	}
 
@@ -64,5 +65,17 @@ public class NetworkMessage extends Message implements ISchedulable{
 	@Override
 	public void setPriority(int priority) {
 		this.priority = priority;	
+	}
+
+	@Override
+	public double getWcet(CriticalityLevel critLvl) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setWcet(double wcet, CriticalityLevel critLvl) {
+		// TODO Auto-generated method stub
+		
 	}
 }

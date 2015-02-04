@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.Message;
-import root.util.constants.SimuConstants;
+import root.util.constants.ConfigConstants;
 import generator.TaskGenerator;
 import logger.FileLogger;
 import logger.GlobalLogger;
@@ -33,7 +33,7 @@ public class Main {
 		
 		TaskGenerator taskGen = new TaskGenerator(ComputationConstants.GENERATED_TASKS, 
 				networkLoad, 
-				SimuConstants.TIME_LIMIT_SIMULATION, 
+				ConfigConstants.TIME_LIMIT_SIMULATION, 
 				ComputationConstants.VARIANCE);
 		
 		

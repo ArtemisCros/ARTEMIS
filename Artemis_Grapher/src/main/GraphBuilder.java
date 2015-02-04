@@ -4,12 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import logger.GlobalLogger;
-import model.GraphSerial;
-
 import org.jfree.data.xy.XYSeries;
 
-import utils.ConfigLogger;
 import xmlparser.XmlOpener;
 
 public class GraphBuilder {
