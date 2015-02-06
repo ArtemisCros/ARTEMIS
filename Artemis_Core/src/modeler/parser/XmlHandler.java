@@ -197,7 +197,15 @@ public class XmlHandler extends DefaultHandler{
 					newMsg = new MCMessage(""); 
 					for(int cptCrit=0;cptCrit < criticalities.size();cptCrit++) {
 						/* Associating a wcet to each criticality level */
-						double wcet = Integer.parseInt((currentMessageProperties.get(criticalities.get(cptCrit))));
+						String rawWcet = currentMessageProperties.get(criticalities.get(cptCrit));
+						double wcet;
+						if(rawWcet == null) {
+							wcet = 0;
+						}
+						else {
+							wcet = Integer.parseInt((rawWcet));
+						}
+ 
 						CriticalityLevel critLvl = Utils.convertToCritLevel(criticalities.get(cptCrit));
 						newMsg.setWcet(wcet, critLvl);
 						
@@ -208,14 +216,16 @@ public class XmlHandler extends DefaultHandler{
 				 else {
 					newMsg = new NetworkMessage(Integer.parseInt(currentMessageProperties.get("WCET")),
 							"MSG"+currentMessageProperties.get("ID")); 
+					
 				 }
 				
-				if(currentMessageProperties.containsKey("PERI"))
-					//newMsg.period.add(currentCriticality,  Integer.parseInt(currentMessageProperties.get("PERI")));
+				if(currentMessageProperties.containsKey("PERI")) {
+					newMsg.setPeriod(Integer.parseInt(currentMessageProperties.get("PERI")));
+				}
 				
 				if(currentMessageProperties.containsKey("OFFS")) {
-					//newMsg.offset.add(currentCriticality, Integer.parseInt(currentMessageProperties.get("OFFS")));
-					newMsg.setNextSend(newMsg.getOffset());
+					newMsg.setOffset(Integer.parseInt(currentMessageProperties.get("OFFS")));
+					newMsg.setNextSend(Integer.parseInt(currentMessageProperties.get("OFFS")));
 				}				
 				
 
@@ -230,7 +240,7 @@ public class XmlHandler extends DefaultHandler{
 					}
 					
 				}	
-				
+				GlobalLogger.debug("ID:"+newMsg.getName());
 				currentMachine.associateMessage(newMsg);
 				currentMessageProperties.clear();
 			} catch (NumberFormatException e) {

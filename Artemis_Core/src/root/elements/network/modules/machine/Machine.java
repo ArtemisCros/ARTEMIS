@@ -126,8 +126,10 @@ public class Machine extends NetworkModule {
 			 */
 			ISchedulable currentMsg = messageGenerator.get(i);
 			ISchedulable newMsg = null;
-						
+			//GlobalLogger.debug("MSGGEN:"+currentMsg.getName()+"NS:"+currentMsg.getNextSend());
+			
 			if(currentMsg.getNextSend() == currentTime) {
+				//GlobalLogger.debug("MSGGENOK:"+currentMsg.getName());
 				try {
 					//Make a copy for each periodic message
 					if(ConfigConstants.MIXED_CRITICALITY) {
@@ -205,7 +207,7 @@ public class Machine extends NetworkModule {
 			else {
 				currentMsg = (NetworkMessage)inputBuffer.elementAt(cptMsgInput);
 			}
-			message += currentMsg.getName();
+			message += currentMsg.getName()+" ";
 		}
 		message += "|";
 		GlobalLogger.log(message);

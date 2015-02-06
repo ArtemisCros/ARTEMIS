@@ -9,7 +9,7 @@ public class ConfigConstants {
 	public static final PriorityPolicy PRIORITY_POLICY = PriorityPolicy.FIFO;
 	public static final boolean AUTOMATIC_TASK_GENERATION = false;
 	
-	public static final boolean MIXED_CRITICALITY = true;
+	public static final boolean MIXED_CRITICALITY = false;
 	
 	public static final int TIME_LIMIT_SIMULATION = 50;
 	

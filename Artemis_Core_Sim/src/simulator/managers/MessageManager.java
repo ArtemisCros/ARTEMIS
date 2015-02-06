@@ -6,7 +6,6 @@ import root.elements.network.modules.CriticalityLevel;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
-import root.elements.network.modules.task.Message;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigConstants;
 import root.util.tools.NetworkAddress;
@@ -27,7 +26,7 @@ public class MessageManager {
 	}
 	
 	public int filterCriticalMessages(Machine fromMachine, int time) {
-	/* First, we check changes in criticality level */
+		/* First, we check changes in criticality level */
 		criticalityManager.checkCriticalityLevel(time);
 		
 		/* We filter the messages unadapted to current criticality level */

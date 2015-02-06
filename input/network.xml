@@ -1,82 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Network>
-   	<machine id="1" name="ES1">
-	    <Messages>
-	        <message id="1">
-	        	<criticality level="0">
-	        		<path>1,3,4,6,7</path>
-		            <priority>0</priority>
-		            <period>5</period>
-		            <offset>0</offset>
-		            <wcet>2</wcet>
-				</criticality>
-	        </message>
-	        <message id="2">
-	        	<criticality level="0">
-	        		<path>1,3,4,6,7</path>
-		            <priority>0</priority>
-		            <period>7</period>
-		            <offset>2</offset>
-		            <wcet>4</wcet>
-				</criticality>
-	        </message>
+<?xml version="1.0"?>
+<Network><time-limit>Undefined</time-limit><CritSwitches/>
 
-	    </Messages>
-	    <Links>
-	        <machinel id="3" />
-	    </Links>
-	</machine>
-	<machine id="2" name="ES2">
-	    <Messages>
-	        <message id="4">
-	        	<criticality level="0">
-	        		<path>2,3,4,6,7</path>
-		            <priority>0</priority>
-		            <period>0</period>
-		            <offset>2</offset>
-		            <wcet>5</wcet>
-				</criticality>
-	        </message>
-	    </Messages>
-	    <Links>
-	        <machinel id="3" />
-	    </Links>
-	</machine>
-	<machine id="3" name="ES3">
-	    <Links>
-	        <machinel id="4" />
-	    </Links>
-	</machine>
-	<machine id="4" name="ES4">
-	     <Links>
-	        <machinel id="6" />
-	    </Links>
-	</machine>
-	<machine id="5" name="ES5">
-	    <Messages>
-	        <message id="3">
-	        	<criticality level="0">
-	        		<path>5,6,7</path>
-		            <priority>0</priority>
-		            <period>8</period>
-		            <offset>1</offset>
-		            <wcet>3</wcet>
-				</criticality>
-	        </message>
-	    </Messages>
-	    <Links>
-	        <machinel id="6" />
-	    </Links>
-	</machine>
-	<machine id="6" name="ES6">
-	    <Config>
-	        <name>ES6</name>
-	    </Config>
-	    <Links>
-	        <machinel id="7" />
-	    </Links>
-	</machine>
-	<machine id="7">
-	</machine>
 
-</Network>
+
+<machine id="1" name="ES2 "><Config><name/></Config><Messages><message id="3"><criticality level="0"><path>1,4,5</path><priority>0</priority><period>15</period><offset>4</offset><wcet>8</wcet></criticality></message><message id="4"><criticality level="0"><path>1,4,5</path><priority>0</priority><period>10</period><offset>2</offset><wcet>4</wcet></criticality></message><message id="5"><criticality level="0"><path>1,4,5</path><priority>0</priority><period>10</period><offset>2</offset><wcet>4</wcet></criticality></message></Messages><Links><machinel id="4"/></Links></machine>
+
+
+
+<machine id="2" name="ES1 "><Config><name/></Config><Messages><message id="1"><criticality level="0"><path>2,4</path><priority>0</priority><period>10</period><offset>0</offset><wcet>5</wcet></criticality></message><message id="2"><criticality level="0"><path>2,4,5</path><priority>0</priority><period>25</period><offset>0</offset><wcet>4</wcet></criticality></message></Messages><Links>
+
+<machinel id="4"/></Links></machine>
+
+
+<machine id="3" name="ES3 "><Config><name/></Config><Links><machinel id="5"/></Links></machine>
+
+
+<machine id="4" name="S1 "><Config><name/></Config><Links><machinel id="2"/><machinel id="1"/><machinel id="5"/></Links></machine><machine id="5" name="S2"><Config><name/></Config><Links><machinel id="4"/><machinel id="3"/></Links></machine></Network>
