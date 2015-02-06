@@ -86,7 +86,8 @@ public class MainGrapher {
 	    	   
 	    	   NumberAxis domain = (NumberAxis) xyplot.getDomainAxis();
 
-		       domain.setRange(-20, xmlOpener.simulationTimeLimit);
+	    	   int min = xmlOpener.simulationTimeLimit / 10;
+		       domain.setRange(-min, xmlOpener.simulationTimeLimit);
 		       domain.setTickUnit(new NumberTickUnit(xmlOpener.simulationTimeLimit/40));
     	       
     		   XYSeriesCollection plotSerial = new XYSeriesCollection(plotSeries);
@@ -102,7 +103,7 @@ public class MainGrapher {
     		   String annotation = orderedFileName.get(j);
     	       annotation = annotation.substring(0, annotation.length()-4);
     	       // Node legend
-    	       xyplot.addAnnotation(new XYTextAnnotation(annotation, -6, (j*10)-2));
+    	       xyplot.addAnnotation(new XYTextAnnotation(annotation, -min+1, (j*10)-2));
     	     
     	       for(int cptAnnotations = 0;cptAnnotations<xmlOpener.annotations.size();cptAnnotations++) {
     	    	   xyplot.addAnnotation(xmlOpener.annotations.get(cptAnnotations));
