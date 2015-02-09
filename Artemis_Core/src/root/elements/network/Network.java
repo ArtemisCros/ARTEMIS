@@ -64,7 +64,7 @@ public class Network extends SimulableElement{
  				for(int pathNodeCpt=0;pathNodeCpt<currentMsg.getNetworkPath().size();pathNodeCpt++) {
  					period = (double)currentMsg.getPeriod();
  					if(period == 0.0) {
- 						period = ConfigConstants.TIME_LIMIT_SIMULATION;
+ 						period = ConfigConstants.getInstance().getTimeLimitSimulation();
  					}
  					(this.findMachine(currentMsg.getNetworkPath().get(pathNodeCpt).value)).nodeLoad +=
  							(double)currentMsg.getWcet()/period;

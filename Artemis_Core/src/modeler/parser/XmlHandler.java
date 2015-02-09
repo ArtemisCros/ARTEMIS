@@ -43,6 +43,7 @@ public class XmlHandler extends DefaultHandler{
 		public boolean triggerWcet;
 		public boolean triggerPath;
 		public boolean triggerCritSwitch;
+		public boolean triggerTimeLimit;
 		
 		/* Machine */
 		public boolean triggerMachine;
@@ -87,6 +88,7 @@ public class XmlHandler extends DefaultHandler{
 		if(qualif == XMLNetworkTags.TAG_MACHINELINK) {triggerMachineLink = trigger;	}
 		if(qualif == XMLNetworkTags.TAG_PATH) {triggerPath = trigger;	}
 		if(qualif == XMLNetworkTags.TAG_CRIT_SWITCH){triggerCritSwitch = trigger;}
+		if(qualif == XMLNetworkTags.TIME_LIMIT){triggerTimeLimit = trigger;}
 	}
 
 	/* Parse machine-linked tags */
@@ -147,6 +149,9 @@ public class XmlHandler extends DefaultHandler{
 			
 		}
 		
+		if(qualif == XMLNetworkTags.TIME_LIMIT) {
+			
+		}
 		if(qualif == XMLNetworkTags.TAG_CRIT_SWITCH) {
 			for(int cptAttr=0;cptAttr < at.getLength();cptAttr++) {
 				
@@ -257,6 +262,12 @@ public class XmlHandler extends DefaultHandler{
 		String value = new String(ch);
 		value = value.substring(start, start+length);
 		 
+		if(triggerTimeLimit) {
+			ConfigConstants config = ConfigConstants.getInstance();
+			
+			config.setTimeLimitSimulation(Integer.parseInt(value));
+		}
+		
 		if(triggerCriticality) {
 			if(triggerWcet) {
 				 //Save wcet value into a map

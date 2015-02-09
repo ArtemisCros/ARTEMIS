@@ -10,7 +10,7 @@ public class Main {
 		/* Entry parameters */
 		double networkLoad = 0.5;
 		int numberOfTasks = 6;		
-		int timeLimit = ConfigConstants.TIME_LIMIT_SIMULATION;
+		int timeLimit = ConfigConstants.getInstance().getTimeLimitSimulation();
 		double variance = 0.05;
 		
 		TaskGenerator taskGen = new TaskGenerator(numberOfTasks, networkLoad, timeLimit, variance);

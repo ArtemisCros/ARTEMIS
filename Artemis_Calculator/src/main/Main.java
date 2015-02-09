@@ -33,7 +33,7 @@ public class Main {
 		
 		TaskGenerator taskGen = new TaskGenerator(ComputationConstants.GENERATED_TASKS, 
 				networkLoad, 
-				ConfigConstants.TIME_LIMIT_SIMULATION, 
+				ConfigConstants.getInstance().getTimeLimitSimulation(), 
 				ComputationConstants.VARIANCE);
 		
 		

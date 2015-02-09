@@ -173,7 +173,7 @@ public class TaskGenerator {
 				/* First, we generate a random uniform-distributed value (Unifast method)*/
 				double prob = RandomGenerator.genDouble(Math.log(10), Math.log((timeLimit/10) + 10));
 				
-				double periodComplete = Math.min(100*(Math.floor(Math.exp(prob)/10)*10), ConfigConstants.TIME_LIMIT_SIMULATION);			
+				double periodComplete = Math.min(100*(Math.floor(Math.exp(prob)/10)*10), ConfigConstants.getInstance().getTimeLimitSimulation());			
 				
 				/* Generate utilisation from a uniform rule */
 				double utilisation = -1;

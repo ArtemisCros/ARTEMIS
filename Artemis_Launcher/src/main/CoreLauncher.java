@@ -35,7 +35,7 @@ public class CoreLauncher {
 				/* Get builder from automatic task generator */
 				TaskGenerator tGenerator = new TaskGenerator(ComputationConstants.GENERATED_TASKS, 
 						0.5, 
-						ConfigConstants.TIME_LIMIT_SIMULATION, 
+						ConfigConstants.getInstance().getTimeLimitSimulation(), 
 						ComputationConstants.VARIANCE);
 				
 				GlobalLogger.log("------------ TASKLIST READY ------------");
