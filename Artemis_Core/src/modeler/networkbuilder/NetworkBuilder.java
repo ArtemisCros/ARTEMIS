@@ -21,7 +21,10 @@ public class NetworkBuilder {
 	
 	public NetworkBuilder() {
 		try {
-
+			/* Clean History */
+			File dir = new File(ConfigLogger.GENERATED_FILES_PATH+"xml/");
+			for(File file: dir.listFiles()) file.delete();
+			
 			// Creating a factory SAX Parser
 			SAXParserFactory factoryParser = SAXParserFactory.newInstance();
 
