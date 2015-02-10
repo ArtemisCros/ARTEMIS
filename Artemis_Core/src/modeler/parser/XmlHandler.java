@@ -44,6 +44,7 @@ public class XmlHandler extends DefaultHandler{
 		public boolean triggerPath;
 		public boolean triggerCritSwitch;
 		public boolean triggerTimeLimit;
+		public boolean triggerElecLatency;
 		
 		/* Machine */
 		public boolean triggerMachine;
@@ -88,7 +89,8 @@ public class XmlHandler extends DefaultHandler{
 		if(qualif == XMLNetworkTags.TAG_MACHINELINK) {triggerMachineLink = trigger;	}
 		if(qualif == XMLNetworkTags.TAG_PATH) {triggerPath = trigger;	}
 		if(qualif == XMLNetworkTags.TAG_CRIT_SWITCH){triggerCritSwitch = trigger;}
-		if(qualif == XMLNetworkTags.TIME_LIMIT){triggerTimeLimit = trigger;}
+		if(qualif == XMLNetworkTags.TAG_TIME_LIMIT){triggerTimeLimit = trigger;}
+		if(qualif == XMLNetworkTags.TAG_ELECTRONICAL_LATENCY){triggerElecLatency = trigger;}
 	}
 
 	/* Parse machine-linked tags */
@@ -149,9 +151,6 @@ public class XmlHandler extends DefaultHandler{
 			
 		}
 		
-		if(qualif == XMLNetworkTags.TIME_LIMIT) {
-			
-		}
 		if(qualif == XMLNetworkTags.TAG_CRIT_SWITCH) {
 			for(int cptAttr=0;cptAttr < at.getLength();cptAttr++) {
 				
@@ -263,9 +262,14 @@ public class XmlHandler extends DefaultHandler{
 		value = value.substring(start, start+length);
 		 
 		if(triggerTimeLimit) {
-			ConfigConstants config = ConfigConstants.getInstance();
-			
+			ConfigConstants config = ConfigConstants.getInstance();			
 			config.setTimeLimitSimulation(Integer.parseInt(value));
+		}
+		
+		/* Electronical latency management */
+		if(triggerElecLatency) {
+			ConfigConstants config = ConfigConstants.getInstance();			
+			config.setElectronicalLatency(Integer.parseInt(value));
 		}
 		
 		if(triggerCriticality) {

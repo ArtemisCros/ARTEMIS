@@ -1,5 +1,7 @@
 package simulator.managers;
 
+import java.util.Vector;
+
 import logger.GlobalLogger;
 import root.elements.network.Network;
 import root.elements.network.modules.CriticalityLevel;
@@ -20,9 +22,14 @@ public class MessageManager {
 	public PriorityManager priorityManager;
 	public CriticalityManager criticalityManager;
 	
+	/* Waiting messages, in links */
+	/* this buffer is used to store all the messages currently transmitted in the links */
+	public Vector<ISchedulable> linkBuffer;
+	
 	public MessageManager() {
 		priorityManager = new PriorityManager();
-		criticalityManager = new CriticalityManager();	
+		criticalityManager = new CriticalityManager();
+		linkBuffer = new Vector<ISchedulable>();
 	}
 	
 	public int filterCriticalMessages(Machine fromMachine, int time) {
@@ -113,17 +120,28 @@ public class MessageManager {
 			
 			/* If there's still nodes in the message's path */
 			if(currentMsg.getCurrentNode() < currentMsg.getNetworkPath().size()) {
-				/* We put the message in the code, then clear it from path */
-				NetworkAddress nextAddress = currentMsg.getNetworkPath().elementAt(currentMsg.getCurrentNode());
-				currentMsg.setCurrentNode(currentMsg.getCurrentNode()+1);;
-				
-				/* Message transmission */
-				nextAddress.machine.inputBuffer.add(currentMsg);
-				currentMsg.setTimerArrival(time);
+				linkBuffer.add(currentMsg);
+				/* Adding the electronical latency to transmission time */
+				currentMsg.setTimerArrival(time+ConfigConstants.getInstance().getElectronicalLatency());
 			}	
 			fromMachine.outputBuffer.remove(currentMsg);
 			
 		}
+		/* Sending messages to their new destination */
+		for(int cptMsg=0;cptMsg<linkBuffer.size();cptMsg++) {
+			if(time == linkBuffer.get(cptMsg).getTimerArrival()) {
+				
+				/* We put the message in the code, then clear it from path */
+				NetworkAddress nextAddress = linkBuffer.get(cptMsg).getNetworkPath().elementAt(
+						linkBuffer.get(cptMsg).getCurrentNode());
+				linkBuffer.get(cptMsg).setCurrentNode(linkBuffer.get(cptMsg).getCurrentNode()+1);;
+				
+				/* Message transmission */
+				nextAddress.machine.inputBuffer.add(linkBuffer.get(cptMsg));
+				linkBuffer.remove(linkBuffer.get(cptMsg));
+			}
+		}
+		
 		return 0;
 	}
 

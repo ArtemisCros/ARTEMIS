@@ -48,8 +48,8 @@ public interface ISchedulable {
 	public int getOffset();
 	public void setOffset(int offset);
 	
-	public int getTimerArrival();
-	public void setTimerArrival(int timer);
+	public double getTimerArrival();
+	public void setTimerArrival(double timer);
 	
 	public boolean isObserved();
 	

@@ -37,7 +37,7 @@ public class MainGrapher {
 	public void drawGraph() {
 			int number = 20;
 	       int width = 2000;
-	       int height = 500; 
+	       int height = 800; 
 	       GraphBuilder gBuilder = new GraphBuilder();
 		   XmlOpener xmlOpener = new XmlOpener();
 		   
@@ -81,8 +81,7 @@ public class MainGrapher {
 		       /* Starting from xml infos, we build the different graphs */
 	    	   XYSeries plotSeries = xmlOpener.readFile(number, 
 	    			   ConfigLogger.GENERATED_FILES_PATH+"xml/"+orderedFileName.get(j),
-	    			   j*10); /*gBuilder.buildPlotsFromFile(
- 				   number, ConfigLogger.GENERATED_FILES_PATH+"xml/"+orderedFileName.get(j), j*10, xmlOpener);*/
+	    			   j*10); 
 	    	   
 	    	   NumberAxis domain = (NumberAxis) xyplot.getDomainAxis();
 

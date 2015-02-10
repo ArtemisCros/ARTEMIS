@@ -17,7 +17,7 @@ public class Task extends NetworkModule {
 	
 	/* Monitoring messages */
 	/* Arrival time at the next node */
-	public int timerArrival;
+	public double timerArrival;
 	
 	/* Used also as activation instant for scheduling policies */
 	public int nextSend;

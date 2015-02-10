@@ -13,9 +13,10 @@ public class XMLNetworkTags {
 	public static final String TAG_NAME			= "name";
 	public static final String TAG_P_INPUT		= "portsinput";
 	public static final String TAG_P_OUTPUT		= "portsoutput";
-	public static final String TIME_LIMIT		= "time-limit";
+	public static final String TAG_TIME_LIMIT	= "time-limit";
 	public static final String TAG_CRIT_SWITCHES= "critswitches";
 	public static final String TAG_CRIT_SWITCH	= "critswitch";
+	public static final String TAG_ELECTRONICAL_LATENCY = "elatency";
 
 	/* Machine tags */
 	public static final String TAG_MACHINE		= "machine"; 

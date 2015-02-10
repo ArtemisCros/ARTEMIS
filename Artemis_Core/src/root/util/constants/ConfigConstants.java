@@ -4,9 +4,14 @@ import root.util.tools.PriorityPolicy;
 
 public class ConfigConstants {
 	private int TIME_LIMIT_SIMULATION;
+	private double ELECTRONICAL_LATENCY;
 	
 	//Singloton config manager
 	private static ConfigConstants instance = null;
+	
+	public ConfigConstants() {
+
+	}
 	
 	public static ConfigConstants getInstance() {
 		if(instance == null) {
@@ -23,6 +28,15 @@ public class ConfigConstants {
 	public void setTimeLimitSimulation(int timeLimitSimulation) {
 		this.TIME_LIMIT_SIMULATION = timeLimitSimulation;
 	}
+	
+	public double getElectronicalLatency() {
+		return ELECTRONICAL_LATENCY;
+	}
+	
+	public void setElectronicalLatency(double latency) {
+		this.ELECTRONICAL_LATENCY = latency;
+	}
+	
 	
 	public static final int CONST_PORT_NUMBER 	= 500;
 	public static final int CONST_PORT_NUMBER_IN = 500;

@@ -16,6 +16,12 @@ public abstract class Message extends Task implements ISchedulable, Cloneable{
 	public int currentNode;
 	public String name;
 	
+	/*
+	 * 
+	 * 
+	 * 
+	 */
+	
 	public Message(String name) throws Exception {
 		super();	
 		
@@ -58,12 +64,12 @@ public abstract class Message extends Task implements ISchedulable, Cloneable{
 	}
 	
 	@Override
-	public int getTimerArrival() {
+	public double getTimerArrival() {
 		return this.timerArrival;
 	}
 
 	@Override
-	public void setTimerArrival(int timer) {
+	public void setTimerArrival(double timer) {
 		this.timerArrival = timer;
 	}
 	
