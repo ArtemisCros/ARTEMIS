@@ -16,7 +16,7 @@ public class FixedPrioritySchedulingPolicy implements ISchedulingPolicy {
 		Message rstMessage = null;
 		
 		for(int cpt_buffer=0;cpt_buffer<buffer.size();cpt_buffer++) {
-			if(rstMessage == null || buffer.get(cpt_buffer).getPriority() < rstMessage.priority) {
+			if(rstMessage == null || buffer.get(cpt_buffer).getPriority() > rstMessage.priority) {
 				if(ConfigConstants.MIXED_CRITICALITY) {
 					rstMessage = (MCMessage) buffer.get(cpt_buffer);
 				}

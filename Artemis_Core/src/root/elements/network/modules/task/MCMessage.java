@@ -82,14 +82,12 @@ public class MCMessage extends Message implements ISchedulable, Cloneable{
 
 	@Override
 	public int getPriority() {
-		// TODO Auto-generated method stub
-		return 0;
+		return priority;
 	}
 
 	@Override
 	public void setPriority(int priority) {
-		// TODO Auto-generated method stub
-		
+		this.priority = priority;
 	}
 	
 	

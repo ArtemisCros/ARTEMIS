@@ -2,7 +2,6 @@ package testscore;
 
 import static org.junit.Assert.*;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,6 +21,14 @@ public class TestLogger {
 	public void setUp() {
 		File file = new File("toto.test");
 		file.delete();
+	}
+	
+	@Test 
+	public void testFolderExists() {
+		File file = new File(ConfigLogger.GENERATED_FILES_PATH);
+		
+		assertTrue(file.exists());
+		assertTrue(file.isDirectory());
 	}
 	
 	@Test

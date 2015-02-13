@@ -10,7 +10,6 @@ public class FIFOSchedulingPolicy implements ISchedulingPolicy{
 	/* FIFO Scheduling policy */
 	@Override
 	public ISchedulable getSchedulingMessage(Vector<ISchedulable> buffer) {
-		// TODO Auto-generated method stub
 		return buffer.firstElement();
 	}
 

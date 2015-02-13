@@ -46,8 +46,6 @@ public class ConfigConstants {
 	
 	public static final boolean MIXED_CRITICALITY = true;
 	
-	//public static final int TIME_LIMIT_SIMULATION = 50;
-	
 	/* Error margin on the auto-generated load */
 	public static double ERROR_MARGIN = 0.01;
 	

@@ -5,7 +5,8 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({TestMachine.class, TestNetwork.class, TestLogger.class})
+@SuiteClasses({TestMachine.class, TestNetwork.class, TestLogger.class, TestLink.class, TestMessage.class,
+	TestSchedulingPolicies.class})
 
 public class AllTests {
 

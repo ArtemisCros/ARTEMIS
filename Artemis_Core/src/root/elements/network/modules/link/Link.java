@@ -22,11 +22,12 @@ public class Link extends NetworkModule {
 		this.bindLeft 	= machinea_.getAddress();
 		this.bindRight 	= machineb_.getAddress();
 		
+		machinea_.getAddress().machine = machinea_;
+		machineb_.getAddress().machine = machineb_;
+		
 		/* Connect one end link to an input, and the other to an output */
 		machinea_.connectOutput(this);
 		machineb_.connectInput(this);
-		
-		
 	}
 
 	public Machine getBindLeftMachine() {
