@@ -61,12 +61,18 @@ public class MCMessage extends Message implements ISchedulable, Cloneable{
 	}
 	
 	public double getWcet(CriticalityLevel critLvl) {
-		return size.get(critLvl)/ConfigConstants.FLOW_DATARATE;
+		if(size.get(critLvl) != null) {
+			return size.get(critLvl)/ConfigConstants.FLOW_DATARATE;
+		}
+		else {
+			return 0.0;
+		}
+		
 	}
 
 	@Override
 	public void setWcet(double wcet) {
-		size.put(CriticalityLevel.NONCRITICAL, wcet);
+		size.put(CriticalityLevel.NONCRITICAL, wcet*ConfigConstants.FLOW_DATARATE);
 		
 	}
 	

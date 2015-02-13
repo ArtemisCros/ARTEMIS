@@ -7,7 +7,6 @@ import root.elements.network.modules.CriticalityLevel;
 
 public class CriticalityManager {
 	/* Mixed-criticality management */
-	
 	public HashMap<Integer, CriticalityLevel> critSwitches;
 	
 	public CriticalityLevel currentCritLvl;

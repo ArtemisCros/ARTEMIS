@@ -23,7 +23,7 @@ public class Machine extends NetworkModule {
 	public Link[] portsInput;
 	
 	/* Time for analysing a packet */
-	public int analyseTime;
+	public double analyseTime;
 	/* Currently transmitted message */
 	public ISchedulable currentlyTransmittedMsg;
 	

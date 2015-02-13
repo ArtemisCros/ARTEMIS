@@ -32,6 +32,16 @@ public class MessageManager {
 		linkBuffer = new Vector<ISchedulable>();
 	}
 	
+	/* Association between Network criticality switches and the criticality manager data */
+	public int associateCritSwitches() {
+		for(int cptSwitch=0;cptSwitch<network.critSwitches.size();cptSwitch++) {
+			/* We associate CriticalitySwitches to the criticality manager */
+			criticalityManager.critSwitches.put(network.critSwitches.get(cptSwitch).getTime(), 
+					network.critSwitches.get(cptSwitch).getCritLvl());
+		}
+		
+		return 0;
+	}
 	public int filterCriticalMessages(Machine fromMachine, int time) {
 		/* First, we check changes in criticality level */
 		criticalityManager.checkCriticalityLevel(time);
@@ -42,7 +52,7 @@ public class MessageManager {
 		for(int cptMsg=0;cptMsg < fromMachine.inputBuffer.size(); cptMsg++) {
 			MCMessage currentMessage = (MCMessage) fromMachine.inputBuffer.get(cptMsg);
 			
-			if(currentMessage.getWcet(critLvl) == 0) {
+			if(currentMessage.getWcet(critLvl) <= 0) {
 				fromMachine.inputBuffer.remove(currentMessage);
 			}
 		}
@@ -68,7 +78,14 @@ public class MessageManager {
 			fromMachine.inputBuffer.remove(messageToAnalyse);
 			
 			/* We make the machine waiting */
-			fromMachine.analyseTime += messageToAnalyse.getCurrentWcet();
+			if(ConfigConstants.MIXED_CRITICALITY) {
+				double wcet = messageToAnalyse.getWcet(criticalityManager.getCurrentLevel());
+				GlobalLogger.debug("Computed wcet loaded:"+wcet);
+				fromMachine.analyseTime += wcet;
+			}
+			else {
+				fromMachine.analyseTime += messageToAnalyse.getCurrentWcet();
+			}
 		}
 	
 		return 0;

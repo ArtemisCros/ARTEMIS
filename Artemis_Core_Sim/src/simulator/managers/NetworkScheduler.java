@@ -22,6 +22,7 @@ public class NetworkScheduler implements Runnable{
 		msgManager = new MessageManager();
 		
 		network = network_;
+		msgManager.network = network;
 	}
 	
 	/* Initializes xml logging for each machine*/
@@ -38,6 +39,10 @@ public class NetworkScheduler implements Runnable{
 	 * Main simulation function 
 	 */
 	public int schedule() {
+		/* Association between network modelization and criticality manager */
+		/* CritSwitches dump */
+		msgManager.associateCritSwitches();
+		
 		for(int time =0; time <= ConfigConstants.getInstance().getTimeLimitSimulation();time++) {		
 			GlobalLogger.debug("--------------- START TIME "+time+" ---------------");
 			

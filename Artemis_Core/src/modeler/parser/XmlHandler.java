@@ -123,7 +123,7 @@ public class XmlHandler extends DefaultHandler{
 			String idMachineToLink = at.getValue(0);
 			mainNet.linkMachines(currentMachine, mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name));
 			GlobalLogger.debug("link between "+currentMachineName +" and "+mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name).name);
-			return 2;
+			return 2; 
 		}
 		/* If new message, we just get its id */
 		if(qualif == XMLNetworkTags.TAG_MESSAGE) { 
@@ -136,6 +136,7 @@ public class XmlHandler extends DefaultHandler{
 		}
 		if(qualif == XMLNetworkTags.TAG_CRITICALITY) {
 			currentCriticality = at.getValue(0);
+			
 			if(!criticalities.contains(currentCriticality))
 				criticalities.addElement(currentCriticality);
 			
@@ -218,16 +219,19 @@ public class XmlHandler extends DefaultHandler{
 					}
 				 }
 				 else {
+					 GlobalLogger.debug(currentMessageProperties.get("WCET"));
 					newMsg = new NetworkMessage(Integer.parseInt(currentMessageProperties.get("WCET")),
 							"MSG"+currentMessageProperties.get("ID")); 
 					
 				 }
 				
 				if(currentMessageProperties.containsKey("PERI")) {
+					GlobalLogger.debug(currentMessageProperties.get("PERI"));
 					newMsg.setPeriod(Integer.parseInt(currentMessageProperties.get("PERI")));
 				}
 				
 				if(currentMessageProperties.containsKey("OFFS")) {
+					GlobalLogger.debug(currentMessageProperties.get("OFFS"));
 					newMsg.setOffset(Integer.parseInt(currentMessageProperties.get("OFFS")));
 					newMsg.setNextSend(Integer.parseInt(currentMessageProperties.get("OFFS")));
 				}				
@@ -276,7 +280,7 @@ public class XmlHandler extends DefaultHandler{
 			if(triggerWcet) {
 				 //Save wcet value into a map
 				if(ConfigConstants.MIXED_CRITICALITY) {
-					 currentMessageProperties.put(currentCriticality, value);
+ 					 currentMessageProperties.put(currentCriticality, value);
 				}
 				else {
 					 currentMessageProperties.put("WCET", value);
