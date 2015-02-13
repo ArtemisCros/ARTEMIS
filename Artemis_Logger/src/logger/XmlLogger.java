@@ -67,13 +67,13 @@ public class XmlLogger extends Logger{
 	
 	public int saveIntoFile() {
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		
 		try {
 			Transformer transformer = transformerFactory.newTransformer();
 			DOMSource domSource = new DOMSource(source);
 			StreamResult fileResult = new StreamResult(fileName);
 			
 			transformer.transform(domSource, fileResult);
-			//GlobalLogger.log("Save xml file done");
 		} catch (TransformerConfigurationException e) {
 			GlobalLogger.error(Errors.ERROR_XML_SAVE+" Exception: cannot save XML File");
 			e.printStackTrace();

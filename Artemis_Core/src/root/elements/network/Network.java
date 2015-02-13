@@ -130,18 +130,21 @@ public class Network extends SimulableElement{
 	}
 	
  	/* Create a network link between two machines */
-	public void linkMachines(Machine machinea, Machine machineb) {
+	public Link linkMachines(Machine machinea, Machine machineb) {
 		try {
 		//	GlobalLogger.debug("Create link between "+machinea.networkAddress.value+" and "+machineb.networkAddress.value);
 			Link link = new Link(machinea, machineb);
 			linkList.add(link);
+			return link;
 		} catch (Exception e) {
 			GlobalLogger.error(Errors.ERROR_CREATING_LINK, "Error creating link");
 			e.printStackTrace();
 		}
+		
+		return null;
 	}
 	
-	public void displayNetwork() {
+	public String displayNetwork() {
 		String networkDescription = "";
 		for(int i=0;i<machineList.size();i++) {
 			Machine currentMachine = machineList.get(i);
@@ -187,9 +190,11 @@ public class Network extends SimulableElement{
 		}
 		
 		FileLogger.logToFile(networkDescription, ConfigLogger.GENERATED_FILES_PATH+"logs/networkdescription.txt");
+		
+		return networkDescription;
 	}
 	
-	public void generateNetworkGraph() {
+	public String generateNetworkGraph() {
 		String networkGraph = "";
 		networkGraph += "digraph {\n";
 		
@@ -206,6 +211,8 @@ public class Network extends SimulableElement{
 		
 		networkGraph += "}\n";
 		FileLogger.logToFile(networkGraph, ConfigLogger.GENERATED_FILES_PATH+"logs/networkgraph.txt");
+		
+		return networkGraph;
 		
 	}
 

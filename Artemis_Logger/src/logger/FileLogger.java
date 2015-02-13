@@ -25,6 +25,7 @@ public class FileLogger extends Logger {
 			//TODO Error Log
 			GlobalLogger.error(Errors.ERROR_FILE_NOT_FOUND, "File not found:"+fileName+", can't create log");
 			e.printStackTrace();
+			return 1;
 		}
 		
 		return 0;

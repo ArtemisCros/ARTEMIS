@@ -126,7 +126,6 @@ public class Machine extends NetworkModule {
 			 */
 			ISchedulable currentMsg = messageGenerator.get(i);
 			ISchedulable newMsg = null;
-			//GlobalLogger.debug("MSGGEN:"+currentMsg.getName()+"NS:"+currentMsg.getNextSend());
 			
 			if(currentMsg.getNextSend() == currentTime) {
 				//GlobalLogger.debug("MSGGENOK:"+currentMsg.getName());
@@ -209,6 +208,7 @@ public class Machine extends NetworkModule {
 			}
 			message += currentMsg.getName()+" ";
 		}
+		
 		message += "|";
 		GlobalLogger.log(message);
 		return 0;
@@ -226,12 +226,13 @@ public class Machine extends NetworkModule {
 		return 0;
 	}
 	
-	public int createXMLLog() {
+	public XmlLogger createXMLLog() {
 		xmlLogger = new XmlLogger(this.name+".xml");
 		xmlLogger.createDocument();
 		xmlLogger.createRoot("machine");
 		//xmlLogger.getRoot().setAttribute("id", this.networkAddress.value);
 		xmlLogger.getRoot().setAttribute("name", this.name);
-		return 0;
+		
+		return xmlLogger;
 	}
 }
