@@ -12,7 +12,7 @@ public class NetworkMessage extends AbstractMessage implements ISchedulable{
 	/* Needed */
 	public int period;
 	
-	public NetworkMessage(double wcet, String name) throws Exception {
+	public NetworkMessage(double wcet, String name) {
 		super(name);
 		
 		this.size = wcet*ConfigParameters.FLOW_DATARATE;

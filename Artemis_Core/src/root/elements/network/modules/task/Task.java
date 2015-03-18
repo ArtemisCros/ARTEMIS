@@ -22,11 +22,10 @@ public class Task extends NetworkModule {
 	/* Used also as activation instant for scheduling policies */
 	public int nextSend;
 	
-	public Task() throws Exception {
+	public Task() {
 		super();
 		
 		// TODO Auto-generated constructor stub
-
 				
 		observed = false;
 		nextSend = 0;

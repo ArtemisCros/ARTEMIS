@@ -17,7 +17,7 @@ public class MCMessage extends AbstractMessage implements ISchedulable, Cloneabl
 	/* Period of emission */
 	public int period;
 		
-	public MCMessage(String name) throws Exception {
+	public MCMessage(String name) {
 		super(name);
 		size = new HashMap<CriticalityLevel, Double>();
 	}

@@ -29,7 +29,7 @@ public class Network extends SimulableElement{
 	public DijkstraBuilder networkPathBuilder;
 	public Vector<CriticalitySwitch> critSwitches;
 	
- 	public Network() throws Exception {
+ 	public Network() {
 		super();
 		linkList 	= new ArrayList<Link>();
 		machineList = new ArrayList<Machine>();

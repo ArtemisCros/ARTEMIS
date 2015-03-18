@@ -29,7 +29,7 @@ public abstract class AbstractMessage extends Task implements ISchedulable, Clon
 	public int currentNode;
 	public String name;
 	
-	public AbstractMessage(String name) throws Exception {
+	public AbstractMessage(String name) {
 		super();	
 		
 		this.networkPath = new Vector<NetworkAddress>();
