@@ -1,20 +1,18 @@
 package root.elements.network.modules.machine;
 
-import java.util.Vector;
-
 import root.elements.network.modules.link.Link;
-import root.elements.network.modules.task.Message;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 
 public class SwitchMachine extends Machine{
-	public Link[] ports_inputs;
+	/**
+	 * Links to input ports
+	 */
+	public Link[] portsInput;
 	
-
-	
-	public SwitchMachine(NetworkAddress addr_) throws Exception {
-		super(addr_);
-		ports_inputs = new Link[ConfigConstants.CONST_PORT_NUMBER_IN];
+	public SwitchMachine(final NetworkAddress pAddr) throws Exception {
+		super(pAddr);
+		portsInput = new Link[ConfigParameters.CONST_PORT_NUMBER_IN];
 	}
 
 }

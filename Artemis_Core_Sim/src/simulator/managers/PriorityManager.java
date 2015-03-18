@@ -5,9 +5,8 @@ import java.util.Vector;
 import logger.GlobalLogger;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
-import root.elements.network.modules.task.Message;
 import root.elements.network.modules.task.NetworkMessage;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import simulator.policies.FIFOISolatedSchedulingPolicy;
 import simulator.policies.FIFOSchedulingPolicy;
 import simulator.policies.FIFOStarSchedulingPolicy;
@@ -26,7 +25,7 @@ public class PriorityManager {
 		ISchedulingPolicy policy = null;
 		
 		/* Picking priority policy */
-		switch(ConfigConstants.PRIORITY_POLICY) {
+		switch(ConfigParameters.PRIORITY_POLICY) {
 			case FIFO:
 				policy = new FIFOSchedulingPolicy();
 				break;
@@ -45,7 +44,7 @@ public class PriorityManager {
 		}
 
 		try {
-			if(ConfigConstants.MIXED_CRITICALITY) {
+			if(ConfigParameters.MIXED_CRITICALITY) {
 				rstMessage = (MCMessage) policy.getSchedulingMessage(buffer);
 			}
 			else {

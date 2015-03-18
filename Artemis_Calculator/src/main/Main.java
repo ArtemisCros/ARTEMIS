@@ -1,18 +1,13 @@
 package main;
 
-import java.util.ArrayList;
 
 import root.elements.network.modules.task.ISchedulable;
-import root.elements.network.modules.task.Message;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import generator.TaskGenerator;
 import logger.FileLogger;
-import logger.GlobalLogger;
 import models.ComputationConstants;
-import models.HandBuiltModel;
 import models.TrajectoryFIFOModel;
 import models.TrajectoryFIFOSModel;
-import xmlparser.XMLParserLauncher;
 
 /**
  * ARTEMIS Calculator main
@@ -33,7 +28,7 @@ public class Main {
 		
 		TaskGenerator taskGen = new TaskGenerator(ComputationConstants.GENERATED_TASKS, 
 				networkLoad, 
-				ConfigConstants.getInstance().getTimeLimitSimulation(), 
+				ConfigParameters.getInstance().getTimeLimitSimulation(), 
 				ComputationConstants.VARIANCE);
 		
 		

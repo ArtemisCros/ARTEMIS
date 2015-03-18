@@ -8,7 +8,7 @@ import javax.xml.parsers.SAXParserFactory;
 import logger.GlobalLogger;
 import modeler.parser.XmlHandler;
 import root.elements.network.Network;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import utils.ConfigLogger;
 
 /**

@@ -1,6 +1,6 @@
 package main;
 
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import generator.TaskGenerator;
 
 public class Main {
@@ -10,7 +10,7 @@ public class Main {
 		/* Entry parameters */
 		double networkLoad = 0.5;
 		int numberOfTasks = 6;		
-		int timeLimit = ConfigConstants.getInstance().getTimeLimitSimulation();
+		int timeLimit = ConfigParameters.getInstance().getTimeLimitSimulation();
 		double variance = 0.05;
 		
 		TaskGenerator taskGen = new TaskGenerator(numberOfTasks, networkLoad, timeLimit, variance);

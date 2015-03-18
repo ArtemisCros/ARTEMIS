@@ -3,7 +3,7 @@ package simulator.managers;
 import logger.GlobalLogger;
 import root.elements.network.Network;
 import root.elements.network.modules.machine.Machine;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 
 /*
  * Author : Olivier Cros
@@ -43,7 +43,7 @@ public class NetworkScheduler implements Runnable{
 		/* CritSwitches dump */
 		msgManager.associateCritSwitches();
 		
-		for(int time =0; time <= ConfigConstants.getInstance().getTimeLimitSimulation();time++) {		
+		for(int time =0; time <= ConfigParameters.getInstance().getTimeLimitSimulation();time++) {		
 			GlobalLogger.debug("--------------- START TIME "+time+" ---------------");
 			
 			for(int machineCounter=0; machineCounter < network.machineList.size(); machineCounter++) {
@@ -53,7 +53,7 @@ public class NetworkScheduler implements Runnable{
 				
 				
 				/* Mixed-criticality management : filtering non-critical messages */
-				if(ConfigConstants.MIXED_CRITICALITY) {
+				if(ConfigParameters.MIXED_CRITICALITY) {
 					msgManager.filterCriticalMessages(currentMachine, time);
 				}
 				

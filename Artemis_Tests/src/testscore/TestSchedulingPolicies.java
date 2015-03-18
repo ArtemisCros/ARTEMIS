@@ -11,7 +11,7 @@ import root.elements.network.modules.CriticalityLevel;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.NetworkMessage;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import simulator.policies.FIFOSchedulingPolicy;
 import simulator.policies.FIFOStarSchedulingPolicy;
 import simulator.policies.FixedPrioritySchedulingPolicy;
@@ -28,7 +28,7 @@ public class TestSchedulingPolicies {
 		 
 		for(int cptMsg=0;cptMsg<=5;cptMsg++) {
 			try {
-				if(ConfigConstants.MIXED_CRITICALITY) {
+				if(ConfigParameters.MIXED_CRITICALITY) {
 					buffer.addElement(new MCMessage(""+cptMsg));
 				}
 				else {

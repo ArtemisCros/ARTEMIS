@@ -1,3 +1,10 @@
+/**
+ *Network message description 
+ * 2014
+ * 
+ * */
+
+
 package root.elements.network.modules.task;
 
 import java.util.Vector;
@@ -5,8 +12,14 @@ import java.util.Vector;
 import logger.GlobalLogger;
 import root.util.tools.NetworkAddress;
 
-public abstract class Message extends Task implements ISchedulable, Cloneable{
-	/* Destination addresses */
+/**
+ * @author Olivier Cros
+ *  
+ * Abstract generical message : generical description of a network message
+ * 
+ */
+public abstract class AbstractMessage extends Task implements ISchedulable, Cloneable{
+	/*  Destination addresses */
 	public Vector<NetworkAddress> networkPath;
 	
 	/* Size of the message in bytes */
@@ -16,13 +29,7 @@ public abstract class Message extends Task implements ISchedulable, Cloneable{
 	public int currentNode;
 	public String name;
 	
-	/*
-	 * 
-	 * 
-	 * 
-	 */
-	
-	public Message(String name) throws Exception {
+	public AbstractMessage(String name) throws Exception {
 		super();	
 		
 		this.networkPath = new Vector<NetworkAddress>();
@@ -75,7 +82,6 @@ public abstract class Message extends Task implements ISchedulable, Cloneable{
 	
 	@Override
 	public int getOffset() {
-		// TODO Auto-generated method stub
 		return this.offset;
 	}
 
@@ -116,9 +122,9 @@ public abstract class Message extends Task implements ISchedulable, Cloneable{
 		return this.nbExec;
 	}
 	
-	public Message copy() {
+	public AbstractMessage copy() {
 		try {
-			return (Message) this.clone();
+			return (AbstractMessage) this.clone();
 		} catch (CloneNotSupportedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -126,18 +132,19 @@ public abstract class Message extends Task implements ISchedulable, Cloneable{
 		return null;
 	}
 	
-	public int buildNetworkPath(Vector<NetworkAddress> path) {
-		networkPath.addAll(path);
+	/* Builds the network path with the given node list */
+	public int buildNetworkPath(final Vector<NetworkAddress> pPath) {
+		networkPath.addAll(pPath);
 		return 0;
 	}
 	
-	public int addNodeToPath(NetworkAddress addr_) {
-		networkPath.add(addr_);
+	public int addNodeToPath(final NetworkAddress pAddr) {
+		networkPath.add(pAddr);
 		return 0;
 	}
 	
 	/* Build the shorter path between source and destination */
-	public int buildNetworkPath(NetworkAddress source) {
+	public int buildNetworkPath(final NetworkAddress pSource) {
 		NetworkAddress destination = networkPath.firstElement();
 		return 0;
 	}
@@ -152,3 +159,4 @@ public abstract class Message extends Task implements ISchedulable, Cloneable{
 		return 0;
 	}
 }
+  

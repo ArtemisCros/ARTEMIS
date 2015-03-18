@@ -6,5 +6,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Artemis_Logger"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Artemis_Core_Sim"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Artemis_Network_Linker"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -14,10 +14,9 @@ import root.elements.network.modules.CriticalitySwitch;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
-import root.elements.network.modules.task.Message;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.Utils;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 import utils.Errors;
 
@@ -100,6 +99,7 @@ public class XmlHandler extends DefaultHandler{
 			//We get the specific id, then create the machine
 			int idAddr = 0;
 			currentMachineName = "";
+			
 			for(int cptAttr=0;cptAttr < at.getLength();cptAttr++) {
 				if(at.getLocalName(cptAttr) == "id") {
 					idAddr = Integer.parseInt(at.getValue(cptAttr));
@@ -115,14 +115,24 @@ public class XmlHandler extends DefaultHandler{
 			currentMachine = mainNet.findMachine(idAddr, currentMachineName);
 			/* We set the name of this new machine */
 			currentMachine.name = currentMachineName;
-			GlobalLogger.debug("NAME:"+currentMachineName);
+			
+			if(GlobalLogger.DEBUG_ENABLED) {
+				String debug = "NAME"+currentMachineName;
+				GlobalLogger.debug(debug);
+			}
+			
 			return 1;
 		}
 		if(qualif == XMLNetworkTags.TAG_MACHINELINK) {
 			/* If finding a tag for, machine link, we search for the corresponding machines to bind them */
 			String idMachineToLink = at.getValue(0);
 			mainNet.linkMachines(currentMachine, mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name));
-			GlobalLogger.debug("link between "+currentMachineName +" and "+mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name).name);
+			
+			if(GlobalLogger.DEBUG_ENABLED) {
+				String debug = "link between "+currentMachineName +" and "+mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name).name;
+				GlobalLogger.debug(debug);
+			}
+			
 			return 2; 
 		}
 		/* If new message, we just get its id */
@@ -198,7 +208,7 @@ public class XmlHandler extends DefaultHandler{
 			 try {
 				 ISchedulable newMsg;
 				 
-				 if(ConfigConstants.MIXED_CRITICALITY) {
+				 if(ConfigParameters.MIXED_CRITICALITY) {
 					newMsg = new MCMessage(""); 
 					for(int cptCrit=0;cptCrit < criticalities.size();cptCrit++) {
 						/* Associating a wcet to each criticality level */
@@ -248,7 +258,11 @@ public class XmlHandler extends DefaultHandler{
 					}
 					
 				}	
-				GlobalLogger.debug("ID:"+newMsg.getName());
+				if(GlobalLogger.DEBUG_ENABLED) {
+					String debug = "ID:"+newMsg.getName();
+					GlobalLogger.debug(debug);
+				}
+				
 				currentMachine.associateMessage(newMsg);
 				currentMessageProperties.clear();
 			} catch (NumberFormatException e) {
@@ -266,20 +280,20 @@ public class XmlHandler extends DefaultHandler{
 		value = value.substring(start, start+length);
 		 
 		if(triggerTimeLimit) {
-			ConfigConstants config = ConfigConstants.getInstance();			
+			ConfigParameters config = ConfigParameters.getInstance();			
 			config.setTimeLimitSimulation(Integer.parseInt(value));
 		}
 		
 		/* Electronical latency management */
 		if(triggerElecLatency) {
-			ConfigConstants config = ConfigConstants.getInstance();			
+			ConfigParameters config = ConfigParameters.getInstance();			
 			config.setElectronicalLatency(Integer.parseInt(value));
 		}
 		
 		if(triggerCriticality) {
 			if(triggerWcet) {
 				 //Save wcet value into a map
-				if(ConfigConstants.MIXED_CRITICALITY) {
+				if(ConfigParameters.MIXED_CRITICALITY) {
  					 currentMessageProperties.put(currentCriticality, value);
 				}
 				else {

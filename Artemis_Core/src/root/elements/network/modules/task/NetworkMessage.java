@@ -4,10 +4,10 @@ import java.util.Vector;
 
 import logger.GlobalLogger;
 import root.elements.network.modules.CriticalityLevel;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 
-public class NetworkMessage extends Message implements ISchedulable{
+public class NetworkMessage extends AbstractMessage implements ISchedulable{
 	
 	/* Needed */
 	public int period;
@@ -15,15 +15,15 @@ public class NetworkMessage extends Message implements ISchedulable{
 	public NetworkMessage(double wcet, String name) throws Exception {
 		super(name);
 		
-		this.size = wcet*ConfigConstants.FLOW_DATARATE;
+		this.size = wcet*ConfigParameters.FLOW_DATARATE;
 	}
 	
 	public double getCurrentWcet() {
-		return size/ConfigConstants.FLOW_DATARATE;
+		return size/ConfigParameters.FLOW_DATARATE;
 	}
 	
 	public void setCurrentWcet(double wcet) {
-		this.size = wcet*ConfigConstants.FLOW_DATARATE;
+		this.size = wcet*ConfigParameters.FLOW_DATARATE;
 	}
 	
 	public int getCurrentPeriod() {
@@ -48,12 +48,12 @@ public class NetworkMessage extends Message implements ISchedulable{
 
 	@Override
 	public double getWcet() {
-		return (this.size/ConfigConstants.FLOW_DATARATE);
+		return (this.size/ConfigParameters.FLOW_DATARATE);
 	}
 
 	@Override
 	public void setWcet(double wcet) {
-		this.size = wcet*ConfigConstants.FLOW_DATARATE;
+		this.size = wcet*ConfigParameters.FLOW_DATARATE;
 		
 	}
 

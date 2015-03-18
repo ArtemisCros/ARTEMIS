@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import root.elements.network.modules.CriticalityLevel;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 
-public class MCMessage extends Message implements ISchedulable, Cloneable{	
+public class MCMessage extends AbstractMessage implements ISchedulable, Cloneable{	
 	/* Size in bytes */
 	/* Each different size corresponds to a criticality level */
 	public HashMap<CriticalityLevel, Double> size;
@@ -57,12 +57,12 @@ public class MCMessage extends Message implements ISchedulable, Cloneable{
 
 	@Override
 	public double getWcet() {
-		return size.get(CriticalityLevel.NONCRITICAL)/ConfigConstants.FLOW_DATARATE;
+		return size.get(CriticalityLevel.NONCRITICAL)/ConfigParameters.FLOW_DATARATE;
 	}
 	
 	public double getWcet(CriticalityLevel critLvl) {
 		if(size.get(critLvl) != null) {
-			return size.get(critLvl)/ConfigConstants.FLOW_DATARATE;
+			return size.get(critLvl)/ConfigParameters.FLOW_DATARATE;
 		}
 		else {
 			return 0.0;
@@ -72,7 +72,7 @@ public class MCMessage extends Message implements ISchedulable, Cloneable{
 
 	@Override
 	public void setWcet(double wcet) {
-		size.put(CriticalityLevel.NONCRITICAL, wcet*ConfigConstants.FLOW_DATARATE);
+		size.put(CriticalityLevel.NONCRITICAL, wcet*ConfigParameters.FLOW_DATARATE);
 		
 	}
 	

@@ -5,11 +5,11 @@ import java.util.Vector;
 
 import root.elements.network.Network;
 import root.elements.network.modules.machine.Machine;
+import root.elements.network.modules.task.AbstractMessage;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
-import root.elements.network.modules.task.Message;
 import root.elements.network.modules.task.NetworkMessage;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 import logger.GlobalLogger;
 import model.RandomGaussian;
@@ -106,7 +106,7 @@ public class TaskGenerator {
 			try {
 				ISchedulable message;
 				
-				if(ConfigConstants.MIXED_CRITICALITY) {
+				if(ConfigParameters.MIXED_CRITICALITY) {
 					message = new MCMessage( ""+cptTasks);
 				}
 				else {
@@ -126,7 +126,7 @@ public class TaskGenerator {
 	}
 	
 	/* Generate random path : For test purposes*/
-	public void generatePath(Message[] tasks) {
+	public void generatePath(AbstractMessage[] tasks) {
 		int limit = 0;
 		
 		/* Basic topology : 5 consecutive nodes */
@@ -154,11 +154,11 @@ public class TaskGenerator {
 		ISchedulable[] tasks = null;
 		double globalLoad = 0;
 		
-		double errorMargin = ConfigConstants.ERROR_MARGIN;
+		double errorMargin = ConfigParameters.ERROR_MARGIN;
 		boolean validSet = false;
 		
 		while(!validSet) {
-			if(ConfigConstants.MIXED_CRITICALITY) {
+			if(ConfigParameters.MIXED_CRITICALITY) {
 				tasks = new MCMessage[numberOfTasks];
 			}
 			else {
@@ -173,7 +173,7 @@ public class TaskGenerator {
 				/* First, we generate a random uniform-distributed value (Unifast method)*/
 				double prob = RandomGenerator.genDouble(Math.log(10), Math.log((timeLimit/10) + 10));
 				
-				double periodComplete = Math.min(100*(Math.floor(Math.exp(prob)/10)*10), ConfigConstants.getInstance().getTimeLimitSimulation());			
+				double periodComplete = Math.min(100*(Math.floor(Math.exp(prob)/10)*10), ConfigParameters.getInstance().getTimeLimitSimulation());			
 				
 				/* Generate utilisation from a uniform rule */
 				double utilisation = -1;
@@ -198,7 +198,7 @@ public class TaskGenerator {
 				
 				/* Saving results */
 				try {
-					if(ConfigConstants.MIXED_CRITICALITY) {
+					if(ConfigParameters.MIXED_CRITICALITY) {
 						newTask = new MCMessage("");
 					}
 					else {

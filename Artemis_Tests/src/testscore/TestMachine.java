@@ -9,9 +9,8 @@ import org.junit.Test;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
-import root.elements.network.modules.task.Message;
 import root.elements.network.modules.task.NetworkMessage;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 
 public class TestMachine {
@@ -35,7 +34,7 @@ public class TestMachine {
 	public void testGenerateSporadicMessages() {
 		try {
 			ISchedulable messageTest;
-			if(ConfigConstants.MIXED_CRITICALITY) {
+			if(ConfigParameters.MIXED_CRITICALITY) {
 				messageTest = new MCMessage("test");
 				messageTest.setWcet(10);
 			}
@@ -64,7 +63,7 @@ public class TestMachine {
 	public void testGeneratePeriodMessages() {
 		try {
 			ISchedulable messageTest;
-			if(ConfigConstants.MIXED_CRITICALITY) {
+			if(ConfigParameters.MIXED_CRITICALITY) {
 				messageTest = new MCMessage("test");
 				messageTest.setWcet(10);
 			}

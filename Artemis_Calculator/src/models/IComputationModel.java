@@ -1,7 +1,6 @@
 package models;
 
 import root.elements.network.modules.task.ISchedulable;
-import root.elements.network.modules.task.Message;
 
 public interface IComputationModel {
 	

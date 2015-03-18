@@ -27,4 +27,8 @@ public class Errors {
 	public static final int ERROR_CREATING_MESSAGE		= 10401;
 	public static final int FAIL_CREATING_NETWORK		= 10402;
 	public static final int CREATED_MESSAGE_NULL		= 10403;
+	
+	/* Ethernet errors */
+	public static final int BAD_MAC						= 10500;
+	public static final int BAD_MAC_SRC					= 10501;
 }

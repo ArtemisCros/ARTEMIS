@@ -3,7 +3,6 @@ package models;
 import java.util.ArrayList;
 
 import root.elements.network.modules.task.ISchedulable;
-import root.elements.network.modules.task.Message;
 import root.util.tools.NetworkAddress;
 
 public class TrajectoryFIFOSModel implements IComputationModel{

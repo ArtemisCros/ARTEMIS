@@ -9,7 +9,7 @@ import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.NetworkMessage;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 
 /* Author : Olivier Cros
@@ -66,7 +66,7 @@ public class MessageManager {
 			/* If no message is treated AND input buffer not empty */
 			ISchedulable messageToAnalyse;
 			
-			if(ConfigConstants.MIXED_CRITICALITY) {
+			if(ConfigParameters.MIXED_CRITICALITY) {
 				messageToAnalyse = (MCMessage) priorityManager.getNextMessage(fromMachine.inputBuffer);
 			}
 			else {
@@ -78,7 +78,7 @@ public class MessageManager {
 			fromMachine.inputBuffer.remove(messageToAnalyse);
 			
 			/* We make the machine waiting */
-			if(ConfigConstants.MIXED_CRITICALITY) {
+			if(ConfigParameters.MIXED_CRITICALITY) {
 				double wcet = messageToAnalyse.getWcet(criticalityManager.getCurrentLevel());
 				GlobalLogger.debug("Computed wcet loaded:"+wcet);
 				fromMachine.analyseTime += wcet;
@@ -127,7 +127,7 @@ public class MessageManager {
 		while(!fromMachine.outputBuffer.isEmpty()) {
 			ISchedulable currentMsg;
 			
-			if(ConfigConstants.MIXED_CRITICALITY) {
+			if(ConfigParameters.MIXED_CRITICALITY) {
 				 currentMsg = (MCMessage) fromMachine.outputBuffer.firstElement();
 			}
 			else {
@@ -139,7 +139,7 @@ public class MessageManager {
 			if(currentMsg.getCurrentNode() < currentMsg.getNetworkPath().size()) {
 				linkBuffer.add(currentMsg);
 				/* Adding the electronical latency to transmission time */
-				currentMsg.setTimerArrival(time+ConfigConstants.getInstance().getElectronicalLatency());
+				currentMsg.setTimerArrival(time+ConfigParameters.getInstance().getElectronicalLatency());
 			}	
 			fromMachine.outputBuffer.remove(currentMsg);
 			

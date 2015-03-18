@@ -1,7 +1,6 @@
 package root.elements.network;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Vector;
 
 import logger.FileLogger;
@@ -9,15 +8,13 @@ import logger.GlobalLogger;
 import modeler.networkbuilder.DijkstraBuilder;
 import root.elements.SimulableElement;
 import root.elements.network.address.AddressGenerator;
-import root.elements.network.modules.CriticalityLevel;
 import root.elements.network.modules.CriticalitySwitch;
 import root.elements.network.modules.link.Link;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
-import root.elements.network.modules.task.Message;
 import root.elements.network.modules.task.NetworkMessage;
-import root.util.constants.ConfigConstants;
+import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 import utils.ConfigLogger;
 import utils.Errors;
@@ -53,7 +50,7 @@ public class Network extends SimulableElement{
  			/* For each generated message, we add its load to each machine in its path */
  			for(int i=0;i<currentMachine.messageGenerator.size();i++) {
  				ISchedulable currentMsg;
- 				if(ConfigConstants.MIXED_CRITICALITY) {
+ 				if(ConfigParameters.MIXED_CRITICALITY) {
  					currentMsg = (MCMessage) currentMachine.messageGenerator.get(i);
  				}
  				else {
@@ -64,7 +61,7 @@ public class Network extends SimulableElement{
  				for(int pathNodeCpt=0;pathNodeCpt<currentMsg.getNetworkPath().size();pathNodeCpt++) {
  					period = (double)currentMsg.getPeriod();
  					if(period == 0.0) {
- 						period = ConfigConstants.getInstance().getTimeLimitSimulation();
+ 						period = ConfigParameters.getInstance().getTimeLimitSimulation();
  					}
  					(this.findMachine(currentMsg.getNetworkPath().get(pathNodeCpt).value)).nodeLoad +=
  							(double)currentMsg.getWcet()/period;
@@ -153,7 +150,7 @@ public class Network extends SimulableElement{
 			networkDescription += "\tAddress:"+currentMachine.getAddress().value+"\n";
 			networkDescription += "\tOutputs:{\n";
 			
-			for(int j=0;j<currentMachine.ports_number;j++) {
+			for(int j=0;j<currentMachine.portsNumber;j++) {
 				Link currentLink = currentMachine.portsOutput[j];
 				if(currentLink != null) {
 					if(currentLink.bindLeft.value == currentMachine.networkAddress.value) {
@@ -170,7 +167,7 @@ public class Network extends SimulableElement{
 			
 			for(int j=0;j<currentMachine.messageGenerator.size();j++) {
 				ISchedulable currentMsg;
-				if(ConfigConstants.MIXED_CRITICALITY) {
+				if(ConfigParameters.MIXED_CRITICALITY) {
 					currentMsg = (MCMessage) currentMachine.messageGenerator.get(j);
 				}
 				else {
@@ -201,9 +198,9 @@ public class Network extends SimulableElement{
 		for(int i=0;i<machineList.size();i++) {
 			Machine currentMachine = machineList.get(i);
 			
-			for(int j=0;j<currentMachine.ports_number;j++) {
+			for(int j=0;j<currentMachine.portsNumber;j++) {
 				Link currentLink = currentMachine.portsOutput[j];
-				if(currentLink != null && (currentMachine.networkAddress.value == currentLink.bindLeft.value)) {
+				if(currentLink != null && currentMachine.networkAddress.value == currentLink.bindLeft.value) {
 					networkGraph += currentLink.bindLeft.machine.name+"->"+currentLink.bindRight.machine.name+";\n";
 				}			
 			}		
@@ -227,8 +224,13 @@ public class Network extends SimulableElement{
 
 	public void showCritSwitches() {
 		for(int cptCrit=0;cptCrit < critSwitches.size();cptCrit++) {
-			GlobalLogger.debug("CRIT SWITCH AT TIME:"+critSwitches.get(cptCrit).getTime()+" TO LVL:"
-					+critSwitches.get(cptCrit).getCritLvl());
+			if(GlobalLogger.DEBUG_ENABLED) {
+				int time = critSwitches.get(cptCrit).getTime();
+				String debug = "CRIT SWITCH AT TIME:"+time+" TO LVL:"
+						+critSwitches.get(cptCrit).getCritLvl();
+				
+				GlobalLogger.debug(debug);
+			}			
 		}
 	}
 	/* Creates and builds all the messages path in the current network with a Dijkstra algorithm : deprecated*/
@@ -238,7 +240,7 @@ public class Network extends SimulableElement{
 		for(int machCpt =0; machCpt<machineList.size();machCpt++) {		
 			for(int msgCpt=0;msgCpt<machineList.get(machCpt).messageGenerator.size();msgCpt++) {
 				ISchedulable currentMessage;
-				if(ConfigConstants.MIXED_CRITICALITY) {
+				if(ConfigParameters.MIXED_CRITICALITY) {
 					 currentMessage = (MCMessage) machineList.get(machCpt).messageGenerator.get(msgCpt);
 				}
 				else {
