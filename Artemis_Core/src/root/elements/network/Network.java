@@ -29,6 +29,9 @@ public class Network extends SimulableElement{
 	public DijkstraBuilder networkPathBuilder;
 	public Vector<CriticalitySwitch> critSwitches;
 	
+	/**
+	 * Network structure default constructor
+	 */
  	public Network() {
 		super();
 		linkList 	= new ArrayList<Link>();
@@ -45,7 +48,7 @@ public class Network extends SimulableElement{
 		
 		/* For each machine, we get each generated message */
  		for(int cptMachine=0; cptMachine < machineList.size(); cptMachine++) {
- 			Machine currentMachine = machineList.get(cptMachine);
+ 			final Machine currentMachine = machineList.get(cptMachine);
  			
  			/* For each generated message, we add its load to each machine in its path */
  			for(int i=0;i<currentMachine.messageGenerator.size();i++) {
@@ -71,15 +74,17 @@ public class Network extends SimulableElement{
  		
  		/* We display the results (debug purposes) */
  		for(int cptMachine=0; cptMachine < machineList.size(); cptMachine++) {
- 		//	GlobalLogger.debug("Machine "+machineList.get(cptMachine).name+
- 		//			" load:"+machineList.get(cptMachine).nodeLoad);
+ 			if(GlobalLogger.DEBUG_ENABLED) {
+ 				GlobalLogger.debug("Machine "+machineList.get(cptMachine).name+
+ 	 					" load:"+machineList.get(cptMachine).nodeLoad);
+ 			}			
  		}
  		return 0;
  	}
  	
  	public Machine findMachine(int idAddr, String machineName) {
  		/* We check if machine has already been created in the network */
- 		Machine rst = this.getMachineForAddressValue(idAddr);
+ 		final Machine rst = this.getMachineForAddressValue(idAddr);
 				
 		if(rst == null) {
 			return this.createMachine(idAddr, machineName);
@@ -100,7 +105,7 @@ public class Network extends SimulableElement{
  	protected Machine createMachine(NetworkAddress addr, String machineName) {
  		try {
  			/* Create machine */
-			Machine currentMachine = new Machine(addr, machineName);
+ 			final Machine currentMachine = new Machine(addr, machineName);
 			currentMachine.networkAddress.machine = currentMachine;
 			
 			/* Add it to the list of the machines in the network */
@@ -116,21 +121,20 @@ public class Network extends SimulableElement{
  	}
  	
  	protected Machine createMachine(int idAddr, String machineName) {
- 		NetworkAddress newAddr = new NetworkAddress(idAddr);
+ 		final NetworkAddress newAddr = new NetworkAddress(idAddr);
 		return createMachine(newAddr, machineName);
  	}
  	
  	protected Machine createMachine(String machineName) {
  		/* We generate a specific id */
- 		NetworkAddress generatedAddr = addressGenerator.generateAddress();
+ 		final NetworkAddress generatedAddr = addressGenerator.generateAddress();
 		return createMachine(generatedAddr, machineName);
 	}
 	
  	/* Create a network link between two machines */
 	public Link linkMachines(Machine machinea, Machine machineb) {
 		try {
-		//	GlobalLogger.debug("Create link between "+machinea.networkAddress.value+" and "+machineb.networkAddress.value);
-			Link link = new Link(machinea, machineb);
+			final Link link = new Link(machinea, machineb);
 			linkList.add(link);
 			return link;
 		} catch (Exception e) {
@@ -144,14 +148,14 @@ public class Network extends SimulableElement{
 	public String displayNetwork() {
 		String networkDescription = "";
 		for(int i=0;i<machineList.size();i++) {
-			Machine currentMachine = machineList.get(i);
+			final Machine currentMachine = machineList.get(i);
 			
 			networkDescription += "Machine "+i+" {\n";
 			networkDescription += "\tAddress:"+currentMachine.getAddress().value+"\n";
 			networkDescription += "\tOutputs:{\n";
 			
 			for(int j=0;j<currentMachine.portsNumber;j++) {
-				Link currentLink = currentMachine.portsOutput[j];
+				final Link currentLink = currentMachine.portsOutput[j];
 				if(currentLink != null) {
 					if(currentLink.bindLeft.value == currentMachine.networkAddress.value) {
 						networkDescription += "\t\tAddress:"+currentLink.bindRight.value+"\n";
@@ -196,10 +200,10 @@ public class Network extends SimulableElement{
 		networkGraph += "digraph {\n";
 		
 		for(int i=0;i<machineList.size();i++) {
-			Machine currentMachine = machineList.get(i);
+			final Machine currentMachine = machineList.get(i);
 			
 			for(int j=0;j<currentMachine.portsNumber;j++) {
-				Link currentLink = currentMachine.portsOutput[j];
+				final Link currentLink = currentMachine.portsOutput[j];
 				if(currentLink != null && currentMachine.networkAddress.value == currentLink.bindLeft.value) {
 					networkGraph += currentLink.bindLeft.machine.name+"->"+currentLink.bindRight.machine.name+";\n";
 				}			
@@ -225,15 +229,18 @@ public class Network extends SimulableElement{
 	public void showCritSwitches() {
 		for(int cptCrit=0;cptCrit < critSwitches.size();cptCrit++) {
 			if(GlobalLogger.DEBUG_ENABLED) {
-				int time = critSwitches.get(cptCrit).getTime();
-				String debug = "CRIT SWITCH AT TIME:"+time+" TO LVL:"
+				final int time = critSwitches.get(cptCrit).getTime();
+				final String debug = "CRIT SWITCH AT TIME:"+time+" TO LVL:"
 						+critSwitches.get(cptCrit).getCritLvl();
 				
 				GlobalLogger.debug(debug);
 			}			
 		}
 	}
-	/* Creates and builds all the messages path in the current network with a Dijkstra algorithm : deprecated*/
+	/**
+	 * Creates and builds all the messages path 
+	 * in the current network with a Dijkstra algorithm : deprecated
+	 */
 	@Deprecated
 	public void buildPaths() {
 		
@@ -246,17 +253,6 @@ public class Network extends SimulableElement{
 				else {
 					 currentMessage = (NetworkMessage) machineList.get(machCpt).messageGenerator.get(msgCpt);
 				}
-				
-				/*ArrayList<NetworkAddress> networkPath = networkPathBuilder.buildPath(
-						machineList.get(machCpt).networkAddress, 
-						currentMessage.networkPath.firstElement());			
-				
-				for (int nodePathCpt=0; nodePathCpt<networkPath.size(); nodePathCpt++) {
-					currentMessage.addNodeToPath(networkPath.get(nodePathCpt));
-				}	
-				
-				currentMessage.networkPath.add(currentMessage.networkPath.firstElement());
-				currentMessage.networkPath.remove(0);*/
 				
 				currentMessage.displayPath();
 			}

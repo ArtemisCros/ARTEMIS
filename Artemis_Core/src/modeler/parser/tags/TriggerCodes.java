@@ -1,5 +1,10 @@
 package modeler.parser.tags;
 
+/** 
+ * List of XML Triggers
+ * @author oliviercros
+ *
+ */
 public enum TriggerCodes {
 	MACHINE,
 	WCET,

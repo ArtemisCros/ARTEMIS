@@ -3,8 +3,6 @@ package modeler.parser;
 import java.util.HashMap;
 import java.util.Vector;
 
-import javax.management.modelmbean.XMLParseException;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -44,13 +42,13 @@ public class XmlHandler extends DefaultHandler{
 	/**
 	 * Name of the current machine
 	 */
-	private String currentMachineName;
+	private String currMachName;
 	
 	/**
 	 *  Triggers for XML Parsing
 	 *  Associated with TriggerCodes, and XMLNetworkTags
 	 */
-	private HashMap<TriggerCodes, Boolean>triggers;
+	final private HashMap<TriggerCodes, Boolean>triggers;
 	
 	/** 
 	 * Currently parsed criticality level name
@@ -60,12 +58,12 @@ public class XmlHandler extends DefaultHandler{
 	/**
 	 * Currently computed criticality levels
 	 */
-	private Vector<String> criticalities;
+	final private Vector<String> criticalities;
 		
 	/**
 	 * Created messages
 	 */
-	public HashMap<String, String>currMsgProp;
+	final public HashMap<String, String>currMsgProp;
 	
 	/** 
 	 * Currently parsed criticality switch
@@ -103,13 +101,16 @@ public class XmlHandler extends DefaultHandler{
 	 * @return
 	 */
 	public String getCurrentMachineName() {
-		return currentMachineName;
+		return currMachName;
 	}
 	
 	/** 
 	 * XML Parser Handler default constructor
 	 */
 	public XmlHandler() {
+		super();
+		triggers = new HashMap<TriggerCodes, Boolean>();
+		
 		triggers.put(TriggerCodes.MESSAGE, false);
 		currMsgProp = new HashMap<String, String>();
 		currCriticality = "NONCRITICAL";
@@ -119,11 +120,15 @@ public class XmlHandler extends DefaultHandler{
 		mainNet = new Network();
 	}
 	
+	/** 
+	 * Gets a pointer to created network structure
+	 * @return
+	 */
 	public Network getNetwork() {
 		return mainNet;
 	}
 	
-	private void switchTrigger(String qualif, boolean trigger) {
+	private void switchTrigger(final String qualif,final boolean trigger) {
 		/* XML Tags triggers */
 		if(qualif == XMLNetworkTags.TAG_MACHINE) {triggers.put(TriggerCodes.MACHINE, trigger);}
 		if(qualif == XMLNetworkTags.TAG_WCET) {triggers.put(TriggerCodes.WCET, trigger);}
@@ -148,39 +153,40 @@ public class XmlHandler extends DefaultHandler{
 			//End of machine markup
 			//We get the specific id, then create the machine
 			int idAddr = 0;
-			currentMachineName = "";
+			currMachName = "";
 			
 			for(int cptAttr=0;cptAttr < pAttr.getLength();cptAttr++) {
 				if(pAttr.getLocalName(cptAttr).compareTo("id") == 0) {
 					idAddr = Integer.parseInt(pAttr.getValue(cptAttr));
 					
-					if(currentMachineName == "") {
-						currentMachineName = "Node "+idAddr;
+					if(currMachName.compareTo("") == 0) {
+						currMachName = "Node "+idAddr;
 					}
 				}		
-				if(pAttr.getLocalName(cptAttr) == "name") {
-					currentMachineName = pAttr.getValue(cptAttr);
+				if(pAttr.getLocalName(cptAttr).compareTo("name") == 0) {
+					currMachName = pAttr.getValue(cptAttr);
 				}
 			}
 			/* We check if machine has already been created in the network */
-			currentMachine = mainNet.findMachine(idAddr, currentMachineName);
+			currentMachine = mainNet.findMachine(idAddr, currMachName);
 			/* We set the name of this new machine */
-			currentMachine.name = currentMachineName;
+			currentMachine.name = currMachName;
 			
 			if(GlobalLogger.DEBUG_ENABLED) {
-				String debug = "NAME"+currentMachineName;
+				final String debug = "NAME"+currMachName;
 				GlobalLogger.debug(debug);
 			}
 			
 			return 1;
 		}
 		if(qualif == XMLNetworkTags.TAG_MACHINELINK) {
-			/* If finding a tag for, machine link, we search for the corresponding machines to bind them */
-			String idMachineToLink = pAttr.getValue(0);
+			/* If finding a tag for, machine link, 
+			 * we search for the corresponding machines to bind them */
+			final String idMachineToLink = pAttr.getValue(0);
 			mainNet.linkMachines(currentMachine, mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name));
 			
 			if(GlobalLogger.DEBUG_ENABLED) {
-				String debug = "link between "+currentMachineName +" and "+mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name).name;
+				final String debug = "link between "+currMachName +" and "+mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name).name;
 				GlobalLogger.debug(debug);
 			}
 			
@@ -188,18 +194,19 @@ public class XmlHandler extends DefaultHandler{
 		}
 		/* If new message, we just get its id */
 		if(qualif == XMLNetworkTags.TAG_MESSAGE) { 
-			String idMsg = pAttr.getValue(0);
+			final String idMsg = pAttr.getValue(0);
 			currMsgProp.put("ID", idMsg);	
 			
-			String dest = pAttr.getValue(1);
+			final String dest = pAttr.getValue(1);
 			currMsgProp.put("DEST", dest);	
 			return 3;
 		}
 		if(qualif == XMLNetworkTags.TAG_CRITICALITY) {
 			currCriticality = pAttr.getValue(0);
 			
-			if(!criticalities.contains(currCriticality))
+			if(!criticalities.contains(currCriticality)) {
 				criticalities.addElement(currCriticality);
+			}
 			
 			return 4;
 		}
@@ -210,33 +217,37 @@ public class XmlHandler extends DefaultHandler{
 	/**
 	 *  Parse general config tags 
 	 */
-	public void detectGeneralConf(final String uri,final String name,final String qualif,final Attributes at) {
+	public void detectGeneralConf(final String uri,final String name,final String qualif,final Attributes pAttr) {
 		if(qualif == XMLNetworkTags.TAG_CRIT_SWITCHES) {
 			
 		}
 		
 		if(qualif == XMLNetworkTags.TAG_CRIT_SWITCH) {
-			for(int cptAttr=0;cptAttr < at.getLength();cptAttr++) {
+			for(int cptAttr=0;cptAttr < pAttr.getLength();cptAttr++) {
 				
-				if(at.getLocalName(cptAttr) == "time") {
-					currentCritSwitch.setTime(Integer.parseInt(at.getValue(cptAttr)));
+				if(pAttr.getLocalName(cptAttr).compareTo("time") == 0) {
+					currentCritSwitch.setTime(Integer.parseInt(pAttr.getValue(cptAttr)));
 				}
 			}
 		}
 	}
 	
-	/* Start element */
-	 public void startElement(final String uri, final String name, final String qualif, final Attributes at) {
+	/**
+	 *  Start element 
+	 */
+	 public void startElement(final String uri, final String name, final String qualif, final Attributes pAttr) {
 		switchTrigger(qualif, true);
 		
-		final int result = this.detectConfMachine(uri, name, qualif, at);
+		final int result = this.detectConfMachine(uri, name, qualif, pAttr);
 		
 		if(result == 0) {
-			this.detectGeneralConf(uri, name, qualif, at);
+			this.detectGeneralConf(uri, name, qualif, pAttr);
 		}
 	}
 	 
-	 /* Called at each element's end */
+	 /**
+	  *  Called at each element's end 
+	  */
 	 public void endElement(final String uri,final String name,final String qName) {
 		 switchTrigger(qName, false);	 
 		 
@@ -267,7 +278,7 @@ public class XmlHandler extends DefaultHandler{
 					newMsg = new MCMessage(""); 
 					for(int cptCrit=0;cptCrit < criticalities.size();cptCrit++) {
 						/* Associating a wcet to each criticality level */
-						String rawWcet = currMsgProp.get(criticalities.get(cptCrit));
+						final String rawWcet = currMsgProp.get(criticalities.get(cptCrit));
 						double wcet;
 						if(rawWcet == null) {
 							wcet = 0;
@@ -276,7 +287,7 @@ public class XmlHandler extends DefaultHandler{
 							wcet = Integer.parseInt(rawWcet);
 						}
  
-						CriticalityLevel critLvl = Utils.convertToCritLevel(criticalities.get(cptCrit));
+						final CriticalityLevel critLvl = Utils.convertToCritLevel(criticalities.get(cptCrit));
 						newMsg.setWcet(wcet, critLvl);
 						
 						newMsg.setName("MSG"+currMsgProp.get("ID"));
@@ -304,17 +315,17 @@ public class XmlHandler extends DefaultHandler{
 
 				if(currMsgProp.containsKey("PATH")) {
 					/* We make a loop to build the message path in the network*/
-					String[] path = currMsgProp.get("PATH").split(",");
+					final String[] path = currMsgProp.get("PATH").split(",");
 					for(int i=0; i < path.length ; i++) {
 						/* For each node id in the path, we get its corresponding address */
 						
-						NetworkAddress currentAddress = mainNet.findMachine(Integer.parseInt(path[i])).getAddress();
+						final NetworkAddress currentAddress = mainNet.findMachine(Integer.parseInt(path[i])).getAddress();
 						newMsg.addNodeToPath(currentAddress); 
 					}
 					
 				}	
 				if(GlobalLogger.DEBUG_ENABLED) {
-					String debug = "ID:"+newMsg.getName();
+					final String debug = "ID:"+newMsg.getName();
 					GlobalLogger.debug(debug);
 				}
 				
@@ -326,8 +337,11 @@ public class XmlHandler extends DefaultHandler{
 		 }
 	} 
 	 
-	 public void characters(char[] ch, int start, int length) {  
-		String value = new String(ch);
+	 /**
+	  * Analyzes xml tag values
+	  */
+	 public void characters(final char[] pCh,final int start,final int length) {  
+		String value = new String(pCh);
 		value = value.substring(start, start+length);
 		 
 		if(triggers.get(TriggerCodes.TIMELIMIT)) {
@@ -366,7 +380,7 @@ public class XmlHandler extends DefaultHandler{
 			}
 		}
 		if(triggers.get(TriggerCodes.CRITSWITCH)) {
-			CriticalityLevel newLevel = Utils.convertToCritLevel(value);
+			final CriticalityLevel newLevel = Utils.convertToCritLevel(value);
 			currentCritSwitch.setCritLvl(newLevel);
 		}
 	 }
