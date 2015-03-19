@@ -32,7 +32,7 @@ public class CoreLauncher {
 			if(ConfigParameters.AUTOMATIC_TASK_GENERATION) {
 				GlobalLogger.log("------------ LAUNCHING AUTOMATIC TASK GENERATOR ------------");
 				/* Get builder from automatic task generator */
-				TaskGenerator tGenerator = new TaskGenerator(ComputationConstants.GENERATED_TASKS, 
+				TaskGenerator tGenerator = new TaskGenerator(ComputationConstants.GENERATEDTASKS, 
 						0.5, 
 						ConfigParameters.getInstance().getTimeLimitSimulation(), 
 						ComputationConstants.VARIANCE);

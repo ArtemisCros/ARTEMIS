@@ -26,7 +26,7 @@ public class Main {
 		double limiteHaute = 1.0;
 		double networkLoad 	= 0.9;
 		
-		TaskGenerator taskGen = new TaskGenerator(ComputationConstants.GENERATED_TASKS, 
+		TaskGenerator taskGen = new TaskGenerator(ComputationConstants.GENERATEDTASKS, 
 				networkLoad, 
 				ConfigParameters.getInstance().getTimeLimitSimulation(), 
 				ComputationConstants.VARIANCE);
@@ -93,14 +93,14 @@ public class Main {
 		System.out.print("+  Load  +  FIFO Delay + FIFOS Delay +  Time(ms)  +\n");
 		System.out.print("+--------+-------------+-------------+------------+\n");
 		
-		for(networkLoad=limiteBasse;networkLoad<limiteHaute;networkLoad+= ComputationConstants.LOAD_STEP) {
+		for(networkLoad=limiteBasse;networkLoad<limiteHaute;networkLoad+= ComputationConstants.LOADSTEP) {
 			double totalDelayFIFO = 0.0;
 			double totalDelayFIFOS = 0.0;
 			taskGen.setNetworkLoad(networkLoad);
 			
 			/* Once we have the task model, we need a topology */ 
 			/* Then, we apply the trajectory approach on this topology */
-			for(int cptTests=0;cptTests < ComputationConstants.NUMBER_TESTS; cptTests++) {		
+			for(int cptTests=0;cptTests < ComputationConstants.NUMBERTESTS; cptTests++) {		
 				ISchedulable[] tasks 	= taskGen.generateTaskList();
 				/*For each task, we compute its worst-case delay */
 				for(int cptTask=0;cptTask < tasks.length;cptTask++) {
@@ -123,16 +123,16 @@ public class Main {
 			
 			FileLogger.logToFile(/*("+ %010.3f + %010.3f  + %010.3f  + %010.3f +\n", */
 					(""+Math.floor(networkLoad*ComputationConstants.PRECISION)/ComputationConstants.PRECISION)+"\t"+
-					Math.floor(totalDelayFIFO*ComputationConstants.PRECISION/ComputationConstants.NUMBER_TESTS)/ComputationConstants.PRECISION+"\t"+
-					Math.floor(totalDelayFIFOS*ComputationConstants.PRECISION/ComputationConstants.NUMBER_TESTS)/ComputationConstants.PRECISION+"\t"+
+					Math.floor(totalDelayFIFO*ComputationConstants.PRECISION/ComputationConstants.NUMBERTESTS)/ComputationConstants.PRECISION+"\t"+
+					Math.floor(totalDelayFIFOS*ComputationConstants.PRECISION/ComputationConstants.NUMBERTESTS)/ComputationConstants.PRECISION+"\t"+
 					(chronoEnd - chronoStart)+"\n", "results.txt");
 			/*		"+"++
 					" in "++" ms");*/
 			
 			System.out.format("+ %05.4f + %010.3f  + %010.3f  + %010.1f +\n",
 					(Math.floor(networkLoad*ComputationConstants.PRECISION)/ComputationConstants.PRECISION),
-					Math.floor(totalDelayFIFO*ComputationConstants.PRECISION/ComputationConstants.NUMBER_TESTS)/ComputationConstants.PRECISION,
-					Math.floor(totalDelayFIFOS*ComputationConstants.PRECISION/ComputationConstants.NUMBER_TESTS)/ComputationConstants.PRECISION,
+					Math.floor(totalDelayFIFO*ComputationConstants.PRECISION/ComputationConstants.NUMBERTESTS)/ComputationConstants.PRECISION,
+					Math.floor(totalDelayFIFOS*ComputationConstants.PRECISION/ComputationConstants.NUMBERTESTS)/ComputationConstants.PRECISION,
 					(chronoEnd - chronoStart));
 		}
 		
