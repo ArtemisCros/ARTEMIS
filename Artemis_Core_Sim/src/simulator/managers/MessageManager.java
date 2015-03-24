@@ -80,7 +80,11 @@ public class MessageManager {
 			/* We make the machine waiting */
 			if(ConfigParameters.MIXED_CRITICALITY) {
 				double wcet = messageToAnalyse.getWcet(criticalityManager.getCurrentLevel());
-				GlobalLogger.debug("Computed wcet loaded:"+wcet);
+				if(GlobalLogger.DEBUG_ENABLED) {
+					String debug = "Computed wcet loaded:"+wcet;
+					GlobalLogger.debug(debug);					
+				}
+
 				fromMachine.analyseTime += wcet;
 			}
 			else {
@@ -100,7 +104,12 @@ public class MessageManager {
 	public int analyzeMessage(Machine fromMachine, int time) {
 		if(fromMachine.currentlyTransmittedMsg != null) {
 			fromMachine.analyseTime--;
-			GlobalLogger.debug("TREATING MSG "+fromMachine.currentlyTransmittedMsg.getName()+" MACHINE "+fromMachine.name);
+			
+			if(GlobalLogger.DEBUG_ENABLED) {
+				String debug = "TREATING MSG "+fromMachine.currentlyTransmittedMsg.getName();
+				debug += " MACHINE "+fromMachine.name;
+				GlobalLogger.debug(debug);
+			}
 		}	
 		
 		/* If no message is being transmitted */

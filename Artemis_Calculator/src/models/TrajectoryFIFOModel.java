@@ -3,9 +3,7 @@ package models;
 import java.util.ArrayList;
 
 import root.elements.network.modules.task.ISchedulable;
-import root.elements.network.modules.task.Task;
 import root.util.tools.NetworkAddress;
-import logger.GlobalLogger;
 
 /**
  * Trajectory approach delay computation
@@ -14,6 +12,8 @@ import logger.GlobalLogger;
  *
  */
 public class TrajectoryFIFOModel implements IComputationModel{
+	public double nonPreemptiveDelay;
+	
 	public double computeDelay(ISchedulable[] tasks, ISchedulable task) {
 		/* Computing the max response time, depending on offset */
 		double responseTime = 0.0;
@@ -53,18 +53,21 @@ public class TrajectoryFIFOModel implements IComputationModel{
 		double quotient			= 0.0;
 		
 		/*Term 1 : Induced delay */
-		for(int cptTask=0;cptTask < tasks.length;cptTask++) {	
-			/* If there is at least one common node */
-			for(int cptNodes=0;cptNodes<tasks[cptTask].getNetworkPath().size(); cptNodes++) {
-				if(task.getNetworkPath().contains(tasks[cptTask].getNetworkPath().get(cptNodes))) {
-					final double aij = computeAij(tasks, task, tasks[cptTask]);
-					quotient = Math.floor((task.getOffset() + aij)/(tasks[cptTask].getPeriod()));
+		if(ComputationConstants.INDUCEDDELAY) {
+			for(int cptTask=0;cptTask < tasks.length;cptTask++) {	
+				/* If there is at least one common node */
+				for(int cptNodes=0;cptNodes<tasks[cptTask].getNetworkPath().size(); cptNodes++) {
+					if(task.getNetworkPath().contains(tasks[cptTask].getNetworkPath().get(cptNodes))) {
+						final double aij = computeAij(tasks, task, tasks[cptTask]);
+						quotient = Math.floor((task.getOffset() + aij)/(tasks[cptTask].getPeriod()));
 
-					inducedDelay += (tasks[cptTask].getWcet())*(1+quotient);
+						inducedDelay += (tasks[cptTask].getWcet())*(1+quotient);
 
-					break;
+						break;
+					}
 				}
 			}
+			
 		}
 		
 		
@@ -97,6 +100,7 @@ public class TrajectoryFIFOModel implements IComputationModel{
 			}
 			cptNodes++;
 		}
+		nonPreemptiveDelay = nonPreemptiveDel;
 		
 		/* Term 3 : Switching latency */
 		switchingLatency = task.getNetworkPath().size()*ComputationConstants.SWITCHINGLATENCY;

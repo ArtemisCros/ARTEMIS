@@ -117,6 +117,9 @@ public class XmlHandler extends DefaultHandler{
 		criticalities = new Vector<String>();
 		currentCritSwitch = new CriticalitySwitch();
 
+		for(TriggerCodes code : TriggerCodes.values()) {
+			triggers.put(code, false);
+		}
 		mainNet = new Network();
 	}
 	

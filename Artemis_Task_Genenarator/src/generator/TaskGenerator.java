@@ -62,7 +62,7 @@ public class TaskGenerator {
 			current = mainNet.getMachineForAddressValue(mainNet.machineList.get(nodePos).getAddress().value);
 			currentAdress = current.getAddress();
 			tasks[cptTasks].getNetworkPath().add(currentAdress);
-			GlobalLogger.debug("TEST");
+
 			
 			/* Link each task with a given set of nodes from the network */		
 			while(!pathFinished) {	
@@ -79,7 +79,6 @@ public class TaskGenerator {
 					/* We choose the next machine's adress */
 					currentAdress = current.portsOutput[nodePos].getBindRightMachine().getAddress();
 					current = mainNet.getMachineForAddressValue(currentAdress.value);
-					GlobalLogger.debug("CURR:"+current.getAddress().value);
 					
 					if(!tasks[cptTasks].getNetworkPath().contains(currentAdress)) {			
 						tasks[cptTasks].getNetworkPath().add(currentAdress);
@@ -126,6 +125,7 @@ public class TaskGenerator {
 	}
 	
 	/* Generate random path : For test purposes*/
+	@Deprecated
 	public void generatePath(AbstractMessage[] tasks) {
 		int limit = 0;
 		
@@ -150,6 +150,10 @@ public class TaskGenerator {
 	}
 	
 	public ISchedulable[] generateTaskList() {
+		return generateTaskList(0);
+	}
+	
+	public ISchedulable[] generateTaskList(double highestWcet) {
 		/*Generated tasks list */
 		ISchedulable[] tasks = null;
 		double globalLoad = 0;
@@ -181,6 +185,7 @@ public class TaskGenerator {
 					utilisation = RandomGaussian.genGauss_(networkLoad/numberOfTasks, variance);
 				}
 				
+				
 				if(cptTask == numberOfTasks) {
 					utilisation = networkLoad - globalLoad;
 					
@@ -195,6 +200,10 @@ public class TaskGenerator {
 				/* Computes wcet from utilisation */
 				
 				double wcetComplete = Math.floor(utilisation * periodComplete);
+				if(highestWcet != 0 && wcetComplete > highestWcet) {
+					periodComplete = (highestWcet * periodComplete)/wcetComplete;
+					wcetComplete = highestWcet;
+				}
 				
 				/* Saving results */
 				try {
@@ -212,18 +221,18 @@ public class TaskGenerator {
 					tasks[cptTask-1] = newTask;
 					
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
 				globalLoad += utilisation;
-				if(Math.abs(networkLoad - globalLoad) <= errorMargin)
+				if(Math.abs(networkLoad - globalLoad) <= errorMargin) {
 					validSet = true;
+				}
 			}
 		}
 		
 		linkToPath(tasks);
-		GlobalLogger.debug("TEST");
+
 		linkTasksetToNetwork(tasks);
 		
 		

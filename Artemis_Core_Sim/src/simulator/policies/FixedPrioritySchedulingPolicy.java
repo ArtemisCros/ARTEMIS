@@ -15,13 +15,13 @@ public class FixedPrioritySchedulingPolicy implements ISchedulingPolicy {
 	public ISchedulable getSchedulingMessage(Vector<ISchedulable> buffer) {
 		AbstractMessage rstMessage = null;
 		
-		for(int cpt_buffer=0;cpt_buffer<buffer.size();cpt_buffer++) {
-			if(rstMessage == null || buffer.get(cpt_buffer).getPriority() > rstMessage.priority) {
+		for(int cptBuffer=0;cptBuffer<buffer.size();cptBuffer++) {
+			if(rstMessage == null || buffer.get(cptBuffer).getPriority() > rstMessage.priority) {
 				if(ConfigParameters.MIXED_CRITICALITY) {
-					rstMessage = (MCMessage) buffer.get(cpt_buffer);
+					rstMessage = (MCMessage) buffer.get(cptBuffer);
 				}
 				else {
-					rstMessage = (NetworkMessage) buffer.get(cpt_buffer);
+					rstMessage = (NetworkMessage) buffer.get(cptBuffer);
 				}
 				
 			}

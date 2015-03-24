@@ -19,16 +19,27 @@ import root.util.tools.NetworkAddress;
  * 
  */
 public abstract class AbstractMessage extends Task implements ISchedulable, Cloneable{
-	/*  Destination addresses */
+	/**
+	 *  Destination addresses */
 	public Vector<NetworkAddress> networkPath;
 	
-	/* Size of the message in bytes */
+	/**
+	 *  Size of the message in bytes */
 	public double size;
 	
-	/* Node number of the path */
+	/**
+	 *  Node number of the path */
 	public int currentNode;
+	
+	/** 
+	 * Name of the message
+	 */
 	public String name;
 	
+	/** 
+	 * Message constructor
+	 * @param name message name
+	 */
 	public AbstractMessage(String name) {
 		super();	
 		

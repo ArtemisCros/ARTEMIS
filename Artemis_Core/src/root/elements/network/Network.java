@@ -23,10 +23,29 @@ import utils.Errors;
  * Association between address and modules */
 
 public class Network extends SimulableElement{
+	/**
+	 * List of the network links
+	 */
 	public ArrayList<Link> linkList;
+	
+	/** 
+	 * List of the machines
+	 */
 	public ArrayList<Machine> machineList;
+	
+	/**
+	 * Generate ip addresses
+	 */
 	public AddressGenerator addressGenerator;
+	
+	/**
+	 * Build automatic Dijkstra path
+	 */
 	public DijkstraBuilder networkPathBuilder;
+	
+	/**
+	 * List of criticality switches (in MC management)
+	 */
 	public Vector<CriticalitySwitch> critSwitches;
 	
 	/**
@@ -75,8 +94,9 @@ public class Network extends SimulableElement{
  		/* We display the results (debug purposes) */
  		for(int cptMachine=0; cptMachine < machineList.size(); cptMachine++) {
  			if(GlobalLogger.DEBUG_ENABLED) {
- 				GlobalLogger.debug("Machine "+machineList.get(cptMachine).name+
- 	 					" load:"+machineList.get(cptMachine).nodeLoad);
+ 				String debug = "Machine "+machineList.get(cptMachine).name+
+ 	 					" load:"+machineList.get(cptMachine).nodeLoad;
+ 				GlobalLogger.debug(debug);
  			}			
  		}
  		return 0;

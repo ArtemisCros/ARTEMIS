@@ -43,9 +43,10 @@ public class NetworkScheduler implements Runnable{
 		/* CritSwitches dump */
 		msgManager.associateCritSwitches();
 		
-		for(int time =0; time <= ConfigParameters.getInstance().getTimeLimitSimulation();time++) {		
-			GlobalLogger.debug("--------------- START TIME "+time+" ---------------");
-			
+		for(int time =0; time <= ConfigParameters.getInstance().getTimeLimitSimulation();time++) {
+			if(GlobalLogger.DEBUG_ENABLED) {
+				GlobalLogger.log("--------------- START TIME "+time+" ---------------");
+			}
 			for(int machineCounter=0; machineCounter < network.machineList.size(); machineCounter++) {
 				Machine currentMachine = network.machineList.get(machineCounter);
 				/* First, put the generated messages in input buffers */
@@ -76,7 +77,10 @@ public class NetworkScheduler implements Runnable{
 				/*  Transfer output buffer to input buffer of next node */
 				msgManager.sendMessages(currentMachine, time);					
 			}
-			GlobalLogger.debug("--------------- END TIME "+time+" ---------------");
+			if(GlobalLogger.DEBUG_ENABLED) {
+				final String log = "--------------- END TIME "+time+" ---------------";
+				GlobalLogger.log(log);
+			}
 			
 		}
 		

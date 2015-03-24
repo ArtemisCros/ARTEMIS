@@ -21,8 +21,8 @@ public class ComputationConstants {
 	public static final double LOADSTEP = 0.001;
 	
 	/**
-	 *  Numer of tests for each load level */
-	public static final double NUMBERTESTS = 100;
+	 *  Number of tests for each load level */
+	public static final double NUMBERTESTS = 1000;
 	
 	/**
 	 *  Variance for the task generator */
@@ -35,5 +35,10 @@ public class ComputationConstants {
 	/**
 	 *  Precision of the results */
 	public static final int PRECISION = 1000;
+	
+	/**
+	 * Trajectory approach components
+	 */
+	public static final boolean INDUCEDDELAY = false;
 	
 }

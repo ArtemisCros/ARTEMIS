@@ -51,7 +51,7 @@ public class TrajectoryFIFOSModel implements IComputationModel{
 		double quotient = 0.0;
 		
 		for(int cptTask=0;cptTask<tasks.length; cptTask++) {
-			for(int cptNodes=0;cptNodes < tasks.length;cptNodes++) {	
+			for(int cptNodes=0; cptNodes<tasks[cptTask].getNetworkPath().size();cptNodes++) {	
 				/* If there is at least one common node */
 					if(task.getNetworkPath().contains(tasks[cptTask].getNetworkPath().get(cptNodes))) {
 						quotient =  computeQuotientInducedDelay(tasks, task, tasks[cptTask]);
