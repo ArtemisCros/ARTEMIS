@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Vector;
 
 import main.GraphBuilder;
+import model.GraphPlot;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -35,7 +36,7 @@ public class MainGrapher {
 	
 	/* Starting from a list of xml files, draw the network graph */
 	public void drawGraph() {
-			int number = 20;
+			int number = 10;
 	       int width = 2000;
 	       int height = 800; 
 	       GraphBuilder gBuilder = new GraphBuilder();
@@ -45,8 +46,6 @@ public class MainGrapher {
 	       
 	       /* Sorting the files by node order in the network */
 	       ArrayList<String> orderedFileName  = gBuilder.sortXMLGraphFiles(folder, xmlOpener); 
-	       
-	       int sizeHeightGraph = 1+(orderedFileName.size()*10);
 	       
 	       /* Number of datasets : number of machines on the network */
 	       int dataset_num = 0;
@@ -71,7 +70,7 @@ public class MainGrapher {
 	       for(int j=0;j<orderedFileName.size();j++) {
 	    	   /* Building plot serials */
 		       XYPlot xyplot = chart.getXYPlot();   
-		       
+		       xyplot.setBackgroundPaint(Color.WHITE);
 		       /* We hide y axis scale, because it has no more sense */
 		       ValueAxis range = xyplot.getRangeAxis();
 		       range.setVisible(false);
@@ -81,14 +80,21 @@ public class MainGrapher {
 		       /* Starting from xml infos, we build the different graphs */
 	    	   XYSeries plotSeries = xmlOpener.readFile(number, 
 	    			   ConfigLogger.GENERATED_FILES_PATH+"xml/"+orderedFileName.get(j),
-	    			   j*10); 
+	    			   j*5); 
 	    	   
+	    	   /* Axis parameters */
 	    	   NumberAxis domain = (NumberAxis) xyplot.getDomainAxis();
-
-	    	   int min = xmlOpener.simulationTimeLimit / 10;
+	    	   NumberAxis nodes = (NumberAxis) xyplot.getRangeAxis();
+	    	   nodes.setTickUnit(new NumberTickUnit(1));
+	    	   
+	    	   int min = xmlOpener.simulationTimeLimit / 40;
 		       domain.setRange(-min, xmlOpener.simulationTimeLimit);
-		       domain.setTickUnit(new NumberTickUnit(xmlOpener.simulationTimeLimit/40));
-    	       
+		       int tickUnit = xmlOpener.simulationTimeLimit/50;
+		       
+		       domain.setTickUnit(new NumberTickUnit(tickUnit)); 
+		       
+		       
+		       /* Serials */
     		   XYSeriesCollection plotSerial = new XYSeriesCollection(plotSeries);
     		   
     		   /* Curve color */
@@ -97,19 +103,28 @@ public class MainGrapher {
     	       blue		= (int) (100*Math.random());
     	       
     		   xyplot.getRenderer().setSeriesPaint(dataset_num, new Color(red, green, blue));
+    		   
+    		   /* Graph grid */
     		   xyplot.setDataset(dataset_num, plotSerial);
-    		  
+    		   xyplot.setDomainGridlinesVisible(true);
+    		   xyplot.setRangeGridlinesVisible(true);
+    		   xyplot.setDomainGridlinePaint(Color.BLACK);
+    		   xyplot.setRangeGridlinePaint(Color.BLACK);
+    		   
+    		   
     		   String annotation = orderedFileName.get(j);
     	       annotation = annotation.substring(0, annotation.length()-4);
     	       // Node legend
-    	       xyplot.addAnnotation(new XYTextAnnotation(annotation, -min+1, (j*10)-2));
+    	       xyplot.addAnnotation(new XYTextAnnotation(annotation, -min+1, (j*5)-2));
     	     
     	       for(int cptAnnotations = 0;cptAnnotations<xmlOpener.annotations.size();cptAnnotations++) {
     	    	   xyplot.addAnnotation(xmlOpener.annotations.get(cptAnnotations));
     	       }
     	       
     	       dataset_num++;
-	    	   }
+	    }
+	       /* Configuration and graph marking */
+	       
 	       
 	       try {
 	           ChartUtilities.saveChartAsPNG(new File(ConfigLogger.GENERATED_FILES_PATH+"histos/histogram_network.PNG"), chart, width, height);

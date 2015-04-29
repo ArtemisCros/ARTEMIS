@@ -16,8 +16,17 @@ import utils.Errors;
  */
 public class CoreLauncher {
 	public static void main(String[] args) {
+		
 		double startSimulationTime = System.currentTimeMillis();
 	
+		launchSimulation();
+		
+		double endSimulationTime = System.currentTimeMillis();
+		
+		GlobalLogger.log("Simulation done in "+(endSimulationTime-startSimulationTime)+" ms");
+	}
+	
+	public static void launchSimulation() {
 		/* Create and simulate network */
 		try {	
 			/* Initalizes scheduler */
@@ -79,9 +88,5 @@ public class CoreLauncher {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		double endSimulationTime = System.currentTimeMillis();
-		
-		GlobalLogger.log("Simulation done in "+(endSimulationTime-startSimulationTime)+" ms");
 	}
 }

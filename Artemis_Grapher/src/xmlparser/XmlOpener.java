@@ -1,5 +1,6 @@
 package xmlparser;
 
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.io.FileInputStream;
@@ -27,13 +28,25 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 
 public class XmlOpener {
+	/**
+	 * Simulation time to represent
+	 */
 	public int simulationTimeLimit;
+	
+	/**
+	 * Range tick value
+	 */
+	public static final int RANGETICK = 2;
 	
 	/* Annotations to put on the graph */
 	public Vector<XYTextAnnotation> annotations;
 	
 	public String getFileId(String fileName) {
 		return fileName.substring(0, fileName.indexOf('.'));
+	}
+	
+	public int getSimulationTimeLimit() {
+		return simulationTimeLimit;
 	}
 	
 	/* Build a new dataserie from a plot list*/
@@ -105,7 +118,7 @@ public class XmlOpener {
 			    		  
 			    		  if(message != "") {
 			    			  if(previous == 0) {
-			    				  plots.add(new GraphPlot(value, graphSize-5));
+			    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
 			    				  plots.add(new GraphPlot(value, graphSize));
 			    			  }
 			    			  else {
@@ -115,8 +128,11 @@ public class XmlOpener {
 			    			  /* Add message id on the graph on the beginning of its transmission time */
 			    			  if(previous_message == "" || message.compareTo(previous_message) != 0) {
 			    				  previous_message = message;
-			    				  annotations.add(new XYTextAnnotation(""+message.substring(3), value+0.7, graphSize-2));
-			    				  plots.add(new GraphPlot(value, graphSize-5));
+			    				  XYTextAnnotation annot = new XYTextAnnotation(""+message.substring(3), value+1, graphSize-RANGETICK);
+			    				  annot.setFont(new Font("Arial", Font.PLAIN, 12));
+			    		
+			    				  annotations.add(annot);
+			    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
 			    				  plots.add(new GraphPlot(value, graphSize));
 			    			  }
 			    			  previous = 1;
@@ -129,19 +145,19 @@ public class XmlOpener {
 			    				   */
 			    				  if(previous == 1) {
 				    				  plots.add(new GraphPlot(value, graphSize));		
-				    				  plots.add(new GraphPlot(value, graphSize-5));
+				    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
 				    			  }
 				    			  else {
-				    				  plots.add(new GraphPlot(value, graphSize-5));
+				    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
 				    			  }
 		    					  message_trigger = false;
 		    				  }
 			    			  if(previous == 1) {
 			    				  plots.add(new GraphPlot(value, graphSize));		
-			    				  plots.add(new GraphPlot(value, graphSize-5));
+			    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
 			    			  }
 			    			  else {
-			    				  plots.add(new GraphPlot(value, graphSize-5));
+			    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
 			    			  }
 			    			  previous = 0;
 			    			  
