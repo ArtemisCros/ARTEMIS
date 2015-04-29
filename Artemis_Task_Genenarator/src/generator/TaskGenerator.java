@@ -22,6 +22,7 @@ public class TaskGenerator {
 	int timeLimit;
 	double variance;
 	private NetworkBuilder nBuilder;
+	public double globalLoad;
 	
 	public NetworkBuilder getNetworkBuilder() {
 		return nBuilder;
@@ -55,14 +56,18 @@ public class TaskGenerator {
 		for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {
 			pathFinished = false;
 		
+				
 			/* Create a path */
-			//tasks[cptTasks].setNetworkPath(new Vector<NetworkAddress>());
 			
 			nodePos = (int)Math.floor(Math.random() * mainNet.machineList.size());
 			current = mainNet.getMachineForAddressValue(mainNet.machineList.get(nodePos).getAddress().value);
 			currentAdress = current.getAddress();
+			
+			//GlobalLogger.debug("CPT:"+cptTasks);
+			tasks[cptTasks].setNetworkPath(new Vector<NetworkAddress>());
+			
 			tasks[cptTasks].getNetworkPath().add(currentAdress);
-
+			
 			
 			/* Link each task with a given set of nodes from the network */		
 			while(!pathFinished) {	
@@ -156,9 +161,9 @@ public class TaskGenerator {
 	public ISchedulable[] generateTaskList(double highestWcet) {
 		/*Generated tasks list */
 		ISchedulable[] tasks = null;
-		double globalLoad = 0;
+		globalLoad = 0;
 		
-		double errorMargin = ConfigParameters.ERROR_MARGIN;
+		final double errorMargin = ConfigParameters.ERROR_MARGIN;
 		boolean validSet = false;
 		
 		while(!validSet) {
@@ -183,15 +188,17 @@ public class TaskGenerator {
 				double utilisation = -1;
 				while(utilisation < 0 || utilisation > 1){
 					utilisation = RandomGaussian.genGauss_(networkLoad/numberOfTasks, variance);
+					
 				}
 				
 				
 				if(cptTask == numberOfTasks) {
 					utilisation = networkLoad - globalLoad;
-					
+					//GlobalLogger.debug("Util:"+utilisation);
 					/* In case of invalid sets with negative utilization on the last generated task */
 					if(utilisation <= 0) {
 						validSet = false;
+						//GlobalLogger.debug("EXIT");
 						break;
 					}
 						
@@ -219,20 +226,22 @@ public class TaskGenerator {
 					newTask.setName("MSG"+cptTask);
 					
 					tasks[cptTask-1] = newTask;
-					
+					//GlobalLogger.debug("CPTT:"+(cptTask-1)+" Load:"+globalLoad);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
 				globalLoad += utilisation;
-				if(Math.abs(networkLoad - globalLoad) <= errorMargin) {
+
+				if(Math.abs(networkLoad - globalLoad) <= errorMargin && cptTask == numberOfTasks) {
 					validSet = true;
 				}
+			
 			}
 		}
 		
 		linkToPath(tasks);
-
+		
 		linkTasksetToNetwork(tasks);
 		
 		

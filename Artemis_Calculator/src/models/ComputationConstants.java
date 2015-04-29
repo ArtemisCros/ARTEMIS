@@ -15,6 +15,9 @@ public class ComputationConstants {
 	 *  Electronical latency in the network */
 	public static final double SWITCHINGLATENCY = 0.00;
 	
+	public static final double LOADSTART = 0.3;
+	
+	public static final double LOADEND = 1.0;
 	
 	/**
 	 *  Load variation step*/
@@ -26,11 +29,11 @@ public class ComputationConstants {
 	
 	/**
 	 *  Variance for the task generator */
-	public static final double VARIANCE = 0.05;
+	public static final double VARIANCE = 0.005;
 	
 	/**
 	 *  Number of generated tasks */
-	public static final int GENERATEDTASKS = 5;
+	public static final int GENERATEDTASKS = 10;
 	
 	/**
 	 *  Precision of the results */

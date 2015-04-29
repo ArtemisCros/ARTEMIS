@@ -19,6 +19,7 @@ import models.TrajectoryFIFOSModel;
 public class MainCalculator {
 	public static void main(String[] args) {	
 	//	FIFODelayComputer delayComputer = new FIFODelayComputer();
+		ConfigParameters.getInstance().setTimeLimitSimulation(300);
 		CriticalityDelayComputer delayComputer = new CriticalityDelayComputer();
 		delayComputer.computeDelay();
 		

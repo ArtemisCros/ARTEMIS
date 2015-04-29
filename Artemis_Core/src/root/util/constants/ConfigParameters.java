@@ -21,7 +21,7 @@ public class ConfigParameters {
 	public static final boolean MIXED_CRITICALITY = true;
 	
 	/* Error margin on the auto-generated load */
-	public static final double ERROR_MARGIN = 0.01;
+	public static final double ERROR_MARGIN = 0.05;
 	
 	/* Data rate in o/s */
 	public static final double FLOW_DATARATE = 1;//1024*1024*1024;

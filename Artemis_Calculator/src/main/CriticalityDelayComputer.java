@@ -98,7 +98,7 @@ public class CriticalityDelayComputer {
 			for(int cptNds=0;cptNds<tasks[cptTasks].getNetworkPath().size();cptNds++) {
 				debug += "->"+tasks[cptTasks].getNetworkPath().get(cptNds).machine.name;
 			}
-			GlobalLogger.debug(debug);
+			//GlobalLogger.debug(debug);
 			
 		}
 
@@ -115,15 +115,17 @@ public class CriticalityDelayComputer {
 		final double wCet = 20;
 		double wCetMax = 0;
 		
-		final double limiteBasse = 0.1;
-		final double limiteHaute = 1.0;
+		final double limiteBasse = ComputationConstants.LOADSTART;
+		final double limiteHaute = ComputationConstants.LOADEND;
 		double networkLoad 	= 0.9;
 		
 		final double chronoStart = System.currentTimeMillis();
-		System.out.print("+   Load   +   Non-Pre   +   SDelay   +\n");
-		System.out.print("+----------+-------------+------------+\n");
+		System.out.print("+   Load   +   Non-Pre   +   SDelay   +    Time    +  RLoad  +\n");
+		System.out.print("+----------+-------------+------------+------------+---------+\n");
 		
-		FileLogger.logToFile("# Load \t NDelay\n", "results.txt");
+		String fileName = "SIMU_"+System.currentTimeMillis()+".txt";
+		
+		FileLogger.logToFile("# Load \t NDelay\n", fileName);
 		
 		TaskGenerator taskGen = new TaskGenerator(ComputationConstants.GENERATEDTASKS, 
 				networkLoad, 
@@ -146,6 +148,7 @@ public class CriticalityDelayComputer {
 			double nonPreemptDelay = 0.0;
 			
 			for(int cptTests=0;cptTests < ComputationConstants.NUMBERTESTS; cptTests++) {	
+				//GlobalLogger.debug("Test n¡"+cptTests);
 				totalSDelay += computeUniqueDelay(taskGen, switchCritTask, wCetMax);	
 				nonPreemptDelay += model.nonPreemptiveDelay;
 			}
@@ -159,12 +162,14 @@ public class CriticalityDelayComputer {
 			
 			FileLogger.logToFile(
 					networkLoad+"\t"+
-					totalSDelay+"\n" , "results.txt");
+					totalSDelay+"\n" , fileName);
 			
-			System.out.format("+  %05.4f  + %010.1f  + %010.1f +\n",
+			System.out.format("+  %05.4f  + %010.1f  + %010.1f + %010.1f + %05.4f +\n",
 					networkLoad,
 					nonPreemptDelay,
-					totalSDelay);
+					totalSDelay,
+					chronoEnd-chronoStart,
+					taskGen.globalLoad);
 		}
 	}
 }
