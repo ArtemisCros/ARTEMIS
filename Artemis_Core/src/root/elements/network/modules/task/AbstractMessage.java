@@ -23,6 +23,9 @@ public abstract class AbstractMessage extends Task implements ISchedulable, Clon
 	 *  Destination addresses */
 	public Vector<NetworkAddress> networkPath;
 	
+	/** Wcet of the current task(computed at emission time) **/
+	public double wcetTask;
+	
 	/**
 	 *  Size of the message in bytes */
 	public double size;
@@ -46,6 +49,7 @@ public abstract class AbstractMessage extends Task implements ISchedulable, Clon
 		this.networkPath = new Vector<NetworkAddress>();
 		this.name = name;
 		currentNode = 0;
+		wcetTask = -1;
 	}
 
 	@Override

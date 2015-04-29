@@ -61,11 +61,18 @@ public class MCMessage extends AbstractMessage implements ISchedulable, Cloneabl
 	}
 	
 	public double getWcet(CriticalityLevel critLvl) {
-		if(size.get(critLvl) != null) {
-			return size.get(critLvl)/ConfigParameters.FLOW_DATARATE;
+		if(wcetTask == -1) {
+			if(size.get(critLvl) != null) {
+				wcetTask = size.get(critLvl)/ConfigParameters.FLOW_DATARATE; 
+				return wcetTask;
+			}
+			else {
+				return 0.0;
+			}
+			
 		}
 		else {
-			return 0.0;
+			return wcetTask;
 		}
 		
 	}
@@ -73,7 +80,6 @@ public class MCMessage extends AbstractMessage implements ISchedulable, Cloneabl
 	@Override
 	public void setWcet(double wcet) {
 		size.put(CriticalityLevel.NONCRITICAL, wcet*ConfigParameters.FLOW_DATARATE);
-		
 	}
 	
 	public void setWcet(double wcet, CriticalityLevel critLvl) {
