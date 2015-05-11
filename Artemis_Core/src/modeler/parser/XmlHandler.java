@@ -17,6 +17,7 @@ import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.Utils;
+import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 import utils.Errors;
@@ -146,6 +147,10 @@ public class XmlHandler extends DefaultHandler{
 		if(qualif == XMLNetworkTags.TAG_CRIT_SWITCH){triggers.put(TriggerCodes.CRITSWITCH, trigger);}
 		if(qualif == XMLNetworkTags.TAG_TIME_LIMIT){triggers.put(TriggerCodes.TIMELIMIT, trigger);}
 		if(qualif == XMLNetworkTags.TAG_ELECTRONICAL_LATENCY){triggers.put(TriggerCodes.ELECTRONICALLATENCY, trigger);}
+		if(qualif == XMLNetworkTags.TAG_AUTOGEN_TASKS){triggers.put(TriggerCodes.AUTOGENTASKS, trigger);}
+		if(qualif == XMLNetworkTags.TAG_HIGH_WCTT){triggers.put(TriggerCodes.HIGHESTWCTT, trigger);}
+		if(qualif == XMLNetworkTags.TAG_AUTO_TASKS){triggers.put(TriggerCodes.AUTOGENNUMBER, trigger);}
+		if(qualif == XMLNetworkTags.TAG_AUTO_LOAD){triggers.put(TriggerCodes.AUTOLOAD, trigger);}
 	}
 
 	/**
@@ -356,6 +361,44 @@ public class XmlHandler extends DefaultHandler{
 		if(triggers.get(TriggerCodes.ELECTRONICALLATENCY)) {
 			final ConfigParameters config = ConfigParameters.getInstance();			
 			config.setElectronicalLatency(Integer.parseInt(value));
+		}
+		
+		/* Tasks auto-generation activation */
+		if(triggers.get(TriggerCodes.AUTOGENTASKS)) {
+			final ConfigParameters config = ConfigParameters.getInstance();		
+			if(value.compareTo("0") == 0) {
+				config.setAutomaticTaskGeneration(true);
+			}
+			else {
+				config.setAutomaticTaskGeneration(false);
+			}
+		}
+		
+		if(triggers.get(TriggerCodes.AUTOGENNUMBER)) {
+			final ConfigParameters config 			= ConfigParameters.getInstance();	
+			final ComputationConstants simuConst 	= ComputationConstants.getInstance();
+			
+			if(config.getAutomaticTaskGeneration()) {
+				simuConst.setGeneratedTasks(Integer.parseInt(value));
+			}
+		}
+		
+		if(triggers.get(TriggerCodes.HIGHESTWCTT)) {
+			final ConfigParameters config 			= ConfigParameters.getInstance();	
+			final ComputationConstants simuConst 	= ComputationConstants.getInstance();
+			
+			if(config.getAutomaticTaskGeneration()) {
+				simuConst.setHighestWCTT(Integer.parseInt(value));
+			}
+		}
+		
+		if(triggers.get(TriggerCodes.AUTOLOAD)) {
+			final ConfigParameters config 			= ConfigParameters.getInstance();	
+			final ComputationConstants simuConst 	= ComputationConstants.getInstance();
+			
+			if(config.getAutomaticTaskGeneration()) {
+				simuConst.setAutoLoad(Double.parseDouble(value));
+			}
 		}
 		
 		if(triggers.get(TriggerCodes.CRITICALITY)) {

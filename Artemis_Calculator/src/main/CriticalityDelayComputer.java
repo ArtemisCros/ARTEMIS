@@ -6,11 +6,11 @@ import generator.TaskGenerator;
 import root.elements.network.Network;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
+import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 import logger.FileLogger;
 import logger.GlobalLogger;
-import models.ComputationConstants;
 import models.TrajectoryFIFOModel;
 
 /**
@@ -127,10 +127,7 @@ public class CriticalityDelayComputer {
 		
 		FileLogger.logToFile("# Load \t NDelay\n", fileName);
 		
-		TaskGenerator taskGen = new TaskGenerator(ComputationConstants.GENERATEDTASKS, 
-				networkLoad, 
-				ConfigParameters.getInstance().getTimeLimitSimulation(), 
-				ComputationConstants.VARIANCE);
+		TaskGenerator taskGen = new TaskGenerator();
 		
 		/* MC Task to focus 
 		 * 
@@ -138,7 +135,7 @@ public class CriticalityDelayComputer {
 		MCMessage switchCritTask = new MCMessage("critSwitch");
 		switchCritTask.setCurrentPeriod((int)100);
 		switchCritTask.setWcet((int)wCet);
-		switchCritTask.setId(ComputationConstants.GENERATEDTASKS);
+		switchCritTask.setId(ComputationConstants.getInstance().getGeneratedTasks());
 
 		for(networkLoad=limiteBasse;networkLoad<limiteHaute;networkLoad+= ComputationConstants.LOADSTEP) {
 	//	for(wCetMax=wCet; wCetMax<500; wCetMax++){

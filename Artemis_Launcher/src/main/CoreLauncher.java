@@ -4,7 +4,7 @@ import generator.TaskGenerator;
 import grapher.MainGrapher;
 import logger.GlobalLogger;
 import modeler.networkbuilder.NetworkBuilder;
-import models.ComputationConstants;
+import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import simulator.managers.NetworkScheduler;
 import utils.Errors;
@@ -33,18 +33,17 @@ public class CoreLauncher {
 			NetworkScheduler nScheduler = null;
 			
 			/* Modelises network */
-			NetworkBuilder nBuilder;
+			NetworkBuilder nBuilder = new NetworkBuilder();
 			
 			GlobalLogger.log("------------ LAUNCHING MODELIZER ------------");
 			
 			/* Manual generation or automatic generation */
-			if(ConfigParameters.AUTOMATIC_TASK_GENERATION) {
+			if(ConfigParameters.getInstance().getAutomaticTaskGeneration()) {
 				GlobalLogger.log("------------ LAUNCHING AUTOMATIC TASK GENERATOR ------------");
 				/* Get builder from automatic task generator */
-				TaskGenerator tGenerator = new TaskGenerator(ComputationConstants.GENERATEDTASKS, 
-						0.5, 
-						ConfigParameters.getInstance().getTimeLimitSimulation(), 
-						ComputationConstants.VARIANCE);
+				TaskGenerator tGenerator = new TaskGenerator();
+				
+				tGenerator.setNetworkBuilder(nBuilder);
 				
 				GlobalLogger.log("------------ TASKLIST READY ------------");
 				

@@ -2,10 +2,10 @@ package main;
 
 import generator.TaskGenerator;
 import logger.FileLogger;
-import models.ComputationConstants;
 import models.TrajectoryFIFOModel;
 import models.TrajectoryFIFOSModel;
 import root.elements.network.modules.task.ISchedulable;
+import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 
 /**
@@ -23,10 +23,7 @@ public class FIFODelayComputer {
 		double limiteHaute = 1.0;
 		double networkLoad 	= 0.9;
 		
-		TaskGenerator taskGen = new TaskGenerator(ComputationConstants.GENERATEDTASKS, 
-				networkLoad, 
-				ConfigParameters.getInstance().getTimeLimitSimulation(), 
-				ComputationConstants.VARIANCE);
+		TaskGenerator taskGen = new TaskGenerator();
 		
 		FileLogger.logToFile("# Load\t FIFO\t FIFOS\t Time\n", "results.txt");
 		

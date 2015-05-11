@@ -9,6 +9,7 @@ import root.elements.network.modules.task.AbstractMessage;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.NetworkMessage;
+import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 import logger.GlobalLogger;
@@ -23,20 +24,26 @@ public class TaskGenerator {
 	double variance;
 	private NetworkBuilder nBuilder;
 	public double globalLoad;
+	private double highestWcet;
 	
 	public NetworkBuilder getNetworkBuilder() {
 		return nBuilder;
+	}
+	
+	public void setNetworkBuilder(NetworkBuilder nBuilderP) {
+		this.nBuilder = nBuilderP;
 	}
 	
 	public void setNetworkLoad(double nLoad) {
 		networkLoad = nLoad;
 	}
 	
-	public TaskGenerator(int PnumberOfTasks,  double PnetworkLoad, int PtimeLimit, double Pvariance) {
-		numberOfTasks 	= PnumberOfTasks;
-		networkLoad 	= PnetworkLoad;
-		timeLimit		= PtimeLimit;
-		variance		= Pvariance;
+	public TaskGenerator() {
+		numberOfTasks 	= ComputationConstants.getInstance().getGeneratedTasks();
+		networkLoad 	= ComputationConstants.getInstance().getAutoLoad();
+		timeLimit		= ConfigParameters.getInstance().getTimeLimitSimulation();
+		variance		= ComputationConstants.VARIANCE;		
+		this.highestWcet= ComputationConstants.getInstance().getHighestWCTT();
 	}
 	
 	/* Link messages to a random computed path */
@@ -48,17 +55,13 @@ public class TaskGenerator {
 		int cptLink;
 		NetworkAddress currentAdress;
 		
-		/* First, we get the network topologu */
-		nBuilder = new NetworkBuilder();
-		
 		Network mainNet = nBuilder.getMainNetwork();
 		
 		for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {
 			pathFinished = false;
 		
 				
-			/* Create a path */
-			
+			/* Create a path */	
 			nodePos = (int)Math.floor(Math.random() * mainNet.machineList.size());
 			current = mainNet.getMachineForAddressValue(mainNet.machineList.get(nodePos).getAddress().value);
 			currentAdress = current.getAddress();
@@ -68,7 +71,7 @@ public class TaskGenerator {
 			
 			tasks[cptTasks].getNetworkPath().add(currentAdress);
 			
-			
+			GlobalLogger.display("Path:");
 			/* Link each task with a given set of nodes from the network */		
 			while(!pathFinished) {	
 				/* Count the possible nodes */
@@ -87,6 +90,7 @@ public class TaskGenerator {
 					
 					if(!tasks[cptTasks].getNetworkPath().contains(currentAdress)) {			
 						tasks[cptTasks].getNetworkPath().add(currentAdress);
+						GlobalLogger.display(""+currentAdress.value+"-");
 					}
 					else {
 						break;
@@ -96,6 +100,7 @@ public class TaskGenerator {
 					break;
 				}
 			}
+			GlobalLogger.display("\n");
 		}
 		
 	}
@@ -155,7 +160,7 @@ public class TaskGenerator {
 	}
 	
 	public ISchedulable[] generateTaskList() {
-		return generateTaskList(0);
+		return generateTaskList(this.highestWcet);
 	}
 	
 	public ISchedulable[] generateTaskList(double highestWcet) {
@@ -226,7 +231,7 @@ public class TaskGenerator {
 					newTask.setName("MSG"+cptTask);
 					
 					tasks[cptTask-1] = newTask;
-					//GlobalLogger.debug("CPTT:"+(cptTask-1)+" Load:"+globalLoad);
+					GlobalLogger.debug("CPTT:"+(cptTask-1)+" Load:"+globalLoad+" WCTT:"+wcetComplete);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

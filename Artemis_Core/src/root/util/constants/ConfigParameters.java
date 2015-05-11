@@ -11,12 +11,12 @@ import root.util.tools.PriorityPolicy;
 public class ConfigParameters {
 	private int timeLimitSimulation;
 	private double electronicalLatency;
+	private boolean automaticTaskGeneration;
 	
 	public static final int CONST_PORT_NUMBER 	= 500;
 	public static final int CONST_PORT_NUMBER_IN = 500;
 	
 	public static final PriorityPolicy PRIORITY_POLICY = PriorityPolicy.FIFO;
-	public static final boolean AUTOMATIC_TASK_GENERATION = false;
 	
 	public static final boolean MIXED_CRITICALITY = true;
 	
@@ -57,7 +57,12 @@ public class ConfigParameters {
 		this.electronicalLatency = latency;
 	}
 	
+	public boolean getAutomaticTaskGeneration() {
+		return automaticTaskGeneration;
+	}
 	
-	
+	public void setAutomaticTaskGeneration(boolean autogenTask) {
+		this.automaticTaskGeneration = autogenTask;
+	}
 	
 }

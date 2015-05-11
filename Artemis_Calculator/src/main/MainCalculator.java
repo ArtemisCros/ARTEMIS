@@ -3,11 +3,6 @@ package main;
 
 import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ConfigParameters;
-import generator.TaskGenerator;
-import logger.FileLogger;
-import models.ComputationConstants;
-import models.TrajectoryFIFOModel;
-import models.TrajectoryFIFOSModel;
 
 /**
  * ARTEMIS Calculator main
