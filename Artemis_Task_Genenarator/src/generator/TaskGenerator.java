@@ -184,10 +184,12 @@ public class TaskGenerator {
 			for(int cptTask=1; cptTask <= numberOfTasks; cptTask++) {
 				ISchedulable newTask;
 				
+				/* Granularity */
+				double iTg = 10;
 				/* First, we generate a random uniform-distributed value (Unifast method)*/
-				double prob = RandomGenerator.genDouble(Math.log(10), Math.log((timeLimit/10) + 10));
+				double prob = RandomGenerator.genDouble(Math.log(timeLimit/10), Math.log(timeLimit + iTg));
 				
-				double periodComplete = Math.min(100*(Math.floor(Math.exp(prob)/10)*10), ConfigParameters.getInstance().getTimeLimitSimulation());			
+				double periodComplete = Math.min(iTg * (Math.floor(Math.exp(prob)/iTg)), timeLimit);			
 				
 				/* Generate utilisation from a uniform rule */
 				double utilisation = -1;
@@ -195,7 +197,6 @@ public class TaskGenerator {
 					utilisation = RandomGaussian.genGauss_(networkLoad/numberOfTasks, variance);
 					
 				}
-				
 				
 				if(cptTask == numberOfTasks) {
 					utilisation = networkLoad - globalLoad;
@@ -231,7 +232,7 @@ public class TaskGenerator {
 					newTask.setName("MSG"+cptTask);
 					
 					tasks[cptTask-1] = newTask;
-					GlobalLogger.debug("CPTT:"+(cptTask-1)+" Load:"+globalLoad+" WCTT:"+wcetComplete);
+					GlobalLogger.debug("CPTT:"+(cptTask-1)+" Load:"+globalLoad+" WCTT:"+wcetComplete+" PERIOD"+periodComplete);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
