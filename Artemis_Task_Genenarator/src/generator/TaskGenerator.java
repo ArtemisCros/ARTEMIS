@@ -232,7 +232,7 @@ public class TaskGenerator {
 					newTask.setName("MSG"+cptTask);
 					
 					tasks[cptTask-1] = newTask;
-					GlobalLogger.debug("CPTT:"+(cptTask-1)+" Load:"+globalLoad+" WCTT:"+wcetComplete+" PERIOD"+periodComplete);
+				//	GlobalLogger.debug("CPTT:"+(cptTask-1)+" Load:"+globalLoad+" WCTT:"+wcetComplete+" PERIOD"+periodComplete);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

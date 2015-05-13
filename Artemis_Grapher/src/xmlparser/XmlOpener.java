@@ -11,11 +11,13 @@ import java.util.Vector;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import logger.GlobalLogger;
+import model.GraphConfig;
 import model.GraphPlot;
 import model.GraphSerial;
 
@@ -26,6 +28,7 @@ import org.jfree.chart.event.AnnotationChangeListener;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
+import org.junit.runner.Computer;
 
 public class XmlOpener {
 	/**
@@ -65,7 +68,9 @@ public class XmlOpener {
 		return currentSerie;
 	}
 	
-	/* Builds all plots from a file */
+	/**
+	 *  Builds all plots from a file 
+	 */	
 	public XYSeries readFile(int size, String configFile, int graphSize) {
 			/* Graph annotations and messages ids */
 			annotations = new Vector<XYTextAnnotation>();
@@ -77,15 +82,8 @@ public class XmlOpener {
 			int timeLength = -1;
 			
 			int previous =  0;
-		    try {
-		      // First, create a new XMLInputFactory
-		      XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		      // Setup a new eventReader
-		      InputStream in = new FileInputStream(configFile);
-		      XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
-		      /* We use a message trigger to create a different dataset for each message.
-    		   * This way, we can associate different colors to different messages on nodes
-    		   */
+		      XMLEventReader eventReader =XMLGraphManager.createXMLEventReader(configFile);
+		      
     		  boolean message_trigger = false;
     		  
 		      // read the XML document
@@ -94,9 +92,15 @@ public class XmlOpener {
     		  String previous_message = "";
     		  
 		      while (eventReader.hasNext()) {
-		    	  XMLEvent event = eventReader.nextEvent();
+		    	  XMLEvent event = null;
+				try {
+					event = eventReader.nextEvent();
+				} catch (XMLStreamException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		    	  
-		    	  if(event.isStartElement() ) {
+		    	  if(event.isStartElement() && timeLength < GraphConfig.getInstance().getEndTime()) {
 		    		  StartElement startElement = event.asStartElement();
 		    		  if(startElement.getName().toString().equals("timer")) {
 		    			  timeLength++;
@@ -165,11 +169,6 @@ public class XmlOpener {
 		    		  }
 		    	  }
 		      }
-		    }
-		    catch(Exception e) {
-		    	e.printStackTrace();
-		    	return null;
-		    }
 
 			pointSeries = buildPlotSerial(plots, size);
 			  
