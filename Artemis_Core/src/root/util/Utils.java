@@ -3,6 +3,7 @@ package root.util;
 import root.elements.network.modules.CriticalityLevel;
 
 public class Utils{
+	/* Criticality level conversion */
 	public Utils() {
 		
 	}
