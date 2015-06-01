@@ -100,4 +100,8 @@ public class ComputationConstants {
 	 */
 	public static final boolean INDUCEDDELAY = false;
 	
+	/** 
+	 * Timescaling for simulation
+	 */
+	public static final double TIMESCALE = 0.1;
 }

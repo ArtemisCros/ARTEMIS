@@ -9,6 +9,7 @@ import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.NetworkMessage;
+import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 
@@ -42,7 +43,7 @@ public class MessageManager {
 		
 		return 0;
 	}
-	public int filterCriticalMessages(Machine fromMachine, int time) {
+	public int filterCriticalMessages(Machine fromMachine, double time) {
 		/* First, we check changes in criticality level */
 		criticalityManager.checkCriticalityLevel(time);
 		
@@ -61,8 +62,10 @@ public class MessageManager {
 	}
 	
 	/* Load message from input buffer */
-	public int loadMessage(Machine fromMachine, int time) {
-		if(!fromMachine.inputBuffer.isEmpty() && fromMachine.analyseTime == 0) {
+	public int loadMessage(Machine fromMachine, double time) {
+		if(!fromMachine.inputBuffer.isEmpty() && fromMachine.analyseTime <= 0) {
+			double analyseTime = 0.0;
+			
 			/* If no message is treated AND input buffer not empty */
 			ISchedulable messageToAnalyse;
 			
@@ -81,15 +84,16 @@ public class MessageManager {
 			if(ConfigParameters.MIXED_CRITICALITY) {
 				double wcet = messageToAnalyse.getWcet(criticalityManager.getCurrentLevel());
 				if(GlobalLogger.DEBUG_ENABLED) {
-					String debug = "Computed wcet loaded:"+wcet;
+					String debug = "Computed wcet loaded:"+(wcet/fromMachine.getSpeed());
 					GlobalLogger.debug(debug);					
 				}
-
-				fromMachine.analyseTime += wcet;
+				
+				analyseTime = Math.floor(wcet/(Math.pow(2, fromMachine.getSpeed()-1))/ComputationConstants.TIMESCALE);
 			}
 			else {
-				fromMachine.analyseTime += messageToAnalyse.getCurrentWcet();
+				analyseTime = Math.floor(messageToAnalyse.getCurrentWcet()/(Math.pow(2, fromMachine.getSpeed()-1))*(1/ComputationConstants.TIMESCALE));
 			}
+			fromMachine.analyseTime += (analyseTime * ComputationConstants.TIMESCALE);
 		}
 	
 		return 0;
@@ -101,12 +105,12 @@ public class MessageManager {
 	 * Application of the WCET
 	 * Transmission from input to output buffer
 	 */
-	public int analyzeMessage(Machine fromMachine, int time) {
+	public int analyzeMessage(Machine fromMachine, double time) {
 		if(fromMachine.currentlyTransmittedMsg != null) {
-			fromMachine.analyseTime--;
+			fromMachine.analyseTime -= ComputationConstants.TIMESCALE;
 			
 			if(GlobalLogger.DEBUG_ENABLED) {
-				String debug = "TREATING MSG "+fromMachine.currentlyTransmittedMsg.getName();
+				String debug = "TIME:"+time+" TREATING MSG "+fromMachine.currentlyTransmittedMsg.getName();
 				debug += " MACHINE "+fromMachine.name;
 				GlobalLogger.debug(debug);
 			}
@@ -117,9 +121,9 @@ public class MessageManager {
 	}
 	
 	/* Check whether to load or send messages */
-	public int prepareMessagesForTransfer(Machine fromMachine, int time) {
+	public int prepareMessagesForTransfer(Machine fromMachine, double time) {
 		/* If current packet is no more treated */
-		if(fromMachine.analyseTime == 0 && fromMachine.currentlyTransmittedMsg != null) {			
+		if(fromMachine.analyseTime <= 0 && fromMachine.currentlyTransmittedMsg != null) {			
 				/* Put message in output buffer */
 				fromMachine.sendMessage(fromMachine.currentlyTransmittedMsg);		
 				
@@ -131,7 +135,7 @@ public class MessageManager {
 	}
 	
 	/* Transfer a message from a fromMachine output buffer to destination input buffer */
-	public int sendMessages(Machine fromMachine, int time) {
+	public int sendMessages(Machine fromMachine, double time) {
 		/* For each output port of current machine */
 		while(!fromMachine.outputBuffer.isEmpty()) {
 			ISchedulable currentMsg;

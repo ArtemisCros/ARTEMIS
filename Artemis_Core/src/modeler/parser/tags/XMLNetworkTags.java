@@ -18,6 +18,7 @@ public class XMLNetworkTags {
 	public static final String TAG_CRIT_SWITCH	= "critswitch";
 	public static final String TAG_ELECTRONICAL_LATENCY = "elatency";
 	public static final String TAG_AUTO_LOAD	= "autoload";
+	public static final String TAG_SPEED_MACHINE= "speed";
 	
 	/* Tasks automatic generation */
 	public static final String TAG_AUTOGEN_TASKS= "autogen";

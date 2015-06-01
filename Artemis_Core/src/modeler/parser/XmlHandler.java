@@ -151,6 +151,7 @@ public class XmlHandler extends DefaultHandler{
 		if(qualif == XMLNetworkTags.TAG_HIGH_WCTT){triggers.put(TriggerCodes.HIGHESTWCTT, trigger);}
 		if(qualif == XMLNetworkTags.TAG_AUTO_TASKS){triggers.put(TriggerCodes.AUTOGENNUMBER, trigger);}
 		if(qualif == XMLNetworkTags.TAG_AUTO_LOAD){triggers.put(TriggerCodes.AUTOLOAD, trigger);}
+		if(qualif == XMLNetworkTags.TAG_SPEED_MACHINE){triggers.put(TriggerCodes.SPEEDMACHINE, trigger);}
 	}
 
 	/**
@@ -162,6 +163,7 @@ public class XmlHandler extends DefaultHandler{
 			//We get the specific id, then create the machine
 			int idAddr = 0;
 			currMachName = "";
+			int speed = 1;
 			
 			for(int cptAttr=0;cptAttr < pAttr.getLength();cptAttr++) {
 				if(pAttr.getLocalName(cptAttr).compareTo("id") == 0) {
@@ -174,11 +176,16 @@ public class XmlHandler extends DefaultHandler{
 				if(pAttr.getLocalName(cptAttr).compareTo("name") == 0) {
 					currMachName = pAttr.getValue(cptAttr);
 				}
+				if(pAttr.getLocalName(cptAttr).compareTo("speed") == 0) {
+					speed = Integer.parseInt(pAttr.getValue(cptAttr));
+				}
 			}
+			
 			/* We check if machine has already been created in the network */
 			currentMachine = mainNet.findMachine(idAddr, currMachName);
 			/* We set the name of this new machine */
 			currentMachine.name = currMachName;
+			currentMachine.setSpeed(speed);
 			
 			if(GlobalLogger.DEBUG_ENABLED) {
 				final String debug = "NAME"+currMachName;
@@ -374,6 +381,7 @@ public class XmlHandler extends DefaultHandler{
 			}
 		}
 		
+
 		if(triggers.get(TriggerCodes.AUTOGENNUMBER)) {
 			final ConfigParameters config 			= ConfigParameters.getInstance();	
 			final ComputationConstants simuConst 	= ComputationConstants.getInstance();

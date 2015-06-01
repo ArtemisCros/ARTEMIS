@@ -24,7 +24,7 @@ public class CriticalityManager {
 		this.currentCritLvl = lvl;
 	}
 	
-	public void checkCriticalityLevel(int time) {
+	public void checkCriticalityLevel(double time) {
 		if(critSwitches.get(time) != null) {
 			this.currentCritLvl = critSwitches.get(time);
 		}

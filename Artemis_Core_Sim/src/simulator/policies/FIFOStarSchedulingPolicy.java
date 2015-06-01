@@ -17,7 +17,7 @@ public class FIFOStarSchedulingPolicy implements ISchedulingPolicy {
 		int cptBuffer = 0;
 		
 		/* We search the lower activation instant */
-		int activationInstantMin = -1;
+		double activationInstantMin = -1;
 		
 		for(cptBuffer=0;cptBuffer < buffer.size();cptBuffer++) {
 			if((activationInstantMin == -1 ) || (activationInstantMin > buffer.get(cptBuffer).getNextSend())) {

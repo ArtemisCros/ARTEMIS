@@ -10,6 +10,9 @@ public class SwitchMachine extends Machine{
 	 */
 	public Link[] portsInput;
 	
+	
+
+	
 	public SwitchMachine(final NetworkAddress pAddr) throws Exception {
 		super(pAddr);
 		portsInput = new Link[ConfigParameters.CONST_PORT_NUMBER_IN];

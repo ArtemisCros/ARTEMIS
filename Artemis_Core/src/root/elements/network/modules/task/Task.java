@@ -20,7 +20,7 @@ public class Task extends NetworkModule {
 	public double timerArrival;
 	
 	/* Used also as activation instant for scheduling policies */
-	public int nextSend;
+	public double nextSend;
 	
 	public Task() {
 		super();

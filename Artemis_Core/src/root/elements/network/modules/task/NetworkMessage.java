@@ -7,7 +7,7 @@ import root.elements.network.modules.CriticalityLevel;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 
-public class NetworkMessage extends AbstractMessage implements ISchedulable{
+public class NetworkMessage extends FrameMessage implements ISchedulable{
 	
 	/* Needed */
 	public int period;

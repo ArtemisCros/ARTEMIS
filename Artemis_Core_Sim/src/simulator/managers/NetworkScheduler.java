@@ -1,8 +1,11 @@
 package simulator.managers;
 
+import java.math.BigDecimal;
+
 import logger.GlobalLogger;
 import root.elements.network.Network;
 import root.elements.network.modules.machine.Machine;
+import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 
 /*
@@ -43,9 +46,17 @@ public class NetworkScheduler implements Runnable{
 		/* CritSwitches dump */
 		msgManager.associateCritSwitches();
 		
-		for(int time =0; time <= ConfigParameters.getInstance().getTimeLimitSimulation();time++) {
+		if(GlobalLogger.DEBUG_ENABLED) {
+			GlobalLogger.log("--------------- NETWORK INITIALIZED ---------------");
+			GlobalLogger.log("--------------- STARTING SIMULATION ---------------");
+		}
+		for(double time = 0.00; time <= ConfigParameters.getInstance().getTimeLimitSimulation();time+=ComputationConstants.TIMESCALE) {
+			//time = Math.floor(time/ComputationConstants.TIMESCALE)*ComputationConstants.TIMESCALE;
+			
+			time  = new BigDecimal(time).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+			
 			if(GlobalLogger.DEBUG_ENABLED) {
-				GlobalLogger.log("--------------- START TIME "+time+" ---------------");
+				GlobalLogger.log("--------------- CURRENT TIME "+time+" ---------------");
 			}
 			for(int machineCounter=0; machineCounter < network.machineList.size(); machineCounter++) {
 				Machine currentMachine = network.machineList.get(machineCounter);
@@ -70,6 +81,10 @@ public class NetworkScheduler implements Runnable{
 				
 				/* Put analyzed messages in output buffer */
 				msgManager.prepareMessagesForTransfer(currentMachine, time);
+				
+				if(time == 0) {
+					
+				}
 				
 			}
 			for(int machineCounter=0; machineCounter < network.machineList.size(); machineCounter++) {

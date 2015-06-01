@@ -41,6 +41,11 @@ public class XmlOpener {
 	 */
 	public static final int RANGETICK = 2;
 	
+	/**
+	 * Graph timing precision
+	 */
+	public static final double GRAPHPRECISION = 0.1;
+	
 	/* Annotations to put on the graph */
 	public Vector<XYTextAnnotation> annotations;
 	
@@ -103,9 +108,9 @@ public class XmlOpener {
 		    	  if(event.isStartElement() && timeLength < GraphConfig.getInstance().getEndTime()) {
 		    		  StartElement startElement = event.asStartElement();
 		    		  if(startElement.getName().toString().equals("timer")) {
-		    			  timeLength++;
+		    			  timeLength+=GRAPHPRECISION;
 		    			  Iterator <Attribute> it = startElement.getAttributes();
-			    		  int value = 0;
+			    		  double value = 0;
 			    		  message = "";
 			    		  
 			    		  while(it.hasNext()) {
@@ -116,7 +121,7 @@ public class XmlOpener {
 			    				  message_trigger = true;
 			    			  }
 			    			  else if(attr.getName().toString().equals("value")) {
-			    				  value = Integer.parseInt(attr.getValue().toString());
+			    				  value = Double.parseDouble(attr.getValue().toString());
 			    			  }
 			    		  }
 			    		  

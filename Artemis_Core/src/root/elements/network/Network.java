@@ -126,6 +126,7 @@ public class Network extends SimulableElement{
  		try {
  			/* Create machine */
  			final Machine currentMachine = new Machine(addr, machineName);
+ 			currentMachine.setSpeed(2);
 			currentMachine.networkAddress.machine = currentMachine;
 			
 			/* Add it to the list of the machines in the network */

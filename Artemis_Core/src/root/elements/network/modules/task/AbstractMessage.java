@@ -27,10 +27,6 @@ public abstract class AbstractMessage extends Task implements ISchedulable, Clon
 	public double wcetTask;
 	
 	/**
-	 *  Size of the message in bytes */
-	public double size;
-	
-	/**
 	 *  Node number of the path */
 	public int currentNode;
 	
@@ -76,12 +72,12 @@ public abstract class AbstractMessage extends Task implements ISchedulable, Clon
 	
 
 	@Override
-	public int getNextSend() {
+	public double getNextSend() {
 		return this.nextSend;
 	}
 
 	@Override
-	public void setNextSend(int nextSend) {
+	public void setNextSend(double nextSend) {
 		this.nextSend = nextSend;
 	}
 	

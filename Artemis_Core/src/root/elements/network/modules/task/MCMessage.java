@@ -7,7 +7,7 @@ import root.elements.network.modules.CriticalityLevel;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 
-public class MCMessage extends AbstractMessage implements ISchedulable, Cloneable{	
+public class MCMessage extends FrameMessage implements ISchedulable, Cloneable{	
 	/* Size in bytes */
 	/* Each different size corresponds to a criticality level */
 	public HashMap<CriticalityLevel, Double> size;

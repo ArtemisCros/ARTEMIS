@@ -34,10 +34,10 @@ public interface ISchedulable {
 	void setCurrentPeriod(int period);
 	
 	/* Next send getter */
-	int getNextSend();
+	double getNextSend();
 	
 	/* Next send setter */
-	void setNextSend(int nextSend);
+	void setNextSend(double nextSend);
 	
 	/* Network path getter */
 	Vector<NetworkAddress> getNetworkPath();
