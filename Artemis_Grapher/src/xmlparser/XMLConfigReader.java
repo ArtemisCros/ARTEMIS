@@ -1,5 +1,7 @@
 package xmlparser;
 
+import java.util.ArrayList;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Characters;
@@ -12,6 +14,7 @@ import model.GraphConfig;
 public class XMLConfigReader {
 	private boolean endTimeTrigger;
 	private boolean graphNameTrigger;
+	private boolean nodesNameTrigger;
 	
 	/**
 	 * Reads XML config file and sets graph config
@@ -40,6 +43,9 @@ public class XMLConfigReader {
 	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_GRAPHNAME)) {
 	    			  graphNameTrigger = true;
 	    		  }
+	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_NODES)) {
+	    			  nodesNameTrigger = true;
+	    		  }
 			  }
 			  
 			  if(event.isCharacters()) {
@@ -51,6 +57,16 @@ public class XMLConfigReader {
 				  if(graphNameTrigger) {
 					  GraphConfig.getInstance().setGraphName(element.getData());
 				  }
+				  if(nodesNameTrigger) {
+					  String[] nodesList = element.getData().split(",");
+					  ArrayList<String> nodesArrayList = new ArrayList<String>();
+					  
+					  for(int cptNodes=0; cptNodes < nodesList.length; cptNodes++) {
+						  nodesArrayList.add(nodesList[cptNodes].trim()+".xml");
+					  }
+					 GraphConfig.getInstance().setNodesList(nodesArrayList);
+					 
+				  }
 			  }
 			  
 			  if(event.isEndElement()) {
@@ -60,6 +76,9 @@ public class XMLConfigReader {
 	    		  }
 	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_GRAPHNAME)) {
 	    			  graphNameTrigger = false;
+	    		  }
+	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_NODES)) {
+	    			  nodesNameTrigger = false;
 	    		  }
 			  }
 		  }

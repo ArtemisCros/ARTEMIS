@@ -133,7 +133,7 @@ public class XmlOpener {
 			    			  if(previous_message == "" || message.compareTo(previous_message) != 0) {
 			    				  previous_message = message;
 			    				  XYTextAnnotation annot = new XYTextAnnotation(""+message.substring(3), value+1, graphSize-RANGETICK);
-			    				  annot.setFont(new Font("Arial", Font.PLAIN, 12));
+			    				  annot.setFont(new Font("Arial", Font.PLAIN, 16));
 			    		
 			    				  annotations.add(annot);
 			    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));

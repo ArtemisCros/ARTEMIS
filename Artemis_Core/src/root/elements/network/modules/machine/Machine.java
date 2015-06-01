@@ -309,7 +309,7 @@ public class Machine extends NetworkModule {
 	}
 	
 	public XmlLogger createXMLLog() {
-		xmlLogger = new XmlLogger(this.name+".xml");
+		xmlLogger = new XmlLogger(this.name.trim()+".xml");
 		xmlLogger.createDocument();
 		xmlLogger.createRoot("machine");
 		//xmlLogger.getRoot().setAttribute("id", this.networkAddress.value);

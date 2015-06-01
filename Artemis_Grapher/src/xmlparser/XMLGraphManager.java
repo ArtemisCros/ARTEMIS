@@ -2,6 +2,7 @@ package xmlparser;
 
 import java.awt.Color;
 import java.awt.Event;
+import java.awt.Font;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -145,8 +146,11 @@ public class XMLGraphManager {
 	 		   String annotation = orderedFileName.get(j);
 	 	       annotation = annotation.substring(0, annotation.length()-4);
 	 	       // Node legend
-	 	       xyplot.addAnnotation(new XYTextAnnotation(annotation, min+1, (j*5)-2));
-	 	     
+	 	      XYTextAnnotation nodeAnnotation = new XYTextAnnotation(annotation, min+1, (j*5)-2);
+	 	     nodeAnnotation.setFont(new Font("Arial", Font.BOLD, 18));
+	 	       
+	 	       xyplot.addAnnotation(nodeAnnotation);
+	 	  
 	 	       for(int cptAnnotations = 0;cptAnnotations<xmlOpener.annotations.size();cptAnnotations++) {
 	 	    	   xyplot.addAnnotation(xmlOpener.annotations.get(cptAnnotations));
 	 	       }

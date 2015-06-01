@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+
 public class GraphConfig {
 	/**
 	 * Singloton graph config manager
@@ -19,6 +21,11 @@ public class GraphConfig {
 	 * Picture file name for the graph
 	 */
 	private String graphName;
+	
+	/**
+	 * List of the nodes to display on the graph
+	 */
+	private ArrayList<String> nodesList;
 	
 	private static GraphConfig instance = null;
 	
@@ -59,4 +66,12 @@ public class GraphConfig {
 		this.graphName = graphName;
 	}
 	
+	
+	public ArrayList<String> getNodesList() {
+		return this.nodesList;
+	}
+	
+	public void setNodesList(ArrayList<String> list) {
+		this.nodesList = list;
+	}
 }

@@ -22,7 +22,7 @@ public class ComputationConstants {
 		public double autoLoad;
 		
 		//Singloton config manager
-		private static ComputationConstants instance = null;
+		private static ComputationConstants instance;
 		
 		public ComputationConstants() {
 
