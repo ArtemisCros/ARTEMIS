@@ -34,7 +34,7 @@ public class XmlOpener {
 	/**
 	 * Simulation time to represent
 	 */
-	public int simulationTimeLimit;
+	public double simulationTimeLimit;
 	
 	/**
 	 * Range tick value
@@ -53,7 +53,7 @@ public class XmlOpener {
 		return fileName.substring(0, fileName.indexOf('.'));
 	}
 	
-	public int getSimulationTimeLimit() {
+	public double getSimulationTimeLimit() {
 		return simulationTimeLimit;
 	}
 	
@@ -84,7 +84,7 @@ public class XmlOpener {
 			ArrayList<GraphPlot> plots = new ArrayList<GraphPlot>();
 			
 			/*We manually compute the simulation time limit, for optimizing graph size */
-			int timeLength = -1;
+			double timeLength = -1;
 			
 			int previous =  0;
 		      XMLEventReader eventReader =XMLGraphManager.createXMLEventReader(configFile);
@@ -109,6 +109,7 @@ public class XmlOpener {
 		    		  StartElement startElement = event.asStartElement();
 		    		  if(startElement.getName().toString().equals("timer")) {
 		    			  timeLength+=GRAPHPRECISION;
+
 		    			  Iterator <Attribute> it = startElement.getAttributes();
 			    		  double value = 0;
 			    		  message = "";

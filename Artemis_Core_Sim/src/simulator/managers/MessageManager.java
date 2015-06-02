@@ -1,5 +1,6 @@
 package simulator.managers;
 
+import java.math.BigDecimal;
 import java.util.Vector;
 
 import logger.GlobalLogger;
@@ -94,6 +95,8 @@ public class MessageManager {
 				analyseTime = Math.floor(messageToAnalyse.getCurrentWcet()/(Math.pow(2, fromMachine.getSpeed()-1))*(1/ComputationConstants.TIMESCALE));
 			}
 			fromMachine.analyseTime += (analyseTime * ComputationConstants.TIMESCALE);
+			/* Correcting time precision */
+			fromMachine.analyseTime  = new BigDecimal(fromMachine.analyseTime).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
 		}
 	
 		return 0;
@@ -107,10 +110,11 @@ public class MessageManager {
 	 */
 	public int analyzeMessage(Machine fromMachine, double time) {
 		if(fromMachine.currentlyTransmittedMsg != null) {
+			fromMachine.analyseTime  = new BigDecimal(fromMachine.analyseTime).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
 			fromMachine.analyseTime -= ComputationConstants.TIMESCALE;
 			
 			if(GlobalLogger.DEBUG_ENABLED) {
-				String debug = "TIME:"+time+" TREATING MSG "+fromMachine.currentlyTransmittedMsg.getName();
+				String debug = "TIME:"+time+" ANALYSE TIME:"+fromMachine.analyseTime+" TREATING MSG "+fromMachine.currentlyTransmittedMsg.getName();
 				debug += " MACHINE "+fromMachine.name;
 				GlobalLogger.debug(debug);
 			}
