@@ -250,7 +250,7 @@ public class Network extends SimulableElement{
 	public void showCritSwitches() {
 		for(int cptCrit=0;cptCrit < critSwitches.size();cptCrit++) {
 			if(GlobalLogger.DEBUG_ENABLED) {
-				final int time = critSwitches.get(cptCrit).getTime();
+				final double time = critSwitches.get(cptCrit).getTime();
 				final String debug = "CRIT SWITCH AT TIME:"+time+" TO LVL:"
 						+critSwitches.get(cptCrit).getCritLvl();
 				

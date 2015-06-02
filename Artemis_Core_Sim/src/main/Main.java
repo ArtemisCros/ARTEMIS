@@ -1,6 +1,7 @@
 package main;
 
 import simulator.managers.NetworkScheduler;
+import utils.ConfigLogger;
 import utils.Errors;
 import logger.GlobalLogger;
 import modeler.networkbuilder.NetworkBuilder;
@@ -19,7 +20,7 @@ public class Main {
 			NetworkScheduler nScheduler = null;
 			
 			/* Modelises network */
-			NetworkBuilder nBuilder = new NetworkBuilder();
+			NetworkBuilder nBuilder = new NetworkBuilder(ConfigLogger.NETWORK_INPUT_PATH);
 			if(nBuilder.getMainNetwork() != null) {
 				nScheduler = new NetworkScheduler(nBuilder.getMainNetwork());
 			}

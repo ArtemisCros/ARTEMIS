@@ -11,7 +11,7 @@ public class CriticalitySwitch {
 	/**
 	 * Time for the switch
 	 */
-	private int time;
+	private double time;
 	
 	/**
 	 * Criticality level called
@@ -29,7 +29,7 @@ public class CriticalitySwitch {
 	 * Get time call
 	 * @return
 	 */
-	public int getTime() {
+	public double getTime() {
 		return time;
 	}
 	
@@ -37,7 +37,7 @@ public class CriticalitySwitch {
 	 * Set time call
 	 * @param time time call
 	 */
-	public void setTime(final int time) {
+	public void setTime(final double time) {
 		this.time = time;
 	}
 	

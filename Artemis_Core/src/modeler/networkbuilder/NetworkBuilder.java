@@ -19,13 +19,21 @@ import utils.ConfigLogger;
 public class NetworkBuilder {
 	private Network mainNet;
 	
-	public NetworkBuilder() {
+	public NetworkBuilder(String path) {
 		try {
 			/* Clean History */
+			/* Creating xml folder if not exist */
+			new File(ConfigLogger.GENERATED_FILES_PATH+"xml/").mkdirs();
 			File dir = new File(ConfigLogger.GENERATED_FILES_PATH+"xml/");
+			
 			for(File file: dir.listFiles()) file.delete();
+			
+			/* Creating histograms folder if not exist */
+			new File(ConfigLogger.GENERATED_FILES_PATH+"histos/").mkdirs();
 			dir = new File(ConfigLogger.GENERATED_FILES_PATH+"histos/");
 			for(File file: dir.listFiles()) file.delete();
+			
+			new File(ConfigLogger.GENERATED_FILES_PATH+"logs/").mkdirs();
 			
 			// Creating a factory SAX Parser
 			SAXParserFactory factoryParser = SAXParserFactory.newInstance();
@@ -35,7 +43,7 @@ public class NetworkBuilder {
 			
 			//Building the parser handler
 			XmlHandler handler = new XmlHandler();
-			File fichier = new File(ConfigLogger.NETWORK_INPUT_PATH);
+			File fichier = new File(path);
 			
 			//Launch the parser
 			parser.parse(fichier, handler);

@@ -7,6 +7,7 @@ import modeler.networkbuilder.NetworkBuilder;
 import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import simulator.managers.NetworkScheduler;
+import utils.ConfigLogger;
 import utils.Errors;
 
 /**
@@ -33,7 +34,7 @@ public class CoreLauncher {
 			NetworkScheduler nScheduler = null;
 			
 			/* Modelises network */
-			NetworkBuilder nBuilder = new NetworkBuilder();
+			NetworkBuilder nBuilder = new NetworkBuilder(ConfigLogger.NETWORK_INPUT_PATH);
 			
 			GlobalLogger.log("------------ LAUNCHING MODELIZER ------------");
 			
@@ -54,7 +55,7 @@ public class CoreLauncher {
 			}
 			else {
 				/* Get a new builder */
-				nBuilder = new NetworkBuilder();
+				nBuilder = new NetworkBuilder(ConfigLogger.NETWORK_INPUT_PATH);
 			}
 			
 			GlobalLogger.log("------------ CRITICALITY SWITCHES ------------");
