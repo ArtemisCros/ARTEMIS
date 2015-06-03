@@ -6,6 +6,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -18,6 +19,7 @@ import javax.xml.stream.events.XMLEvent;
 
 import logger.GlobalLogger;
 import model.GraphConfig;
+import model.GraphLoadPoint;
 import model.GraphPlot;
 import model.GraphSerial;
 
@@ -37,6 +39,11 @@ public class XmlOpener {
 	public double simulationTimeLimit;
 	
 	/**
+	 * load evolutions for a stat graph
+	 */
+	public ArrayList<GraphLoadPoint> loads;
+	
+	/**
 	 * Range tick value
 	 */
 	public static final int RANGETICK = 2;
@@ -46,6 +53,9 @@ public class XmlOpener {
 	 */
 	public static final double GRAPHPRECISION = 0.1;
 	
+	public XmlOpener() {
+		loads = new ArrayList<GraphLoadPoint>();
+	}
 	/* Annotations to put on the graph */
 	public Vector<XYTextAnnotation> annotations;
 	
@@ -124,6 +134,13 @@ public class XmlOpener {
 			    			  else if(attr.getName().toString().equals("value")) {
 			    				  value = Double.parseDouble(attr.getValue().toString());
 			    			  }
+			    			  else if(attr.getName().toString().equals("load")) {
+			    					//TODO
+			    				  GraphLoadPoint point = new GraphLoadPoint();
+			    				  point.time = value;
+			    				  point.load = Double.parseDouble(attr.getValue().toString());
+			    				  loads.add(point);
+			    			  }
 			    		  }
 			    		  
 			    		  if(message != "") {
@@ -138,8 +155,8 @@ public class XmlOpener {
 			    			  /* Add message id on the graph on the beginning of its transmission time */
 			    			  if(previous_message == "" || message.compareTo(previous_message) != 0) {
 			    				  previous_message = message;
-			    				  XYTextAnnotation annot = new XYTextAnnotation(""+message.substring(3), value+1, graphSize-RANGETICK);
-			    				  annot.setFont(new Font("Arial", Font.PLAIN, 16));
+			    				  XYTextAnnotation annot = new XYTextAnnotation(""+message.substring(3), value+2, graphSize-RANGETICK/2);
+			    				  annot.setFont(new Font("Arial", Font.PLAIN, 20));
 			    		
 			    				  annotations.add(annot);
 			    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
