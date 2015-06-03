@@ -24,6 +24,7 @@ public class Machine extends Node {
 	 */
 	public double speed;
 	
+
 	/** 
 	 * Indicates the total load for the node 
 	 */
@@ -184,5 +185,24 @@ public class Machine extends Node {
 		message += "|";
 		//GlobalLogger.log(message);
 		return 0;
+	}
+	
+	public void computeCurrentLoad() {
+		currentLoad = 0.0;
+		ISchedulable currentMsg;
+		
+		for(int cptMsgInput = 0; cptMsgInput < inputBuffer.size(); cptMsgInput++) {
+			if(ConfigParameters.MIXED_CRITICALITY) {
+				currentMsg = (MCMessage)inputBuffer.elementAt(cptMsgInput);
+			}
+			else {
+				currentMsg = (NetworkMessage)inputBuffer.elementAt(cptMsgInput);
+			}
+			currentLoad += currentMsg.getCurrentWcet()/currentMsg.getCurrentPeriod();
+		}
+		if(currentlyTransmittedMsg != null) {
+			currentLoad += this.analyseTime/this.currentlyTransmittedMsg.getPeriod();
+		}
+
 	}
 }

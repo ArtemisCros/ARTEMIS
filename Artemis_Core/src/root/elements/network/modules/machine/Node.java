@@ -1,5 +1,6 @@
 package root.elements.network.modules.machine;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -17,6 +18,11 @@ public abstract class Node extends NetworkModule {
 	 *  Address of the machine
 	 */
 	public NetworkAddress networkAddress;
+	
+	/**
+	 * current load at a given instant
+	 */
+	public double currentLoad;
 	
 	
 	/**
@@ -147,12 +153,13 @@ public abstract class Node extends NetworkModule {
 	
 	/* XML Writing functions */
 	public int writeLogToFile(final double timer) {
+		currentLoad = new BigDecimal(currentLoad).setScale(5, BigDecimal.ROUND_HALF_DOWN).doubleValue();
 		if(currentlyTransmittedMsg != null) {
 			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+timer,
-					"message:"+currentlyTransmittedMsg.getName());		
+					"message:"+currentlyTransmittedMsg.getName(), "load:"+currentLoad);		
 		}
 		else {
-			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+timer+"");
+			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+timer+"", "load:"+currentLoad);
 		}
 		return 0;
 	}

@@ -60,6 +60,7 @@ public class NetworkScheduler implements Runnable{
 			}
 			for(int machineCounter=0; machineCounter < network.machineList.size(); machineCounter++) {
 				Machine currentMachine = network.machineList.get(machineCounter);
+				currentMachine.computeCurrentLoad();
 				/* First, put the generated messages in input buffers */
 				currentMachine.generateMessage(time);
 				
