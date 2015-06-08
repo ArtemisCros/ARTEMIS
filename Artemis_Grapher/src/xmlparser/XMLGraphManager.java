@@ -35,6 +35,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import root.util.constants.ConfigParameters;
 import utils.ConfigLogger;
 
 public class XMLGraphManager {
@@ -133,7 +134,8 @@ public class XMLGraphManager {
 		   XmlOpener xmlOpener = new XmlOpener();
 		   XMLConfigReader configReader = new XMLConfigReader();
 		   
-	       File folder = new File(ConfigLogger.GENERATED_FILES_PATH+"xml/"); 
+	       File folder = new File(ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/"
+	    		   +ConfigLogger.GENERATED_FILES_PATH+"xml/"); 
 	       
 	       /* Sorting the files by node order in the network */
 	       ArrayList<String> orderedFileName  = gBuilder.sortXMLGraphFiles(folder, xmlOpener);      
@@ -151,7 +153,9 @@ public class XMLGraphManager {
 		       /* To organize the different graphs, we define their position on the height of the y axis */
 		       /* Starting from xml infos, we build the different graphs */
 	    	   XYSeries plotSeries = xmlOpener.readFile(number, 
-	    			   ConfigLogger.GENERATED_FILES_PATH+"xml/"+orderedFileName.get(j),
+	    			   ConfigLogger.RESSOURCES_PATH+"/"+
+	    					   ConfigParameters.getInstance().getSimuId()+"/"+
+	    					   ConfigLogger.GENERATED_FILES_PATH+"xml/"+orderedFileName.get(j),
 	    			   j*5); 
 	    	   
 	    	   buildLoadGraph(xmlOpener.loads, orderedFileName.get(j));
@@ -180,7 +184,9 @@ public class XMLGraphManager {
 		XMLConfigReader configReader = new XMLConfigReader();
 		
 		//TODO : file name
-		configReader.readFile(ConfigLogger.GRAPH_CONF_PATH);
+		configReader.readFile(ConfigLogger.RESSOURCES_PATH+"/"+
+				   ConfigParameters.getInstance().getSimuId()+"/"+
+				   ConfigLogger.GRAPH_CONF_PATH);
 	}
 	
 	public void buildLoadGraph(ArrayList<GraphLoadPoint> points, String fileName) {
@@ -224,12 +230,12 @@ public class XMLGraphManager {
 	            renderer.setBaseShapesVisible(false);
 	            
 	            plot.setRenderer(renderer);
-	            
+	            /*
 	            try {
-					ChartUtilities.saveChartAsPNG(new File(ConfigLogger.GENERATED_FILES_PATH+"histos/"+fileName+"_load.PNG"), chart, 1600, 1200);
+					//ChartUtilities.saveChartAsPNG(new File(ConfigLogger.GENERATED_FILES_PATH+"histos/"+fileName+"/"+fileName+"_load.PNG"), chart, 1600, 1200);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				}*/
 	}
 }

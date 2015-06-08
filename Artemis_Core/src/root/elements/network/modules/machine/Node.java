@@ -12,6 +12,7 @@ import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
+import utils.ConfigLogger;
 
 public abstract class Node extends NetworkModule {
 	/**
@@ -165,7 +166,7 @@ public abstract class Node extends NetworkModule {
 	}
 	
 	public XmlLogger createXMLLog() {
-		xmlLogger = new XmlLogger(this.name.trim()+".xml");
+		xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/", this.name.trim()+".xml");
 		xmlLogger.createDocument();
 		xmlLogger.createRoot("machine");
 		//xmlLogger.getRoot().setAttribute("id", this.networkAddress.value);

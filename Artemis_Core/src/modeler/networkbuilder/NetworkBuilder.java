@@ -23,18 +23,11 @@ public class NetworkBuilder {
 		try {
 			/* Clean History */
 			/* Creating xml folder if not exist */
-			new File(ConfigLogger.GENERATED_FILES_PATH+"xml/").mkdirs();
-			File dir = new File(ConfigLogger.GENERATED_FILES_PATH+"xml/");
-			
-			for(File file: dir.listFiles()) file.delete();
-			
-			/* Creating histograms folder if not exist */
-			new File(ConfigLogger.GENERATED_FILES_PATH+"histos/").mkdirs();
-			dir = new File(ConfigLogger.GENERATED_FILES_PATH+"histos/");
-			for(File file: dir.listFiles()) file.delete();
-			
-			new File(ConfigLogger.GENERATED_FILES_PATH+"logs/").mkdirs();
-			
+			String fileXml = ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/"+ConfigLogger.GENERATED_FILES_PATH;
+			new File(fileXml+"xml/").mkdirs();
+			new File(fileXml+"histos/").mkdirs();
+			new File(fileXml+"logs").mkdirs();
+		
 			// Creating a factory SAX Parser
 			SAXParserFactory factoryParser = SAXParserFactory.newInstance();
 

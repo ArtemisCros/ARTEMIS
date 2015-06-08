@@ -13,6 +13,16 @@ public class ConfigParameters {
 	private double electronicalLatency;
 	private boolean automaticTaskGeneration;
 	
+	/**
+	 * Simulation identifier
+	 */
+	public String simuId;
+	
+	/**
+	 * Timestamp identifier
+	 */
+	public String timeStamp;
+	
 	public static final int CONST_PORT_NUMBER 	= 500;
 	public static final int CONST_PORT_NUMBER_IN = 500;
 	
@@ -65,4 +75,21 @@ public class ConfigParameters {
 		this.automaticTaskGeneration = autogenTask;
 	}
 	
+	/**
+	 *  Used in graphical session to differentiate instances */
+	public String getSimuId() {
+		return this.simuId;
+	}
+	
+	public void setSimuId(String simuIdP) {
+		this.simuId = simuIdP;
+	}
+	
+	public String getTimeStamp() {
+		return this.timeStamp;
+	}
+	
+	public void setTimeStamp(String pTimeStamp) {
+		this.timeStamp = pTimeStamp;
+	}
 }

@@ -89,10 +89,10 @@ public class MessageManager {
 					GlobalLogger.debug(debug);					
 				}
 				
-				analyseTime = Math.floor(wcet/(Math.pow(2, fromMachine.getSpeed()-1))/ComputationConstants.TIMESCALE);
+				analyseTime = Math.floor(wcet/fromMachine.getSpeed())/ComputationConstants.TIMESCALE;
 			}
 			else {
-				analyseTime = Math.floor(messageToAnalyse.getCurrentWcet()/(Math.pow(2, fromMachine.getSpeed()-1))*(1/ComputationConstants.TIMESCALE));
+				analyseTime = Math.floor(messageToAnalyse.getCurrentWcet()/fromMachine.getSpeed())*(1/ComputationConstants.TIMESCALE);
 			}
 			fromMachine.analyseTime += (analyseTime * ComputationConstants.TIMESCALE);
 			/* Correcting time precision */

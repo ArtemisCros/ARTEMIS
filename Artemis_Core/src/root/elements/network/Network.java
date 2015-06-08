@@ -211,7 +211,8 @@ public class Network extends SimulableElement{
 			networkDescription += "}\n\n";
 		}
 		
-		FileLogger.logToFile(networkDescription, ConfigLogger.GENERATED_FILES_PATH+"logs/networkdescription.txt");
+		FileLogger.logToFile(networkDescription, ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/"
+				+ConfigLogger.GENERATED_FILES_PATH+"logs/networkdescription.txt");
 		
 		return networkDescription;
 	}
@@ -232,7 +233,8 @@ public class Network extends SimulableElement{
 		}
 		
 		networkGraph += "}\n";
-		FileLogger.logToFile(networkGraph, ConfigLogger.GENERATED_FILES_PATH+"logs/networkgraph.txt");
+		FileLogger.logToFile(networkGraph, ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/"
+				+ConfigLogger.GENERATED_FILES_PATH+"logs/networkgraph.txt");
 		
 		return networkGraph;
 		

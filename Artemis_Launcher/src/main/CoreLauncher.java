@@ -1,5 +1,7 @@
 package main;
 
+import java.io.File;
+
 import generator.TaskGenerator;
 import grapher.MainGrapher;
 import logger.GlobalLogger;
@@ -18,6 +20,15 @@ import utils.Errors;
 public class CoreLauncher {
 	public static void main(String[] args) {
 		
+		String simuId = args[0];
+		/* Default case */
+		if(args[0] == "") {
+			simuId = "000";
+		}
+		
+		/* We get the simulation id from interface */
+		ConfigParameters.getInstance().setSimuId(simuId);
+		
 		double startSimulationTime = System.currentTimeMillis();
 	
 		launchSimulation();
@@ -33,8 +44,12 @@ public class CoreLauncher {
 			/* Initalizes scheduler */
 			NetworkScheduler nScheduler = null;
 			
+			String xmlInputFile = ConfigLogger.RESSOURCES_PATH+"/"+
+					ConfigParameters.getInstance().getSimuId()+"/"+
+					ConfigLogger.NETWORK_INPUT_PATH;
+			
 			/* Modelises network */
-			NetworkBuilder nBuilder = new NetworkBuilder(ConfigLogger.NETWORK_INPUT_PATH);
+			NetworkBuilder nBuilder = new NetworkBuilder(xmlInputFile);
 			
 			GlobalLogger.log("------------ LAUNCHING MODELIZER ------------");
 			
@@ -55,7 +70,7 @@ public class CoreLauncher {
 			}
 			else {
 				/* Get a new builder */
-				nBuilder = new NetworkBuilder(ConfigLogger.NETWORK_INPUT_PATH);
+				nBuilder = new NetworkBuilder(xmlInputFile);
 			}
 			
 			GlobalLogger.log("------------ CRITICALITY SWITCHES ------------");

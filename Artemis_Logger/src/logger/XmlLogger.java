@@ -22,8 +22,8 @@ public class XmlLogger extends Logger{
 	
 	private Element root;
 	
-	public XmlLogger(String fileName_) {
-		fileName = ConfigLogger.GENERATED_FILES_PATH+"xml/"+fileName_;
+	public XmlLogger(String path, String fileName_) {
+		fileName = path+ConfigLogger.GENERATED_FILES_PATH+"xml/"+fileName_;
 		
 		createDocument();
 		saveIntoFile();

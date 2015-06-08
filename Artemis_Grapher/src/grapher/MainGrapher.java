@@ -30,6 +30,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleEdge;
 
+import root.util.constants.ConfigParameters;
 import utils.ConfigLogger;
 import xmlparser.XMLConfigReader;
 import xmlparser.XMLGraphManager;
@@ -71,9 +72,12 @@ public class MainGrapher {
 		        
 	       try {
 	    	   /* Building the name of the picture graph file */
-	    	   String pictureFileGraph = ConfigLogger.GENERATED_FILES_PATH+"histos/";
-	    	   pictureFileGraph += GraphConfig.getInstance().getGraphName();
-	    	   pictureFileGraph += ".PNG";
+	    	   String pictureFileGraph = ConfigLogger.RESSOURCES_PATH+"/"+
+					   ConfigParameters.getInstance().getSimuId()+"/"+
+	    			   ConfigLogger.GENERATED_FILES_PATH+"histos/";
+	    	   /* Creating the subfolder */
+	    	   new File(pictureFileGraph).mkdirs();
+	    	   pictureFileGraph += GraphConfig.getInstance().getGraphName()+".PNG";
 	    	   
 	           ChartUtilities.saveChartAsPNG(new File(pictureFileGraph), chart, width, height);
 	           } 

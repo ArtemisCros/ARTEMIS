@@ -1,5 +1,6 @@
 package grapher;
 
+import root.util.constants.ConfigParameters;
 import logger.GlobalLogger;
 
 /**
@@ -11,7 +12,10 @@ public class Launcher {
 
 	public static void main(String[] args) {
 		/* Launch grapher */
+		ConfigParameters.getInstance().setSimuId(args[0]);
+		
 		MainGrapher mainGrapher = new MainGrapher();
+		
 		
 		mainGrapher.drawGraph();
 		

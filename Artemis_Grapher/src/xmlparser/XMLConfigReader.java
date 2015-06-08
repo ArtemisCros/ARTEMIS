@@ -13,6 +13,7 @@ import model.GraphConfig;
 
 public class XMLConfigReader {
 	private boolean endTimeTrigger;
+	private boolean startTimeTrigger;
 	private boolean graphNameTrigger;
 	private boolean nodesNameTrigger;
 	
@@ -40,6 +41,9 @@ public class XMLConfigReader {
 	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_ENDTIME)) {
 	    			  endTimeTrigger = true;
 	    		  }  
+	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_STARTTIME)) {
+	    			  startTimeTrigger = true;
+	    		  }  
 	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_GRAPHNAME)) {
 	    			  graphNameTrigger = true;
 	    		  }
@@ -53,6 +57,9 @@ public class XMLConfigReader {
 				  
 				  if(endTimeTrigger) {			  
 					  GraphConfig.getInstance().setEndTime(Integer.parseInt(element.getData()));
+				  }
+				  if(startTimeTrigger) {
+					  GraphConfig.getInstance().setStartTime(Integer.parseInt(element.getData()));
 				  }
 				  if(graphNameTrigger) {
 					  GraphConfig.getInstance().setGraphName(element.getData());
@@ -73,6 +80,9 @@ public class XMLConfigReader {
 				  EndElement element = event.asEndElement();
 	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_ENDTIME)) {
 	    			  endTimeTrigger = false;
+	    		  }
+	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_STARTTIME)) {
+	    			  startTimeTrigger = false;
 	    		  }
 	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_GRAPHNAME)) {
 	    			  graphNameTrigger = false;
