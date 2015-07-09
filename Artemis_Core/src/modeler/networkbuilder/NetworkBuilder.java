@@ -10,6 +10,7 @@ import org.xml.sax.SAXException;
 
 import logger.GlobalLogger;
 import modeler.parser.XmlConfigHandler;
+import modeler.parser.XmlMessageHandler;
 import modeler.parser.XmlNetworkHandler;
 import root.elements.network.Network;
 import root.util.constants.ConfigParameters;
@@ -44,6 +45,7 @@ public class NetworkBuilder {
 				GlobalLogger.error("NULL MAIN NETWORK");
 			parseNetworkFile(inputPath+"/input/network.xml", parser, mainNet);
 			
+			parseMessagesFile(inputPath+"/input/messages.xml", parser, mainNet);
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -90,10 +92,6 @@ public class NetworkBuilder {
 			mainNet = handler.getMainNet();
 			mainNet.computeLoads();
 			
-			
-			/* Builds a list of paths for each message, according to Dijkstra algo */
-			//mainNet.buildPaths();
-			
 			/* Generate log files for configuration */
 			mainNet.generateNetworkGraph();
 			mainNet.displayNetwork();
@@ -103,6 +101,22 @@ public class NetworkBuilder {
 		}
 	}
 
+	/**
+	 * Parse messages file
+	 */
+	public void parseMessagesFile(String path, SAXParser parser, Network mainNet) {
+		try {
+			//Building the parser handler
+			XmlMessageHandler handler = new XmlMessageHandler(mainNet);
+			File fichier = new File(path);
+			
+			//Launch the parser
+			parser.parse(fichier, handler);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	public Network getMainNetwork() {
 		return mainNet;
 	}

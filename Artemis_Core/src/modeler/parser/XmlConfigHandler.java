@@ -16,12 +16,6 @@ import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 
 public class XmlConfigHandler extends XmlDefaultHandler {
-	/**
-	 *  Triggers for XML Parsing
-	 *  Associated with TriggerCodes, and XMLNetworkTags
-	 */
-	final private HashMap<TriggerCodes, Boolean> triggers;
-	
 	/** 
 	 * Criticality switch
 	 */
@@ -30,13 +24,8 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 	public XmlConfigHandler() {
 		super();
 		mainNet = new Network();
-		triggers = new HashMap<TriggerCodes, Boolean>();
 		
 		currentCritSwitch = new CriticalitySwitch();
-
-		for(TriggerCodes code : TriggerCodes.values()) {
-			triggers.put(code, false);
-		}
 	}
 	
 	private void switchTrigger(final String qualif,final boolean trigger) {
