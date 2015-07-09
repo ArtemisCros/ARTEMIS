@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import root.elements.network.Network;
+import root.elements.network.modules.CriticalityLevel;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.AbstractMessage;
 import root.elements.network.modules.task.ISchedulable;
@@ -26,8 +27,14 @@ public class TaskGenerator {
 	public double globalLoad;
 	private double highestWcet;
 	
+	private ISchedulable[] tasks;
+	
 	public NetworkBuilder getNetworkBuilder() {
 		return nBuilder;
+	}
+	
+	public ISchedulable[] getTasks() {
+		return tasks;
 	}
 	
 	public void setNetworkBuilder(NetworkBuilder nBuilderP) {
@@ -71,7 +78,7 @@ public class TaskGenerator {
 			
 			tasks[cptTasks].getNetworkPath().add(currentAdress);
 			
-			GlobalLogger.display("Path:");
+			//GlobalLogger.display("\nPath:"+currentAdress.value+"-");
 			/* Link each task with a given set of nodes from the network */		
 			while(!pathFinished) {	
 				/* Count the possible nodes */
@@ -90,7 +97,7 @@ public class TaskGenerator {
 					
 					if(!tasks[cptTasks].getNetworkPath().contains(currentAdress)) {			
 						tasks[cptTasks].getNetworkPath().add(currentAdress);
-						GlobalLogger.display(""+currentAdress.value+"-");
+						//GlobalLogger.display(""+currentAdress.value+"-");
 					}
 					else {
 						break;
@@ -100,7 +107,7 @@ public class TaskGenerator {
 					break;
 				}
 			}
-			GlobalLogger.display("\n");
+		//	GlobalLogger.display("\n");
 		}
 		
 	}
@@ -164,12 +171,20 @@ public class TaskGenerator {
 	}
 	
 	public ISchedulable[] generateTaskList(double highestWcet) {
+		double iTg				= 0.0;
+		double prob				= 0.0;
+		double periodComplete	= 0.0;
+		double criticalUtilisation = -1;
+		double critWcet			= 0.0;
+		
 		/*Generated tasks list */
 		ISchedulable[] tasks = null;
 		globalLoad = 0;
 		
 		final double errorMargin = ConfigParameters.ERROR_MARGIN;
 		boolean validSet = false;
+		
+		//System.out.print("+   Task   +     Load   +   WCTT-NC  +   WCTT-C   +    Time    +\n");
 		
 		while(!validSet) {
 			if(ConfigParameters.MIXED_CRITICALITY) {
@@ -181,37 +196,50 @@ public class TaskGenerator {
 			
 			globalLoad = 0;
 			
+			//System.out.print("+----------+------------+------------+------------+------------+\n");
 			for(int cptTask=1; cptTask <= numberOfTasks; cptTask++) {
 				ISchedulable newTask;
 				
 				/* Granularity */
-				double iTg = 10;
+				iTg = 10;
 				/* First, we generate a random uniform-distributed value (Unifast method)*/
-				double prob = RandomGenerator.genDouble(Math.log(timeLimit/10), Math.log(timeLimit + iTg));
+				prob = RandomGenerator.genDouble(Math.log(timeLimit/10), Math.log(timeLimit + iTg));
 				
-				double periodComplete = Math.min(iTg * (Math.floor(Math.exp(prob)/iTg)), timeLimit);			
+				periodComplete = Math.min(iTg * (Math.floor(Math.exp(prob)/iTg)), timeLimit);			
 				
 				/* Generate utilisation from a uniform rule */
-				double utilisation = -1;
-				while(utilisation < 0 || utilisation > 1){
-					utilisation = RandomGaussian.genGauss_(networkLoad/numberOfTasks, variance);
-					
+				double utilisation = 0.0;
+				while(utilisation < (1/periodComplete)) {
+					utilisation = generateUtilisation();
 				}
+				
+				
 				
 				if(cptTask == numberOfTasks) {
 					utilisation = networkLoad - globalLoad;
-					//GlobalLogger.debug("Util:"+utilisation);
 					/* In case of invalid sets with negative utilization on the last generated task */
 					if(utilisation <= 0) {
 						validSet = false;
-						//GlobalLogger.debug("EXIT");
 						break;
 					}
-						
+					
 				}
-			
-				/* Computes wcet from utilisation */
+					
+				/* Generate utilisation for critical tasks */
+				double isTaskCritical = Math.random();
+				if(isTaskCritical > (1-ConfigParameters.CRITICAL_RATE)) {		
+					while(criticalUtilisation <= utilisation) {
+						/* In case of high wcet tasks */
+						if(utilisation > networkLoad/numberOfTasks) 
+							break;
+						criticalUtilisation = generateUtilisation();
+					}
+				}
+				else {
+					criticalUtilisation = -1;
+				}
 				
+				/* Computes wcet from utilisation */
 				double wcetComplete = Math.floor(utilisation * periodComplete);
 				if(highestWcet != 0 && wcetComplete > highestWcet) {
 					periodComplete = (highestWcet * periodComplete)/wcetComplete;
@@ -226,31 +254,62 @@ public class TaskGenerator {
 					else {
 						newTask = new NetworkMessage((int)periodComplete, ""+cptTask);
 					}
+					
 					newTask.setCurrentPeriod((int)periodComplete);
 					newTask.setWcet((int)wcetComplete);
+					
+					/* Compute critical WCTT */
+					if(criticalUtilisation != -1 &&
+							ConfigParameters.MIXED_CRITICALITY) {
+						critWcet = Math.floor(criticalUtilisation * periodComplete);
+						if(highestWcet != 0 && critWcet > highestWcet) {
+							periodComplete = (highestWcet * periodComplete)/critWcet;
+							critWcet = highestWcet;
+						}			
+					}
+					else {
+						critWcet = -1;
+					}
+					
+					newTask.setWcet(critWcet, CriticalityLevel.CRITICAL);		
 					newTask.setId(cptTask);
 					newTask.setName("MSG"+cptTask);
+				//	GlobalLogger.debug(wcetComplete+"/"+critWcet);
 					
 					tasks[cptTask-1] = newTask;
-				//	GlobalLogger.debug("CPTT:"+(cptTask-1)+" Load:"+globalLoad+" WCTT:"+wcetComplete+" PERIOD"+periodComplete);
+					
+					
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
 				globalLoad += utilisation;
 
-				if(Math.abs(networkLoad - globalLoad) <= errorMargin && cptTask == numberOfTasks) {
+				if(Math.abs(networkLoad - globalLoad) <= errorMargin 
+						&& cptTask == numberOfTasks) {
 					validSet = true;
 				}
-			
+
 			}
 		}
-		
 		linkToPath(tasks);
 		
 		linkTasksetToNetwork(tasks);
-		
+		this.tasks = tasks;
 		
 		return tasks;
+	}
+	
+	public double generateUtilisation() {
+		double utilisation = -1;
+		
+		while(utilisation < 0 || utilisation > 1){
+			utilisation = RandomGaussian.genGauss_(networkLoad/numberOfTasks,
+					variance);
+			
+		}
+		
+		return utilisation;
 	}
 }

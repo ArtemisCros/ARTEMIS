@@ -1,7 +1,11 @@
 package main;
 
 
+import computations.BlockingApproach;
+import computations.CriticalityDelayComputer;
+import computations.DelayComputerCritSwitch;
 import root.elements.network.modules.task.ISchedulable;
+import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 
 /**
@@ -14,9 +18,10 @@ import root.util.constants.ConfigParameters;
 public class MainCalculator {
 	public static void main(String[] args) {	
 	//	FIFODelayComputer delayComputer = new FIFODelayComputer();
-		ConfigParameters.getInstance().setTimeLimitSimulation(300);
-		CriticalityDelayComputer delayComputer = new CriticalityDelayComputer();
-		delayComputer.computeDelay();
+		
+		
+		BlockingApproach bApproach = new BlockingApproach();
+		bApproach.computeBlockingApproachDelay();
 		
 		
 	}	

@@ -188,7 +188,9 @@ public class TrajectoryFIFOSModel implements IComputationModel{
 		/* Computing first term of the min */
 		double firstTerm = delayingTask.getOffset() - vMih + sMaxD;
 		
-		double aij = TrajectoryFIFOModel.computeAij(tasks, computedTask, delayingTask);
+		TrajectoryFIFOModel tFIFO = new TrajectoryFIFOModel();
+		
+		double aij = tFIFO.computeAij(tasks, computedTask, delayingTask);
 		
 		double quotient = Math.floor(Math.max(0.0, Math.min(firstTerm, aij))/(delayingTask.getPeriod()));
 
