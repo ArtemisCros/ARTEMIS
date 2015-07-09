@@ -33,6 +33,9 @@ public class ConfigParameters {
 	/* Error margin on the auto-generated load */
 	public static final double ERROR_MARGIN = 0.05;
 	
+	/* Rate of critical tasks */
+	public static final double CRITICAL_RATE = 0.3;
+	
 	/* Data rate in o/s */
 	public static final double FLOW_DATARATE = 1;//1024*1024*1024;
 	

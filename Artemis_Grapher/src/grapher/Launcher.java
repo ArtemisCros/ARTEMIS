@@ -14,8 +14,7 @@ public class Launcher {
 		/* Launch grapher */
 		ConfigParameters.getInstance().setSimuId(args[0]);
 		
-		MainGrapher mainGrapher = new MainGrapher();
-		
+		MainGrapher mainGrapher = new MainGrapher();	
 		
 		mainGrapher.drawGraph();
 		

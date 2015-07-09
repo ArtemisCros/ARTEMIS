@@ -19,7 +19,6 @@ import utils.Errors;
  */
 public class CoreLauncher {
 	public static void main(String[] args) {
-		
 		String simuId = args[0];
 		/* Default case */
 		if(args[0] == "") {
@@ -45,8 +44,7 @@ public class CoreLauncher {
 			NetworkScheduler nScheduler = null;
 			
 			String xmlInputFile = ConfigLogger.RESSOURCES_PATH+"/"+
-					ConfigParameters.getInstance().getSimuId()+"/"+
-					ConfigLogger.NETWORK_INPUT_PATH;
+					ConfigParameters.getInstance().getSimuId()+"/";
 			
 			/* Modelises network */
 			NetworkBuilder nBuilder = new NetworkBuilder(xmlInputFile);

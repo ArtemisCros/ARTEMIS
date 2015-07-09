@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import logger.GlobalLogger;
 import model.GraphConfig;
 
 import org.jfree.data.xy.XYSeries;

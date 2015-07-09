@@ -6,7 +6,7 @@ import java.util.Date;
 import utils.Errors;
 
 public class GlobalLogger extends Logger {
-	public final static boolean DEBUG_ENABLED = true;
+	public final static boolean DEBUG_ENABLED = false;
 	public final static int LOGLEVEL = 5;
 	
 	public static int log(String message) {

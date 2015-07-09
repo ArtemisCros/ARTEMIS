@@ -28,13 +28,8 @@ import utils.Errors;
  *Event-based xml parser
  */
 
-public class XmlHandler extends DefaultHandler{
-	/** 
-	 * Main network structure
-	 * Network to create
-	 */
-	private Network mainNet;
-	
+public class XmlNetworkHandler extends XmlDefaultHandler{
+
 	/** 
 	 * Currently built machine
 	 */
@@ -66,20 +61,7 @@ public class XmlHandler extends DefaultHandler{
 	 */
 	final public HashMap<String, String>currMsgProp;
 	
-	/** 
-	 * Currently parsed criticality switch
-	 */
-	public CriticalitySwitch currentCritSwitch;
-	
 	/** Accessors **/
-	
-	/** 
-	 * Getter for main network
-	 * @return main network structure
-	 */
-	public Network getMainNet() {
-		return mainNet;
-	}
 	
 	/**
 	 * Setter for main network
@@ -108,28 +90,19 @@ public class XmlHandler extends DefaultHandler{
 	/** 
 	 * XML Parser Handler default constructor
 	 */
-	public XmlHandler() {
+	public XmlNetworkHandler(Network mainNetP) {
 		super();
+		this.mainNet = mainNetP;
 		triggers = new HashMap<TriggerCodes, Boolean>();
 		
 		triggers.put(TriggerCodes.MESSAGE, false);
 		currMsgProp = new HashMap<String, String>();
 		currCriticality = "NONCRITICAL";
 		criticalities = new Vector<String>();
-		currentCritSwitch = new CriticalitySwitch();
 
 		for(TriggerCodes code : TriggerCodes.values()) {
 			triggers.put(code, false);
 		}
-		mainNet = new Network();
-	}
-	
-	/** 
-	 * Gets a pointer to created network structure
-	 * @return
-	 */
-	public Network getNetwork() {
-		return mainNet;
 	}
 	
 	private void switchTrigger(final String qualif,final boolean trigger) {
@@ -144,14 +117,6 @@ public class XmlHandler extends DefaultHandler{
 		if(qualif == XMLNetworkTags.TAG_LINKS) {triggers.put(TriggerCodes.LINKS, trigger);}
 		if(qualif == XMLNetworkTags.TAG_MACHINELINK) {triggers.put(TriggerCodes.MACHINELINK, trigger);}
 		if(qualif == XMLNetworkTags.TAG_PATH) {triggers.put(TriggerCodes.PATH, trigger);}
-		if(qualif == XMLNetworkTags.TAG_CRIT_SWITCH){triggers.put(TriggerCodes.CRITSWITCH, trigger);}
-		if(qualif == XMLNetworkTags.TAG_TIME_LIMIT){triggers.put(TriggerCodes.TIMELIMIT, trigger);}
-		if(qualif == XMLNetworkTags.TAG_ELECTRONICAL_LATENCY){triggers.put(TriggerCodes.ELECTRONICALLATENCY, trigger);}
-		if(qualif == XMLNetworkTags.TAG_AUTOGEN_TASKS){triggers.put(TriggerCodes.AUTOGENTASKS, trigger);}
-		if(qualif == XMLNetworkTags.TAG_HIGH_WCTT){triggers.put(TriggerCodes.HIGHESTWCTT, trigger);}
-		if(qualif == XMLNetworkTags.TAG_AUTO_TASKS){triggers.put(TriggerCodes.AUTOGENNUMBER, trigger);}
-		if(qualif == XMLNetworkTags.TAG_AUTO_LOAD){triggers.put(TriggerCodes.AUTOLOAD, trigger);}
-		if(qualif == XMLNetworkTags.TAG_SPEED_MACHINE){triggers.put(TriggerCodes.SPEEDMACHINE, trigger);}
 	}
 
 	/**
@@ -182,7 +147,10 @@ public class XmlHandler extends DefaultHandler{
 			}
 			
 			/* We check if machine has already been created in the network */
+			if(mainNet == null)
+				GlobalLogger.debug("::NULL");
 			currentMachine = mainNet.findMachine(idAddr, currMachName);
+			
 			/* We set the name of this new machine */
 			currentMachine.name = currMachName;
 			currentMachine.setSpeed(speed);
@@ -230,24 +198,6 @@ public class XmlHandler extends DefaultHandler{
 	}
 	
 	/**
-	 *  Parse general config tags 
-	 */
-	public void detectGeneralConf(final String uri,final String name,final String qualif,final Attributes pAttr) {
-		if(qualif == XMLNetworkTags.TAG_CRIT_SWITCHES) {
-			
-		}
-		
-		if(qualif == XMLNetworkTags.TAG_CRIT_SWITCH) {
-			for(int cptAttr=0;cptAttr < pAttr.getLength();cptAttr++) {
-				
-				if(pAttr.getLocalName(cptAttr).compareTo("time") == 0) {
-					currentCritSwitch.setTime(Integer.parseInt(pAttr.getValue(cptAttr)));
-				}
-			}
-		}
-	}
-	
-	/**
 	 *  Start element 
 	 */
 	 public void startElement(final String uri, final String name, final String qualif, final Attributes pAttr) {
@@ -255,9 +205,6 @@ public class XmlHandler extends DefaultHandler{
 		
 		final int result = this.detectConfMachine(uri, name, qualif, pAttr);
 		
-		if(result == 0) {
-			this.detectGeneralConf(uri, name, qualif, pAttr);
-		}
 	}
 	 
 	 /**
@@ -265,24 +212,6 @@ public class XmlHandler extends DefaultHandler{
 	  */
 	 public void endElement(final String uri,final String name,final String qName) {
 		 switchTrigger(qName, false);	 
-		 
-		 /* Criticality managing */
-		 if(qName == XMLNetworkTags.TAG_CRIT_SWITCH) {
-			 
-			 final CriticalitySwitch critSwitch = new CriticalitySwitch();
-			 	if(currentCritSwitch.getTime() == 0 || currentCritSwitch.getCritLvl() == null) {
-			 		GlobalLogger.warning("WARNING ON CREATING CRITICALITY LEVEL : null parameter");
-					
-			 	}
-			 	else {
-					critSwitch.setTime(currentCritSwitch.getTime());
-					critSwitch.setCritLvl(currentCritSwitch.getCritLvl());
-					mainNet.critSwitches.addElement(critSwitch);
-					
-					currentCritSwitch.setTime(0);
-					currentCritSwitch.setCritLvl(null);
-		 		}	
-		 }
 		 
 		 //End of message markup : creating a message
 		 if(qName == XMLNetworkTags.TAG_MESSAGE) {
@@ -358,56 +287,6 @@ public class XmlHandler extends DefaultHandler{
 	 public void characters(final char[] pCh,final int start,final int length) {  
 		String value = new String(pCh);
 		value = value.substring(start, start+length);
-		 
-		if(triggers.get(TriggerCodes.TIMELIMIT)) {
-			final ConfigParameters config = ConfigParameters.getInstance();			
-			config.setTimeLimitSimulation(Integer.parseInt(value));
-		}
-		
-		/* Electronical latency management */
-		if(triggers.get(TriggerCodes.ELECTRONICALLATENCY)) {
-			final ConfigParameters config = ConfigParameters.getInstance();			
-			config.setElectronicalLatency(Integer.parseInt(value));
-		}
-		
-		/* Tasks auto-generation activation */
-		if(triggers.get(TriggerCodes.AUTOGENTASKS)) {
-			final ConfigParameters config = ConfigParameters.getInstance();		
-			if(value.compareTo("0") == 0) {
-				config.setAutomaticTaskGeneration(true);
-			}
-			else {
-				config.setAutomaticTaskGeneration(false);
-			}
-		}
-		
-
-		if(triggers.get(TriggerCodes.AUTOGENNUMBER)) {
-			final ConfigParameters config 			= ConfigParameters.getInstance();	
-			final ComputationConstants simuConst 	= ComputationConstants.getInstance();
-			
-			if(config.getAutomaticTaskGeneration()) {
-				simuConst.setGeneratedTasks(Integer.parseInt(value));
-			}
-		}
-		
-		if(triggers.get(TriggerCodes.HIGHESTWCTT)) {
-			final ConfigParameters config 			= ConfigParameters.getInstance();	
-			final ComputationConstants simuConst 	= ComputationConstants.getInstance();
-			
-			if(config.getAutomaticTaskGeneration()) {
-				simuConst.setHighestWCTT(Integer.parseInt(value));
-			}
-		}
-		
-		if(triggers.get(TriggerCodes.AUTOLOAD)) {
-			final ConfigParameters config 			= ConfigParameters.getInstance();	
-			final ComputationConstants simuConst 	= ComputationConstants.getInstance();
-			
-			if(config.getAutomaticTaskGeneration()) {
-				simuConst.setAutoLoad(Double.parseDouble(value));
-			}
-		}
 		
 		if(triggers.get(TriggerCodes.CRITICALITY)) {
 			if(triggers.get(TriggerCodes.WCET)) {
@@ -432,10 +311,6 @@ public class XmlHandler extends DefaultHandler{
 			if(triggers.get(TriggerCodes.OFFSET)) {
 				currMsgProp.put("OFFS", value);
 			}
-		}
-		if(triggers.get(TriggerCodes.CRITSWITCH)) {
-			final CriticalityLevel newLevel = Utils.convertToCritLevel(value);
-			currentCritSwitch.setCritLvl(newLevel);
 		}
 	 }
 }

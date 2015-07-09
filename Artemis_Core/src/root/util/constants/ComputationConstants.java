@@ -9,12 +9,18 @@ package root.util.constants;
 public class ComputationConstants {
 		/**
 		 *  Number of generated tasks */
-		public int generatedTasks = 10;
+		public int generatedTasks = 20;
 	
 		/**
 		 * Highest WCTT in the network
 		 */
-		public double highestWctt = 40;
+		public double highestWctt = 90;
+		
+		/**
+		 * WCET of switching criticality packet
+		*/
+		
+		public double switchingCritWctt = 200;
 		
 		/** 
 		 * Load of the auto-generated taskset

@@ -62,7 +62,7 @@ public class MCMessage extends FrameMessage implements ISchedulable, Cloneable{
 	
 	public double getWcet(CriticalityLevel critLvl) {
 		if(wcetTask == -1) {
-			if(size.get(critLvl) != null) {
+			if(size.get(critLvl) != null && size.get(critLvl) > 0) {
 				wcetTask = size.get(critLvl)/ConfigParameters.FLOW_DATARATE; 
 				return wcetTask;
 			}

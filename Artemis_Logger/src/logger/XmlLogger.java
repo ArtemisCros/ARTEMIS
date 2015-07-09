@@ -29,6 +29,13 @@ public class XmlLogger extends Logger{
 		saveIntoFile();
 	}
 	
+	public XmlLogger(String path, String fileName_, String generatedPath) {
+		fileName = path+generatedPath+fileName_;
+		
+		createDocument();
+		saveIntoFile();
+	}
+	
 	public int createDocument() {
 		try {
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -43,12 +50,12 @@ public class XmlLogger extends Logger{
 		return 0;
 	}
 	
-	public int createRoot(String rootStr_) {
+	public Element createRoot(String rootStr_) {
 		root = source.createElement(rootStr_);
 		source.appendChild(root);
 		
 		saveIntoFile();
-		return 0;
+		return root;
 	}
 	
 	public Element addChild(String childStr_, Element parent, String...params) {
@@ -59,8 +66,7 @@ public class XmlLogger extends Logger{
 			}
 		}
 		parent.appendChild(child);
-		
-		
+				
 		saveIntoFile();
 		return child;
 	}
