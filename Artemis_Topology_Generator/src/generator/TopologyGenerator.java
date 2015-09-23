@@ -89,8 +89,7 @@ public class TopologyGenerator {
 				newNode = "S"+currentSwitchIndex;
 				if(!newNode.equals(switches.get(cptSwitches).getName().split(",")[0])) {
 					switches.get(cptSwitches).setName(switches.get(cptSwitches).getName()+","+newNode);
-				}
-				
+				}	
 			}
 			startingSwitch = stoppingSwitch;
 			stoppingSwitch = switches.size();

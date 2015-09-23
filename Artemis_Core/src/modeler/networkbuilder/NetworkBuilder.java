@@ -24,9 +24,17 @@ import utils.ConfigLogger;
 public class NetworkBuilder {
 	private Network mainNet;
 	
-	public NetworkBuilder(String inputPath) {
+	/* Main parser engine */
+	private SAXParser parser;
+	
+	/* File input path to xml */
+	private String inputPath;
+	
+	public NetworkBuilder(String inputPathP) {
 		/* Clean History */
 		/* Creating xml folder if not exist */
+		inputPath = inputPathP;
+		
 		String fileXml = ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/"+
 				ConfigLogger.GENERATED_FILES_PATH;
 		new File(fileXml+"xml/").mkdirs();
@@ -38,14 +46,12 @@ public class NetworkBuilder {
 
 		// Creating a SAX Parser
 		try {
-			SAXParser parser = factoryParser.newSAXParser();
+			parser = factoryParser.newSAXParser();
 
 		    mainNet = parseConfigFile(inputPath+"/input/config.xml", parser);
 			if(mainNet == null)
 				GlobalLogger.error("NULL MAIN NETWORK");
-			parseNetworkFile(inputPath+"/input/network.xml", parser, mainNet);
 			
-			parseMessagesFile(inputPath+"/input/messages.xml", parser, mainNet);
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -53,10 +59,15 @@ public class NetworkBuilder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-					
-
 	}
 	
+	public void prepareNetwork() {
+		parseNetworkFile(inputPath+"/input/network.xml", parser, mainNet);
+	}
+	
+	public void prepareMessages() {
+		parseMessagesFile(inputPath+"/input/messages.xml", parser, mainNet);
+	}
 	/** 
 	 * Parse simulation configuration
 	 */

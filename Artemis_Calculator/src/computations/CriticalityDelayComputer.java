@@ -104,7 +104,7 @@ public class CriticalityDelayComputer {
 		cDelay = model.computeDelay(tasks, switchCritTask, false);
 		/* Multicast delay */
 		mDelay = (ComputationConstants.SWITCHINGLATENCY + switchCritTask.getWcet(toSwitch)) * vDepth;		
-		
+	//	GlobalLogger.display("CDelay:"+cDelay+"\t MDelay:"+mDelay+"\n");
 		/* Computes the result */
 		switchDelay = cDelay + mDelay;
 		for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {

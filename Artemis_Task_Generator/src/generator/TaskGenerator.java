@@ -3,6 +3,8 @@ package generator;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import org.w3c.dom.Element;
+
 import root.elements.network.Network;
 import root.elements.network.modules.CriticalityLevel;
 import root.elements.network.modules.machine.Machine;
@@ -13,7 +15,9 @@ import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
+import utils.ConfigLogger;
 import logger.GlobalLogger;
+import logger.XmlLogger;
 import model.RandomGaussian;
 import model.RandomGenerator;
 import modeler.networkbuilder.NetworkBuilder;
@@ -51,6 +55,51 @@ public class TaskGenerator {
 		timeLimit		= ConfigParameters.getInstance().getTimeLimitSimulation();
 		variance		= ComputationConstants.VARIANCE;		
 		this.highestWcet= ComputationConstants.getInstance().getHighestWCTT();
+	}
+	
+	public void generateXMLMessagesFile(ISchedulable[] taskList) {
+		XmlLogger xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+
+				ConfigParameters.getInstance().getSimuId()+"/input/", "messages.xml", "");
+		
+		xmlLogger.createDocument();
+		Element root = xmlLogger.createRoot("Messages");
+		Element criticality;
+		Element message;
+		Element path;
+		
+		// TODO : Dirty
+		for (int cptMsg=0; cptMsg < taskList.length; cptMsg++) {
+			message = xmlLogger.addChild("message", root, "id:"+taskList[cptMsg].getId());
+			for(int critLvl=0; critLvl < 1; critLvl++) {
+				criticality = xmlLogger.addChild("criticality", message, "level:NC");
+				 path = xmlLogger.addChild("path", criticality);
+				 String pathS = "";
+				 /* Compute the path of the message */
+				for(int cptPath=0; cptPath < taskList[cptMsg].getNetworkPath().size(); cptPath++) {	
+					pathS +=""+taskList[cptMsg].getNetworkPath().get(cptPath).value;
+					if(cptPath != (taskList[cptMsg].getNetworkPath().size()-1)) {
+						pathS += ",";
+					}
+				}
+				
+				path.appendChild(xmlLogger.source.createTextNode(pathS));
+				
+				Element priority = xmlLogger.addChild("priority", criticality);
+				priority.appendChild(xmlLogger.source.createTextNode(""+taskList[cptMsg].getPriority()));
+				
+				Element period = xmlLogger.addChild("period", criticality);
+				period.appendChild(xmlLogger.source.createTextNode(""+taskList[cptMsg].getPeriod()));
+				
+				Element offset = xmlLogger.addChild("offset", criticality);
+				offset.appendChild(xmlLogger.source.createTextNode(""+taskList[cptMsg].getOffset()));
+				
+				Element wcet = xmlLogger.addChild("wcet", criticality);
+				wcet.appendChild(xmlLogger.source.createTextNode(""+taskList[cptMsg].getWcet(CriticalityLevel.NONCRITICAL)));
+			}
+		}
+		
+		//machine = xmlLogger.addChild("machine", root, "id:"+nodes.get(cptNodes).getId(), 
+		//		"name:"+nodes.get(cptNodes).getName().split(",")[0], "speed:1");
 	}
 	
 	/* Link messages to a random computed path */
@@ -184,8 +233,6 @@ public class TaskGenerator {
 		final double errorMargin = ConfigParameters.ERROR_MARGIN;
 		boolean validSet = false;
 		
-		//System.out.print("+   Task   +     Load   +   WCTT-NC  +   WCTT-C   +    Time    +\n");
-		
 		while(!validSet) {
 			if(ConfigParameters.MIXED_CRITICALITY) {
 				tasks = new MCMessage[numberOfTasks];
@@ -196,7 +243,7 @@ public class TaskGenerator {
 			
 			globalLoad = 0;
 			
-			//System.out.print("+----------+------------+------------+------------+------------+\n");
+			//GlobalLogger.display("Retry\n");
 			for(int cptTask=1; cptTask <= numberOfTasks; cptTask++) {
 				ISchedulable newTask;
 				
@@ -209,29 +256,30 @@ public class TaskGenerator {
 				
 				/* Generate utilisation from a uniform rule */
 				double utilisation = 0.0;
-				while(utilisation < (1/periodComplete)) {
+				//while(utilisation < (1/periodComplete)) {
 					utilisation = generateUtilisation();
-				}
-				
-				
+				//}			
 				
 				if(cptTask == numberOfTasks) {
 					utilisation = networkLoad - globalLoad;
 					/* In case of invalid sets with negative utilization on the last generated task */
 					if(utilisation <= 0) {
 						validSet = false;
+						GlobalLogger.debug("Network:"+networkLoad+"\t Global"+globalLoad);
 						break;
 					}
-					
 				}
 					
 				/* Generate utilisation for critical tasks */
 				double isTaskCritical = Math.random();
+				
 				if(isTaskCritical > (1-ConfigParameters.CRITICAL_RATE)) {		
 					while(criticalUtilisation <= utilisation) {
 						/* In case of high wcet tasks */
-						if(utilisation > networkLoad/numberOfTasks) 
+						if(utilisation > networkLoad/numberOfTasks) {
 							break;
+						}
+
 						criticalUtilisation = generateUtilisation();
 					}
 				}
@@ -246,6 +294,11 @@ public class TaskGenerator {
 					wcetComplete = highestWcet;
 				}
 				
+				/* Switched ethernet constraints */
+			//	if(wcetComplete > (1500/ConfigParameters.FLOW_DATARATE)) {
+				//	GlobalLogger.display("SIZE:"+(ConfigParameters.FLOW_DATARATE*wcetComplete+"\n"));
+			//	}
+				
 				/* Saving results */
 				try {
 					if(ConfigParameters.MIXED_CRITICALITY) {
@@ -257,6 +310,7 @@ public class TaskGenerator {
 					
 					newTask.setCurrentPeriod((int)periodComplete);
 					newTask.setWcet((int)wcetComplete);
+					
 					
 					/* Compute critical WCTT */
 					if(criticalUtilisation != -1 &&
@@ -274,7 +328,8 @@ public class TaskGenerator {
 					newTask.setWcet(critWcet, CriticalityLevel.CRITICAL);		
 					newTask.setId(cptTask);
 					newTask.setName("MSG"+cptTask);
-				//	GlobalLogger.debug(wcetComplete+"/"+critWcet);
+					
+					//GlobalLogger.debug(wcetComplete+"/"+critWcet);
 					
 					tasks[cptTask-1] = newTask;
 					
@@ -285,20 +340,33 @@ public class TaskGenerator {
 				}
 
 				globalLoad += utilisation;
-
-				if(Math.abs(networkLoad - globalLoad) <= errorMargin 
-						&& cptTask == numberOfTasks) {
-					validSet = true;
+				
+				
+				if(cptTask == numberOfTasks) {
+					if(Math.abs(networkLoad - globalLoad) <= errorMargin) {
+						validSet = true;
+						GlobalLogger.display("Network: "+networkLoad+"\t Global:"+globalLoad+"\n");
+					}
+					else {
+						GlobalLogger.display("Network: "+networkLoad+"\t Global:"+globalLoad+"\n");
+					}
 				}
+				
 
 			}
 		}
 		linkToPath(tasks);
 		
-		linkTasksetToNetwork(tasks);
 		this.tasks = tasks;
 		
+		saveMessagesToXML(tasks);
+		
 		return tasks;
+	}
+	
+	/* Create dedicated XML files for auto-generated messages */
+	public void saveMessagesToXML(ISchedulable[] tasks) {
+		generateXMLMessagesFile(tasks);
 	}
 	
 	public double generateUtilisation() {

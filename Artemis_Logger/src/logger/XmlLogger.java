@@ -1,5 +1,7 @@
 package logger;
 
+import java.io.File;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -78,7 +80,7 @@ public class XmlLogger extends Logger{
 			Transformer transformer = transformerFactory.newTransformer();
 			DOMSource domSource = new DOMSource(source);
 			StreamResult fileResult = new StreamResult(fileName);
-			
+					
 			transformer.transform(domSource, fileResult);
 		} catch (TransformerConfigurationException e) {
 			GlobalLogger.error(Errors.ERROR_XML_SAVE+" Exception: cannot save XML File");

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.w3c.dom.Element;
 
+import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ConfigParameters;
 import utils.ConfigLogger;
 import logger.XmlLogger;
@@ -17,7 +18,12 @@ public class XMLGenerator {
 				ConfigParameters.getInstance().getSimuId()+"/input/";
 	}
 	
-	public void generateXMLFile(ArrayList<Node> nodes, ArrayList<Node> switches) {
+	public void setInputPath(String inputPathP) {
+		xmlInputPath = inputPathP;
+	}
+
+	
+	public void generateXMLNetworkFile(ArrayList<Node> nodes, ArrayList<Node> switches) {
 		XmlLogger xmlLogger = new XmlLogger(xmlInputPath, "network.xml", "");
 		String nodeName, nodeId;
 		Element machine, links;

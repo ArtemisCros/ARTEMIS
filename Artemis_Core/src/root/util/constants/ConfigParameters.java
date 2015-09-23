@@ -37,7 +37,7 @@ public class ConfigParameters {
 	public static final double CRITICAL_RATE = 0.3;
 	
 	/* Data rate in o/s */
-	public static final double FLOW_DATARATE = 1;//1024*1024*1024;
+	public static final double FLOW_DATARATE = 1;//*1024;
 	
 	//Singloton config manager
 	private static ConfigParameters instance = null;

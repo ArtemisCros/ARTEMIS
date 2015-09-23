@@ -6,6 +6,7 @@ import generator.TaskGenerator;
 import grapher.MainGrapher;
 import logger.GlobalLogger;
 import modeler.networkbuilder.NetworkBuilder;
+import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import simulator.managers.NetworkScheduler;
@@ -18,6 +19,7 @@ import utils.Errors;
  * Centralizes all core java artemis modules to launch them
  */
 public class CoreLauncher {
+	
 	public static void main(String[] args) {
 		String simuId = args[0];
 		/* Default case */
@@ -45,26 +47,31 @@ public class CoreLauncher {
 			
 			String xmlInputFile = ConfigLogger.RESSOURCES_PATH+"/"+
 					ConfigParameters.getInstance().getSimuId()+"/";
-			
-			/* Modelises network */
+					
 			NetworkBuilder nBuilder = new NetworkBuilder(xmlInputFile);
+			/* Parse the network input file */
+			nBuilder.prepareNetwork();
 			
 			GlobalLogger.log("------------ LAUNCHING MODELIZER ------------");
 			
 			/* Manual generation or automatic generation */
 			if(ConfigParameters.getInstance().getAutomaticTaskGeneration()) {
-				GlobalLogger.log("------------ LAUNCHING AUTOMATIC TASK GENERATOR ------------");
-				/* Get builder from automatic task generator */
-				TaskGenerator tGenerator = new TaskGenerator();
 				
+				GlobalLogger.log("------------ LAUNCHING AUTOMATIC TASK GENERATOR ------------");
+				/* Get builder from automatic task generator */		
+				TaskGenerator tGenerator = new TaskGenerator();				
 				tGenerator.setNetworkBuilder(nBuilder);
 				
-				GlobalLogger.log("------------ TASKLIST READY ------------");
+				 ISchedulable[] tasks = tGenerator.generateTaskList();
+				 GlobalLogger.log("------------ TASKLIST GENERATED ------------");
+				 /* Modelises network */
+
+				 GlobalLogger.log("------------ MESSAGES FILE CREATED ------------");
+				 tGenerator.linkTasksetToNetwork(tasks);
 				
-				tGenerator.generateTaskList();
-				
-				GlobalLogger.log("------------ TASKLIST GENERATED ------------");
+				GlobalLogger.log("------------ TASKLIST OK ------------");
 				nBuilder = tGenerator.getNetworkBuilder();
+				 nBuilder.prepareMessages();
 			}
 			else {
 				/* Get a new builder */

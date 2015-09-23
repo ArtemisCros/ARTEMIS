@@ -115,7 +115,7 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 		if(triggers.get(TriggerCodes.CRITSWITCH)) {
 			final CriticalityLevel newLevel = Utils.convertToCritLevel(value);
 			currentCritSwitch.setCritLvl(newLevel);
-			GlobalLogger.debug("Crit switch at"+currentCritSwitch.getTime()+" Dest:"+currentCritSwitch.getCritLvl().name());
+		//	GlobalLogger.debug("Crit switch at"+currentCritSwitch.getTime()+" Dest:"+currentCritSwitch.getCritLvl().name());
 		}
 	 }
 	 public void endElement(final String uri,final String name,final String qName) {

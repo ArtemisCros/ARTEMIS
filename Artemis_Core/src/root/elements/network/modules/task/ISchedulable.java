@@ -1,5 +1,6 @@
 package root.elements.network.modules.task;
 
+import java.awt.peer.FramePeer;
 import java.util.Vector;
 
 import root.elements.network.modules.CriticalityLevel;

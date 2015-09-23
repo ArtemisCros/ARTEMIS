@@ -101,7 +101,7 @@ public class XmlMessageHandler extends XmlDefaultHandler{
 							wcet = 0;
 						}
 						else {
-							wcet = Integer.parseInt(rawWcet);
+							wcet = Double.parseDouble(rawWcet);
 						}
  
 						final CriticalityLevel critLvl = Utils.convertToCritLevel(criticalities.get(cptCrit));
@@ -112,19 +112,19 @@ public class XmlMessageHandler extends XmlDefaultHandler{
 					}
 				 }
 				 else {
-					 GlobalLogger.debug(currMsgProp.get("WCET"));
-					newMsg = new NetworkMessage(Integer.parseInt(currMsgProp.get("WCET")),
+				//	 GlobalLogger.debug(currMsgProp.get("WCET"));
+					newMsg = new NetworkMessage(Double.parseDouble(currMsgProp.get("WCET")),
 							"MSG"+currMsgProp.get("ID")); 
 					
 				 }
 				
 				if(currMsgProp.containsKey("PERI")) {
-					GlobalLogger.debug(currMsgProp.get("PERI"));
+				//	GlobalLogger.debug(currMsgProp.get("PERI"));
 					newMsg.setPeriod(Integer.parseInt(currMsgProp.get("PERI")));
 				}
 				
 				if(currMsgProp.containsKey("OFFS")) {
-					GlobalLogger.debug(currMsgProp.get("OFFS"));
+				//	GlobalLogger.debug(currMsgProp.get("OFFS"));
 					newMsg.setOffset(Integer.parseInt(currMsgProp.get("OFFS")));
 					newMsg.setNextSend(Integer.parseInt(currMsgProp.get("OFFS")));
 				}				
