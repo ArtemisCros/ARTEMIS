@@ -7,6 +7,32 @@ package root.util.constants;
  *
  */
 public class ComputationConstants {
+		/* Computation and simulation values.
+		 * Please feel free to modify these values 
+		 * and adjust them to your simulation needs
+		 */
+		
+		/**
+		 *  Electronical latency in the network */
+		public static final double SWITCHINGLATENCY = 0.00;
+		
+		public static final double LOADSTART = 0.3;
+		
+		public static final double LOADEND = 1.0;	
+		
+		/**
+		 *  Load variation step*/
+		public static final double LOADSTEP = 0.01;
+		
+		/**
+		 *  Number of tests for each load level */
+		public static final double NUMBERTESTS = 1000;
+		
+		/**
+		 *  Variance for the task generator */
+		public static final double VARIANCE = 0.005;
+	
+	
 		/**
 		 *  Number of generated tasks */
 		public int generatedTasks = 10;
@@ -43,33 +69,7 @@ public class ComputationConstants {
 		}
 		
 		
-	/* Computation and simulation values.
-	 * Please feel free to modify these values 
-	 * and adjust them to your simulation needs
-	 */
-	
-	/**
-	 *  Electronical latency in the network */
-	public static final double SWITCHINGLATENCY = 0.00;
-	
-	public static final double LOADSTART = 0.3;
-	
-	public static final double LOADEND = 1.0;
-	
 
-	
-	/**
-	 *  Load variation step*/
-	public static final double LOADSTEP = 0.01;
-	
-	/**
-	 *  Number of tests for each load level */
-	public static final double NUMBERTESTS = 1000;
-	
-	/**
-	 *  Variance for the task generator */
-	public static final double VARIANCE = 0.005;
-	
 
 	public int getGeneratedTasks() {
 		return generatedTasks;

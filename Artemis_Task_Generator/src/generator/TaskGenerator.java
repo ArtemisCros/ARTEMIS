@@ -97,10 +97,7 @@ public class TaskGenerator {
 				wcet.appendChild(xmlLogger.source.createTextNode(""+taskList[cptMsg].getWcet(CriticalityLevel.NONCRITICAL)));
 			}
 		}
-		
-		//machine = xmlLogger.addChild("machine", root, "id:"+nodes.get(cptNodes).getId(), 
-		//		"name:"+nodes.get(cptNodes).getName().split(",")[0], "speed:1");
-	}
+}
 	
 	/* Link messages to a random computed path */
 	public void linkToPath(ISchedulable[] tasks) {
@@ -146,7 +143,6 @@ public class TaskGenerator {
 					
 					if(!tasks[cptTasks].getNetworkPath().contains(currentAdress)) {			
 						tasks[cptTasks].getNetworkPath().add(currentAdress);
-						//GlobalLogger.display(""+currentAdress.value+"-");
 					}
 					else {
 						break;
@@ -329,8 +325,6 @@ public class TaskGenerator {
 					newTask.setId(cptTask);
 					newTask.setName("MSG"+cptTask);
 					
-					//GlobalLogger.debug(wcetComplete+"/"+critWcet);
-					
 					tasks[cptTask-1] = newTask;
 					
 					
@@ -351,15 +345,14 @@ public class TaskGenerator {
 						GlobalLogger.display("Network: "+networkLoad+"\t Global:"+globalLoad+"\n");
 					}
 				}
-				
-
 			}
 		}
-		linkToPath(tasks);
+		
+		//linkToPath(tasks);
 		
 		this.tasks = tasks;
 		
-		saveMessagesToXML(tasks);
+		//saveMessagesToXML(tasks);
 		
 		return tasks;
 	}
@@ -373,8 +366,9 @@ public class TaskGenerator {
 		double utilisation = -1;
 		
 		while(utilisation < 0 || utilisation > 1){
-			utilisation = RandomGaussian.genGauss_(networkLoad/numberOfTasks,
+			utilisation = RandomGaussian.genGauss_(networkLoad,
 					variance);
+			GlobalLogger.debug("Utilisation:"+utilisation);
 			
 		}
 		
