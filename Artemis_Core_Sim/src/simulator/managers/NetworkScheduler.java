@@ -83,10 +83,6 @@ public class NetworkScheduler implements Runnable{
 				/* Put analyzed messages in output buffer */
 				msgManager.prepareMessagesForTransfer(currentMachine, time);
 				
-				if(time == 0) {
-					
-				}
-				
 			}
 			for(int machineCounter=0; machineCounter < network.machineList.size(); machineCounter++) {
 				Machine currentMachine = network.machineList.get(machineCounter);
@@ -95,7 +91,7 @@ public class NetworkScheduler implements Runnable{
 			}
 			if(GlobalLogger.DEBUG_ENABLED) {
 				final String log = "--------------- END TIME "+time+" ---------------";
-				GlobalLogger.log(log);
+				GlobalLogger.debug(log);
 			}
 			
 		}

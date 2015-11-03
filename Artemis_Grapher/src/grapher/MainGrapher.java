@@ -53,7 +53,8 @@ public class MainGrapher {
 	       boolean toolTips = false;
 	       boolean urls = false; 
 
-	       JFreeChart chart = ChartFactory.createXYLineChart(plotTitle, xaxisTitle, yaxisTitle,  null, orientation, show, toolTips, urls);
+	       JFreeChart chart = ChartFactory.createXYLineChart(plotTitle, xaxisTitle, yaxisTitle,  null, 
+	    		   orientation, show, toolTips, urls);
 	       
 	       return chart;
 	}
@@ -75,6 +76,7 @@ public class MainGrapher {
 	    	   String pictureFileGraph = ConfigLogger.RESSOURCES_PATH+"/"+
 					   ConfigParameters.getInstance().getSimuId()+"/"+
 	    			   ConfigLogger.GENERATED_FILES_PATH+"histos/";
+	    	   
 	    	   /* Creating the subfolder */
 	    	   new File(pictureFileGraph).mkdirs();
 	    	   pictureFileGraph += GraphConfig.getInstance().getGraphName()+".PNG";

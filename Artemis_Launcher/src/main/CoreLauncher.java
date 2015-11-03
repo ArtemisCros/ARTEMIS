@@ -70,14 +70,14 @@ public class CoreLauncher {
 				 tGenerator.linkTasksetToNetwork(tasks);
 				
 				GlobalLogger.log("------------ TASKLIST OK ------------");
-				nBuilder = tGenerator.getNetworkBuilder();
-				 nBuilder.prepareMessages();
+				nBuilder = tGenerator.getNetworkBuilder();			 
 			}
 			else {
 				/* Get a new builder */
 				nBuilder = new NetworkBuilder(xmlInputFile);
 			}
 			
+			nBuilder.prepareMessages();
 			GlobalLogger.log("------------ CRITICALITY SWITCHES ------------");
 			nBuilder.getMainNetwork().showCritSwitches();
 			

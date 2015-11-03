@@ -134,8 +134,12 @@ public class XMLGraphManager {
 		   XmlOpener xmlOpener = new XmlOpener();
 		   XMLConfigReader configReader = new XMLConfigReader();
 		   
-	       File folder = new File(ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/"
-	    		   +ConfigLogger.GENERATED_FILES_PATH+"xml/"); 
+		   String networkFolderName = ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/"
+	    		   +ConfigLogger.GENERATED_FILES_PATH+"xml/";
+		   if(GlobalLogger.DEBUG_ENABLED)
+			   GlobalLogger.debug("Network folder name: "+networkFolderName);
+		   
+	       File folder = new File(networkFolderName); 
 	       
 	       /* Sorting the files by node order in the network */
 	       ArrayList<String> orderedFileName  = gBuilder.sortXMLGraphFiles(folder, xmlOpener);      
@@ -153,9 +157,7 @@ public class XMLGraphManager {
 		       /* To organize the different graphs, we define their position on the height of the y axis */
 		       /* Starting from xml infos, we build the different graphs */
 	    	   XYSeries plotSeries = xmlOpener.readFile(number, 
-	    			   ConfigLogger.RESSOURCES_PATH+"/"+
-	    					   ConfigParameters.getInstance().getSimuId()+"/"+
-	    					   ConfigLogger.GENERATED_FILES_PATH+"xml/"+orderedFileName.get(j),
+	    			   networkFolderName+orderedFileName.get(j),
 	    			   j*5); 
 	    	   
 	    	   buildLoadGraph(xmlOpener.loads, orderedFileName.get(j));
@@ -183,10 +185,13 @@ public class XMLGraphManager {
 	public void prepareGraphConfig() {
 		XMLConfigReader configReader = new XMLConfigReader();
 		
-		//TODO : file name
-		configReader.readFile(ConfigLogger.RESSOURCES_PATH+"/"+
+		/* Set config file name */
+		String configFileName = ConfigLogger.RESSOURCES_PATH+"/"+
 				   ConfigParameters.getInstance().getSimuId()+"/"+
-				   ConfigLogger.GRAPH_CONF_PATH);
+				   ConfigLogger.GRAPH_CONF_PATH;
+		GlobalLogger.debug("Config file : "+configFileName);
+		
+		configReader.readFile(configFileName);
 	}
 	
 	public void buildLoadGraph(ArrayList<GraphLoadPoint> points, String fileName) {

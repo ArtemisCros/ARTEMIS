@@ -2,6 +2,7 @@ package generator;
 
 import java.util.ArrayList;
 
+import root.util.constants.ComputationConstants;
 import logger.GlobalLogger;
 import model.Node;
 
@@ -99,11 +100,13 @@ public class TopologyGenerator {
 	}
 	
 	public void displayGeneratedTopology() {
-		for(int cptNodes=0; cptNodes < nodes.size(); cptNodes++) {
-			GlobalLogger.log(nodes.get(cptNodes).getName());
-		}
-		for(int cptSwitches=0; cptSwitches < switches.size(); cptSwitches++) {
-			GlobalLogger.log(switches.get(cptSwitches).getName());
+		if(GlobalLogger.DEBUG_ENABLED) {
+			for(int cptNodes=0; cptNodes < nodes.size(); cptNodes++) {
+				GlobalLogger.debug(nodes.get(cptNodes).getName());
+			}
+			for(int cptSwitches=0; cptSwitches < switches.size(); cptSwitches++) {
+				GlobalLogger.debug(switches.get(cptSwitches).getName());
+			}
 		}
 	}
 }

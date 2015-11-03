@@ -261,7 +261,9 @@ public class TaskGenerator {
 					/* In case of invalid sets with negative utilization on the last generated task */
 					if(utilisation <= 0) {
 						validSet = false;
-						GlobalLogger.debug("Network:"+networkLoad+"\t Global"+globalLoad);
+						if(GlobalLogger.DEBUG_ENABLED) {
+							GlobalLogger.debug("Network:"+networkLoad+"\t Global"+globalLoad);
+						}
 						break;
 					}
 				}
@@ -339,20 +341,24 @@ public class TaskGenerator {
 				if(cptTask == numberOfTasks) {
 					if(Math.abs(networkLoad - globalLoad) <= errorMargin) {
 						validSet = true;
-						GlobalLogger.display("Network: "+networkLoad+"\t Global:"+globalLoad+"\n");
+						if(GlobalLogger.DEBUG_ENABLED) {
+							GlobalLogger.display("Network: "+networkLoad+"\t Global:"+globalLoad+"\n");
+						}
 					}
 					else {
-						GlobalLogger.display("Network: "+networkLoad+"\t Global:"+globalLoad+"\n");
+						if(GlobalLogger.DEBUG_ENABLED) {
+							GlobalLogger.display("Network: "+networkLoad+"\t Global:"+globalLoad+"\n");
+						}
 					}
 				}
 			}
 		}
 		
-		//linkToPath(tasks);
+		linkToPath(tasks);
 		
 		this.tasks = tasks;
 		
-		//saveMessagesToXML(tasks);
+		saveMessagesToXML(tasks);
 		
 		return tasks;
 	}
@@ -366,10 +372,8 @@ public class TaskGenerator {
 		double utilisation = -1;
 		
 		while(utilisation < 0 || utilisation > 1){
-			utilisation = RandomGaussian.genGauss_(networkLoad,
+			utilisation = RandomGaussian.genGauss_(networkLoad/numberOfTasks,
 					variance);
-			GlobalLogger.debug("Utilisation:"+utilisation);
-			
 		}
 		
 		return utilisation;
