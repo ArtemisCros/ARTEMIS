@@ -89,14 +89,15 @@ public class MessageManager {
 					GlobalLogger.debug(debug);					
 				}
 				
-				analyseTime = Math.floor(wcet/fromMachine.getSpeed())/ComputationConstants.TIMESCALE;
+				analyseTime = wcet/fromMachine.getSpeed();
+				//analyseTime = Math.floor(wcet/fromMachine.getSpeed())/ComputationConstants.TIMESCALE;
 			}
 			else {
-				analyseTime = Math.floor(messageToAnalyse.getCurrentWcet()/fromMachine.getSpeed())*(1/ComputationConstants.TIMESCALE);
+				analyseTime = messageToAnalyse.getCurrentWcet()/fromMachine.getSpeed();
 			}
-			fromMachine.analyseTime += (analyseTime * ComputationConstants.TIMESCALE);
+		//	fromMachine.analyseTime += (analyseTime * ComputationConstants.TIMESCALE);
 			/* Correcting time precision */
-			fromMachine.analyseTime  = new BigDecimal(fromMachine.analyseTime).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+			fromMachine.analyseTime  = new BigDecimal(analyseTime).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
 		}
 	
 		return 0;
@@ -110,7 +111,8 @@ public class MessageManager {
 	 */
 	public int analyzeMessage(Machine fromMachine, double time) {
 		if(fromMachine.currentlyTransmittedMsg != null) {
-			fromMachine.analyseTime  = new BigDecimal(fromMachine.analyseTime).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+			if(fromMachine.analyseTime > 1)
+				fromMachine.analyseTime  = new BigDecimal(fromMachine.analyseTime).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
 			fromMachine.analyseTime -= ComputationConstants.TIMESCALE;
 			
 			if(GlobalLogger.DEBUG_ENABLED) {

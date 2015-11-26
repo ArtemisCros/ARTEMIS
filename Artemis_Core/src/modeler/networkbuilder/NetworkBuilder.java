@@ -67,7 +67,7 @@ public class NetworkBuilder {
 	
 	public void prepareMessages() {
 		if(GlobalLogger.DEBUG_ENABLED)
-			GlobalLogger.debug("Messages input path:" +inputPath+"/input/messages.xml");
+			GlobalLogger.debug("Messages input path:" +inputPath+"input/messages.xml");
 		
 		parseMessagesFile(inputPath+"/input/messages.xml", parser, mainNet);
 	}

@@ -166,7 +166,7 @@ public abstract class Node extends NetworkModule {
 	}
 	
 	public XmlLogger createXMLLog() {
-		xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/", this.name.trim()+".xml");
+		xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/", this.networkAddress.value+".xml");
 		xmlLogger.createDocument();
 		xmlLogger.createRoot("machine");
 		//xmlLogger.getRoot().setAttribute("id", this.networkAddress.value);

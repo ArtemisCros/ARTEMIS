@@ -12,7 +12,8 @@ public class Errors {
 	public static final int ERROR_XML_CREATION 			= 10100;
 	public static final int ERROR_XML_SAVE 				= 10101;
 	public static final int ERROR_XML_SAVE_TRANSFORMER 	= 10102;
-	public static final int ERROR_FILE_NOT_FOUND				= 10103;
+	public static final int ERROR_FILE_NOT_FOUND		= 10103;
+	public static final int ERROR_DIR_NOT_CREATED		= 10104;
 	
 	/* Machine errors */
 	public static final int ERROR_CREATING_LINK 			= 10200;

@@ -9,7 +9,7 @@ import root.util.constants.ConfigParameters;
 import utils.ConfigLogger;
 
 public class FlowGenSim {
-	public static void main(String[] args) {
+	public static void dmain(String[] args) {
 		GlobalLogger.log("------------ LAUNCHING AUTOMATIC TASK GENERATOR ------------");
 		String simuId = "000";
 		

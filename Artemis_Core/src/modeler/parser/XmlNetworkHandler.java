@@ -117,8 +117,10 @@ public class XmlNetworkHandler extends XmlDefaultHandler{
 			currentMachine.setSpeed(speed);
 			
 			if(GlobalLogger.DEBUG_ENABLED) {
-				final String debug = "NAME"+currMachName;
+				final String debug = "NAME:"+currMachName+"|ID:"+idAddr;
 				GlobalLogger.debug(debug);
+				
+				GlobalLogger.debug("Speed : "+speed);
 			}
 			
 			return 1;
@@ -136,9 +138,6 @@ public class XmlNetworkHandler extends XmlDefaultHandler{
 			
 			return 2; 
 		}
-
-		
-		
 		
 		return 0;
 	}

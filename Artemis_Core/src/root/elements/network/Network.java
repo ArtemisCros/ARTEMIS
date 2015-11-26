@@ -111,7 +111,7 @@ public class Network extends SimulableElement{
 		}
 		else {
 			/* This solves a bug about machine name's computation in xml network file */
-			if(rst.name != machineName && rst.name == ""+idAddr)
+			if(rst.name == ""+idAddr)
 				rst.name = machineName;
 		}
 		return rst;
@@ -126,7 +126,7 @@ public class Network extends SimulableElement{
  		try {
  			/* Create machine */
  			final Machine currentMachine = new Machine(addr, machineName);
- 			currentMachine.setSpeed(2);
+ 			currentMachine.setSpeed(1);
 			currentMachine.networkAddress.machine = currentMachine;
 			
 			/* Add it to the list of the machines in the network */

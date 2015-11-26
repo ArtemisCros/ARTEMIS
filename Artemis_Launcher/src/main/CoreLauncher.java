@@ -74,7 +74,7 @@ public class CoreLauncher {
 			}
 			else {
 				/* Get a new builder */
-				nBuilder = new NetworkBuilder(xmlInputFile);
+				//nBuilder = new NetworkBuilder(xmlInputFile);
 			}
 			
 			nBuilder.prepareMessages();
