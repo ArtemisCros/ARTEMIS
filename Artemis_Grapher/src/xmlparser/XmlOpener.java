@@ -1,5 +1,6 @@
 package xmlparser;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
@@ -8,6 +9,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Vector;
 
 import javax.xml.stream.XMLEventReader;
@@ -21,6 +23,7 @@ import logger.GlobalLogger;
 import model.GraphConfig;
 import model.GraphLoadPoint;
 import model.GraphPlot;
+import model.GraphPlots;
 import model.GraphSerial;
 
 import org.jfree.chart.annotations.XYAnnotation;
@@ -33,6 +36,12 @@ import org.jfree.data.xy.XYSeries;
 import org.junit.runner.Computer;
 
 public class XmlOpener {
+	
+	/**
+	 * Message map for storing color codes
+	 */
+	private HashMap<String, Color> messageCodes;
+	
 	/**
 	 * Simulation time to represent
 	 */
@@ -55,7 +64,13 @@ public class XmlOpener {
 	
 	public XmlOpener() {
 		loads = new ArrayList<GraphLoadPoint>();
+		messageCodes = new HashMap<String, Color>();
 	}
+	
+	public HashMap<String, Color> getMessageCodes() {
+		return messageCodes;
+	}
+	
 	/* Annotations to put on the graph */
 	public Vector<XYTextAnnotation> annotations;
 	
@@ -68,53 +83,79 @@ public class XmlOpener {
 	}
 	
 	/* Build a new dataserie from a plot list*/
-	private XYSeries buildPlotSerial(ArrayList<GraphPlot> plots, int size) {
-		XYSeries currentSerie = new XYSeries(size);
-		ArrayList<GraphPlot> copyPlots = new ArrayList<GraphPlot>(plots);
-		plots.clear();
+	private ArrayList<XYSeries> buildPlotSerial(GraphPlots plots) {
+		ArrayList<XYSeries> series = new ArrayList<XYSeries>();
+		ArrayList<GraphPlot> copyPlots;
+		String key;
+		XYSeries currentSerie;
 		
-		for(int cptPlots=0;cptPlots<copyPlots.size();cptPlots++) {
+		Iterator<String> it = plots.keySet().iterator();
+		
+		while(it.hasNext()) {
+			key = it.next();
+			if(!key.equals("DEFAULT")) {
+				copyPlots = new ArrayList<GraphPlot>(plots.get(key));
+				currentSerie = new XYSeries(plots.get(key).size());
+				currentSerie.setKey(key);
+				
+				 for(int cptPlots=0;cptPlots<copyPlots.size();cptPlots++) {
+					  GraphPlot currentPlot = copyPlots.get(cptPlots);
+					  double coordX = currentPlot.x;
+					  double coordY = currentPlot.y;
+					  currentSerie.add(coordX, coordY);
+				  }
+					
+				 series.add(currentSerie);
+			}
+		}	
+		
+		/* We add the default serie at the end */
+		key = "DEFAULT";
+		copyPlots = new ArrayList<GraphPlot>(plots.get(key));
+		currentSerie = new XYSeries(plots.get(key).size());
+		currentSerie.setKey(key);
+		
+		 for(int cptPlots=0;cptPlots<copyPlots.size();cptPlots++) {
 			  GraphPlot currentPlot = copyPlots.get(cptPlots);
 			  double coordX = currentPlot.x;
 			  double coordY = currentPlot.y;
 			  currentSerie.add(coordX, coordY);
 		  }
-		plots.clear();
-		return currentSerie;
+			
+		 series.add(currentSerie);
+
+		return series;
 	}
 	
 	/**
 	 *  Builds all plots from a file 
 	 */	
-	public XYSeries readFile(int size, String configFile, int graphSize) {
+	public ArrayList<XYSeries> readFile(int size, String configFile, int graphSize) {
 			/* Graph annotations and messages ids */
 			annotations = new Vector<XYTextAnnotation>();
 		
-			XYSeries pointSeries;
-			ArrayList<GraphPlot> plots = new ArrayList<GraphPlot>();
+			ArrayList<XYSeries> pointSeries;
+			GraphPlots plots = new GraphPlots();
 			
 			/*We manually compute the simulation time limit, for optimizing graph size */
 			double timeLength = -1;
 			
-			int previous =  0;
+			boolean previous =  false;
 		      XMLEventReader eventReader =XMLGraphManager.createXMLEventReader(configFile);
-		      
-    		  boolean message_trigger = false;
     		  
 		      // read the XML document
-
     		  String message = "";
-    		  String previous_message = "";
     		  
 		      while (eventReader.hasNext()) {
 		    	  XMLEvent event = null;
 				try {
 					event = eventReader.nextEvent();
 				} catch (XMLStreamException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-		    	  
+	    		  if(plots.get("DEFAULT") == null) {
+    				  plots.put("DEFAULT", new ArrayList<GraphPlot>());
+    			  }
 		    	  if(event.isStartElement() && timeLength < GraphConfig.getInstance().getEndTime()) {
 		    		  StartElement startElement = event.asStartElement();
 		    		  if(startElement.getName().toString().equals("timer")) {
@@ -129,71 +170,88 @@ public class XmlOpener {
 			    			  
 			    			  if(attr.getName().toString().equals("message")) {
 			    				  message = attr.getValue().toString();
-			    				  message_trigger = true;
 			    			  }
 			    			  else if(attr.getName().toString().equals("value")) {
 			    				  value = Double.parseDouble(attr.getValue().toString());
 			    			  }
-			    			  else if(attr.getName().toString().equals("load")) {
-			    					//TODO
-			    				  GraphLoadPoint point = new GraphLoadPoint();
-			    				  point.time = value;
-			    				  point.load = Double.parseDouble(attr.getValue().toString());
-			    				  loads.add(point);
-			    			  }
+			    		  }
+			    		  
+			    		  plots.get("DEFAULT").add(new GraphPlot(value, graphSize-RANGETICK));
+			    		  
+			    		  /* Bug correction : Add missing points */
+			    		  if(value != timeLength) {
+				    		  Iterator itKey = plots.keySet().iterator();
+	    					  
+				    		  while(itKey.hasNext()) {
+				    			  String currentKey = (String)itKey.next();
+				    			  if(!currentKey.equals("DEFAULT")) {
+				    				  for(double time= timeLength; time<value;time+=GRAPHPRECISION) {
+				    					  plots.get(currentKey).add(new GraphPlot(time, graphSize-RANGETICK));
+				    				  }
+				    			  }
+				    		  }
 			    		  }
 			    		  
 			    		  if(message != "") {
-			    			  if(previous == 0) {
-			    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
-			    				  plots.add(new GraphPlot(value, graphSize));
-			    			  }
-			    			  else {
-			    				  plots.add(new GraphPlot(value, graphSize));
+			    			  String key = message.substring(3, 5);
+			    			  
+			    			  if(plots.get(key) == null) {
+			    				  plots.put(key, new ArrayList<GraphPlot>());
+			    				  
+			    				  /* We add the new message code to the message list
+			    				   * We will use it later for color computing */
+			    				  if(messageCodes.get(key) == null) {
+			    					  Random randColor = new Random();
+			    					  
+			    					  float red 	= randColor.nextFloat();
+			    					  float green	= randColor.nextFloat();
+			    					  float blue 	= randColor.nextFloat();
+			    					  
+			    					  Color newColor = new Color(red, green, blue);
+			    					  messageCodes.put(key, newColor);
+			    				  }
+			    				  
+			    				  /* Adds default values for the beginning of the graph */
+			    				  for(double time= GraphConfig.getInstance().getStartTime(); time < value;time+=GRAPHPRECISION) {
+			    					  plots.get(key).add(new GraphPlot(time, graphSize-RANGETICK));
+			    				  }
+			    			  }	    			 
+			    			  
+			    			  if(!previous) {
+			    				  plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
 			    			  }
 			    			  
-			    			  /* Add message id on the graph on the beginning of its transmission time */
-			    			  if(previous_message == "" || message.compareTo(previous_message) != 0) {
-			    				  previous_message = message;
-			    				  XYTextAnnotation annot = new XYTextAnnotation(""+message.substring(3), value+2, graphSize-RANGETICK/2);
-			    				  annot.setFont(new Font("Arial", Font.PLAIN, 20));
-			    		
-			    				  annotations.add(annot);
-			    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
-			    				  plots.add(new GraphPlot(value, graphSize));
-			    			  }
-			    			  previous = 1;
-			    		  }
-			    		  else {
-			    			  previous_message = "";
-			    			  if(message_trigger) {  
-			    				  /*At each end of message display, we build a new dataset 
-			    				   * from built plot list
-			    				   */
-			    				  if(previous == 1) {
-				    				  plots.add(new GraphPlot(value, graphSize));		
-				    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
-				    			  }
-				    			  else {
-				    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
-				    			  }
-		    					  message_trigger = false;
-		    				  }
-			    			  if(previous == 1) {
-			    				  plots.add(new GraphPlot(value, graphSize));		
-			    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
-			    			  }
-			    			  else {
-			    				  plots.add(new GraphPlot(value, graphSize-RANGETICK));
-			    			  }
-			    			  previous = 0;
+			    			  plots.get(key).add(new GraphPlot(value, graphSize));
 			    			  
+			    			  previous = true;
+			    			  
+			    			  /* For all other series, we add a default point */
+			    			  Iterator itKey = plots.keySet().iterator();
+			    					  
+				    		  while(itKey.hasNext()) {
+				    			  String currentKey = (String)itKey.next();
+				    			  if(!currentKey.equals("DEFAULT") && !currentKey.equals(key)) {
+				    				  plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
+				    			  }
+				    		  }
+			    		         }
+			    		  else {				  
+				    		  /* In default case, we had a ground point to each serie */
+				    		  Iterator itKey = plots.keySet().iterator();
+				    		  while(itKey.hasNext()) {
+				    			  String key = (String) itKey.next();
+				    			  if(!key.equals("DEFAULT")) {
+				    				  plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
+				    			  }
+				    		  }
+				    		  
+			    			  previous = false;
 			    		  }
 		    		  }
 		    	  }
 		      }
 
-			pointSeries = buildPlotSerial(plots, size);
+			pointSeries = buildPlotSerial(plots);
 			  
 			simulationTimeLimit = timeLength;
 			

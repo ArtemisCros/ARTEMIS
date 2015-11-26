@@ -30,7 +30,7 @@ public class GraphBuilder {
 			
 	 	   if(nodeName.endsWith("xml") && (nodeName.compareTo("network.xml") != 0) &&
 	 			   GraphConfig.getInstance().getNodesList().contains(nodeName)) {   
-	 		   
+	 		  
 	 		   String machineNum = xmlOpener.getFileId(fileEntry.getName());
 		    	     	  
 	 		    orderedFileName.add(i, fileEntry.getName());

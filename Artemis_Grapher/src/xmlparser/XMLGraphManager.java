@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -31,6 +32,7 @@ import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYDifferenceRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -40,15 +42,18 @@ import utils.ConfigLogger;
 
 public class XMLGraphManager {
 	
+	/** XML File Opener **/
+	private XmlOpener xmlOpener;
+	
 	/**
 	 * Configures the axes
 	 */
 	public int configureAxes(XYPlot plot) {
 		/* Axis parameters */
- 	   NumberAxis nodes = (NumberAxis) plot.getRangeAxis();
+ 	   NumberAxis nodes = new NumberAxis();
  	   nodes.setTickUnit(new NumberTickUnit(1));
  	  
- 	   NumberAxis domain = (NumberAxis) plot.getDomainAxis();
+ 	   NumberAxis domain = new NumberAxis();
  	   
  	   /* Sets units and limits of the graph axis */
  	   int lengthGraph = GraphConfig.getInstance().getEndTime() - GraphConfig.getInstance().getStartTime();
@@ -60,36 +65,46 @@ public class XMLGraphManager {
  	   Font domainFont = new Font("Dialog", Font.PLAIN, 25);
  	   domain.setTickLabelFont(domainFont);
 	   domain.setTickUnit(new NumberTickUnit(tickUnit)); 
-	       
+	      
+	   plot.setRangeAxis(nodes);
+	   plot.setDomainAxis(domain);
+	   
+		plot.setDomainGridlinesVisible(true);
+	    plot.setRangeGridlinesVisible(true);
+	    plot.setDomainGridlinePaint(Color.BLACK);
+	    plot.setRangeGridlinePaint(Color.BLACK);
+	    
 	   return min;
 	}
+	
 	
 	/**
 	 * Links plot and dataset
 	 */
-	public int linkDataset(XYPlot plot, int datasetNum, XYSeries series) {
+	public int linkDataset(XYPlot plot, int datasetNum, ArrayList<XYSeries> series) {
 		 /* Serials */
-		   XYSeriesCollection plotSerial = new XYSeriesCollection(series);
-		   
-		   /* Curve color */
-	       int red 		= (int) (100*Math.random());
-	       int green 	= (int) (100*Math.random());
-	       int blue		= (int) (100*Math.random());
-	       
-	       plot.getRenderer().setSeriesPaint(datasetNum, new Color(red, green, blue));
-	       BasicStroke stroke = new BasicStroke(10f);
-	       
-	       plot.getRenderer().setSeriesStroke(1, stroke);
-	       
-		   /* Graph grid 
-		    * TODO: Select a color*/
-	       plot.setDataset(datasetNum, plotSerial);
-	       plot.setDomainGridlinesVisible(true);
-	       plot.setRangeGridlinesVisible(true);
-	       plot.setDomainGridlinePaint(Color.BLACK);
-	       plot.setRangeGridlinePaint(Color.BLACK);
+		XYSeriesCollection currentDataset;
 		
-		return 0;
+		for(int cptSeries=0;cptSeries < series.size()-1; cptSeries++) {		
+			currentDataset = new XYSeriesCollection();
+			
+			/* We add : the current serie, and the default one */		
+			currentDataset.addSeries(series.get(cptSeries));
+			currentDataset.addSeries(series.get(series.size()-1));
+			
+			Color rendererColor = xmlOpener.getMessageCodes().get(series.get(cptSeries).getKey());
+			XYDifferenceRenderer currentRenderer = new XYDifferenceRenderer(Color.WHITE, rendererColor, false);
+			
+			plot.setDataset(datasetNum+cptSeries, currentDataset);
+			plot.setRenderer(datasetNum+cptSeries, currentRenderer, false);
+			plot.getRenderer(datasetNum+cptSeries).setSeriesPaint(datasetNum+cptSeries, rendererColor);
+			plot.getRenderer(datasetNum+cptSeries).setBaseOutlinePaint(rendererColor);
+			plot.getRenderer(datasetNum+cptSeries).setBasePaint(rendererColor);
+			plot.getRenderer(datasetNum+cptSeries).setSeriesPaint(0, rendererColor);
+			GlobalLogger.debug("Renderer num:"+(datasetNum+cptSeries)+" ColorR:"+rendererColor.getRed()+" ColorG:"+rendererColor.getGreen()+" ColorB:"+rendererColor.getBlue());
+		}			 
+
+		return (datasetNum+series.size()-1);
 	}
 	
 	/**
@@ -122,64 +137,76 @@ public class XMLGraphManager {
 		return eventReader;
 	}
 	
+	/**
+	 *  Prepares the graph 
+	 **/
+	public JFreeChart initializeGraph(XYPlot plot) {
+	       /* Graph configuration */
+	       String plotTitle = "Artemis Simulation"; 
+	       
+	       JFreeChart chart = new JFreeChart(plotTitle, JFreeChart.DEFAULT_TITLE_FONT, plot, false);
+	       
+	       return chart;
+	}
+	
+	
 	/** 
 	 * Parses the network XML files
 	 */
-	public void buildXMLGraph(JFreeChart chart) {
+	public JFreeChart buildXMLGraph() {
+			JFreeChart chart = null;
+		
 	       /* Number of datasets : number of machines on the network */
-	       int dataset_num = 0;
+	       int fileNum = 0;
 			int number = 10;
+			int datasetNum = 0;
 			
 	       GraphBuilder gBuilder = new GraphBuilder();
-		   XmlOpener xmlOpener = new XmlOpener();
+	       xmlOpener = new XmlOpener();
 		   XMLConfigReader configReader = new XMLConfigReader();
 		   
 		   String networkFolderName = ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/"
 	    		   +ConfigLogger.GENERATED_FILES_PATH+"xml/";
-		   if(GlobalLogger.DEBUG_ENABLED)
-			   GlobalLogger.debug("Network folder name: "+networkFolderName);
 		   
 	       File folder = new File(networkFolderName); 
 	       
 	       /* Sorting the files by node order in the network */
 	       ArrayList<String> orderedFileName  = gBuilder.sortXMLGraphFiles(folder, xmlOpener);      
 	       
-	       for(int j=0;j<orderedFileName.size();j++) {
-	    	   /* Building plot serials */
-		       XYPlot xyplot = chart.getXYPlot();   
-		       xyplot.setBackgroundPaint(Color.WHITE);
-		       
-		       /* We hide y axis scale, because it has no more sense */
-		       ValueAxis range = xyplot.getRangeAxis();
-		       range.setVisible(false);
-		       
-		       
+	       /* Building plot serials */ 
+	       XYPlot xyplot = new XYPlot();  
+	       xyplot.setBackgroundPaint(Color.WHITE);
+	       
+	       /* We hide y axis scale, because it has no more sense */
+	       NumberAxis range = new NumberAxis("");
+	       range.setVisible(false);
+	       xyplot.setRangeAxis(range);
+	       
+	       int min = this.configureAxes(xyplot);  
+	       
+	       for(fileNum=0;fileNum<orderedFileName.size();fileNum++) {		       
 		       /* To organize the different graphs, we define their position on the height of the y axis */
 		       /* Starting from xml infos, we build the different graphs */
-	    	   XYSeries plotSeries = xmlOpener.readFile(number, 
-	    			   networkFolderName+orderedFileName.get(j),
-	    			   j*5); 
+	    	   GlobalLogger.debug("NODE "+networkFolderName+orderedFileName.get(fileNum));
 	    	   
-	    	   buildLoadGraph(xmlOpener.loads, orderedFileName.get(j));
-	    	   
-	    	   int min = this.configureAxes(xyplot);   	  
-		       this.linkDataset(xyplot, dataset_num, plotSeries);  		   
- 		   
+	    	   ArrayList<XYSeries> plotSeries = xmlOpener.readFile(number, 
+	    			   networkFolderName+orderedFileName.get(fileNum),
+	    			   fileNum*5);   	   	   
+	    	    	  
+	    	   datasetNum = this.linkDataset(xyplot, datasetNum, plotSeries);  		   
+ 		   	          
 		       /* Configuration and graph marking */  
-	 		   String annotation = orderedFileName.get(j);
+	 		   String annotation = orderedFileName.get(fileNum);
 	 	       annotation = annotation.substring(0, annotation.length()-4);
+	 	       
 	 	       // Node legend
-	 	      XYTextAnnotation nodeAnnotation = new XYTextAnnotation(annotation, min-(min/2), (j*5)-1);
-	 	     nodeAnnotation.setFont(new Font("Arial", Font.BOLD, 35));
+	 	      XYTextAnnotation nodeAnnotation = new XYTextAnnotation(annotation, min-(min/2), (fileNum*5)-1);
+	 	      nodeAnnotation.setFont(new Font("Arial", Font.BOLD, 35));
 	 	       
 	 	       xyplot.addAnnotation(nodeAnnotation);
-	 	  
-	 	       for(int cptAnnotations = 0;cptAnnotations<xmlOpener.annotations.size();cptAnnotations++) {
-	 	    	   xyplot.addAnnotation(xmlOpener.annotations.get(cptAnnotations));
-	 	       }
-	 	       
-	 	       dataset_num++;
 	       }
+	       chart = initializeGraph(xyplot);
+	       return chart;
 	}
 
 	public void prepareGraphConfig() {
@@ -189,58 +216,7 @@ public class XMLGraphManager {
 		String configFileName = ConfigLogger.RESSOURCES_PATH+"/"+
 				   ConfigParameters.getInstance().getSimuId()+"/"+
 				   ConfigLogger.GRAPH_CONF_PATH;
-		GlobalLogger.debug("Config file : "+configFileName);
 		
 		configReader.readFile(configFileName);
-	}
-	
-	public void buildLoadGraph(ArrayList<GraphLoadPoint> points, String fileName) {
-		fileName = fileName.substring(0, fileName.indexOf('.'));
-		if(GlobalLogger.DEBUG_ENABLED) {
-			GlobalLogger.debug("::"+fileName);
-		}
-		
-		 final XYSeries series1 = new XYSeries("First");
-	       for(int cptPoints =0; cptPoints < points.size();cptPoints++) {
-	    	   series1.add(points.get(cptPoints).time, points.get(cptPoints).load);
-	       }
-
-	        final XYSeriesCollection dataset = new XYSeriesCollection();
-	        dataset.addSeries(series1);
-
-	        final JFreeChart chart = ChartFactory.createXYLineChart(
-	                "Load",      // chart title
-	                "Time",                      // x axis label
-	                "Load",                      // y axis label
-	                dataset,                  // data
-	                PlotOrientation.VERTICAL,
-	                true,                     // include legend
-	                true,                     // tooltips
-	                false                     // urls
-	            );
-
-	            chart.setBackgroundPaint(Color.white);
-
-	            final XYPlot plot = chart.getXYPlot();
-	            plot.setBackgroundPaint(Color.lightGray);
-	            NumberAxis loadAxis = (NumberAxis) plot.getRangeAxis();
-	            loadAxis.setTickUnit(new NumberTickUnit(0.05));
-	            loadAxis.setRange(0, 0.5);
-	            
-	            plot.setDomainGridlinePaint(Color.white);
-	            plot.setRangeGridlinePaint(Color.white);
-	            
-	            XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-	            renderer.setBaseShapesFilled(false);
-	            renderer.setBaseShapesVisible(false);
-	            
-	            plot.setRenderer(renderer);
-	            /*
-	            try {
-					//ChartUtilities.saveChartAsPNG(new File(ConfigLogger.GENERATED_FILES_PATH+"histos/"+fileName+"/"+fileName+"_load.PNG"), chart, 1600, 1200);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}*/
 	}
 }

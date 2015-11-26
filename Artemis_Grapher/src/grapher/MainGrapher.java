@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import logger.GlobalLogger;
 import main.GraphBuilder;
 import model.GraphConfig;
 import model.GraphPlot;
@@ -32,45 +33,24 @@ import org.jfree.ui.RectangleEdge;
 
 import root.util.constants.ConfigParameters;
 import utils.ConfigLogger;
+import utils.Errors;
 import xmlparser.XMLConfigReader;
 import xmlparser.XMLGraphManager;
 import xmlparser.XmlOpener;
 
 public class MainGrapher {
-	
-	/**
-	 *  Prepares the graph 
-	 **/
-	public JFreeChart initializeGraph() {
-	       /* Graph configuration */
-	       String plotTitle = "Artemis Simulation"; 
-	       
-	       String xaxisTitle = "time";
-	       String yaxisTitle = "Nodes";
-	       PlotOrientation orientation = PlotOrientation.VERTICAL; 
-	       
-	       boolean show = false; 
-	       boolean toolTips = false;
-	       boolean urls = false; 
 
-	       JFreeChart chart = ChartFactory.createXYLineChart(plotTitle, xaxisTitle, yaxisTitle,  null, 
-	    		   orientation, show, toolTips, urls);
-	       
-	       return chart;
-	}
-	
 	/* Starting from a list of xml files, draw the network graph */
 	public void drawGraph() {
 	       int width = 2000;
-	       int height = 800;
+	       int height = 1000;
 		   
-		   JFreeChart chart = initializeGraph();
 		   XMLGraphManager graphManager = new XMLGraphManager();
 		   graphManager.prepareGraphConfig();
 		   
 		   /* Parse infos from XML */
-		   graphManager.buildXMLGraph(chart);
-		        
+		   JFreeChart chart =  graphManager.buildXMLGraph();
+		     
 	       try {
 	    	   /* Building the name of the picture graph file */
 	    	   String pictureFileGraph = ConfigLogger.RESSOURCES_PATH+"/"+
@@ -78,10 +58,21 @@ public class MainGrapher {
 	    			   ConfigLogger.GENERATED_FILES_PATH+"histos/";
 	    	   
 	    	   /* Creating the subfolder */
-	    	   new File(pictureFileGraph).mkdirs();
+	    	   try {
+	    		   new File(pictureFileGraph).mkdirs();
+	    	   }
+	    	   catch(SecurityException e) {
+	    		   GlobalLogger.error(Errors.ERROR_DIR_NOT_CREATED, "Impossible to create directories for gen path");
+	    	   }
+	    	   
 	    	   pictureFileGraph += GraphConfig.getInstance().getGraphName()+".PNG";
 	    	   
-	           ChartUtilities.saveChartAsPNG(new File(pictureFileGraph), chart, width, height);
+	    	   File chartFile = new File(pictureFileGraph);
+	    	   chartFile.setWritable(true);
+	    	   chartFile.setReadable(true);
+	    	   chartFile.setExecutable(true);
+	    	   
+	           ChartUtilities.saveChartAsPNG(chartFile, chart, width, height);
 	           } 
 	       catch (IOException e) {
 	    	   e.printStackTrace();
