@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -36,6 +37,8 @@ import org.jfree.data.xy.XYSeries;
 import org.junit.runner.Computer;
 
 public class XmlOpener {
+	
+	private HashMap<String, String> machinesName;
 	
 	/**
 	 * Message map for storing color codes
@@ -65,10 +68,15 @@ public class XmlOpener {
 	public XmlOpener() {
 		loads = new ArrayList<GraphLoadPoint>();
 		messageCodes = new HashMap<String, Color>();
+		machinesName = new HashMap<String, String>();
 	}
 	
 	public HashMap<String, Color> getMessageCodes() {
 		return messageCodes;
+	}
+	
+	public String getMachineName(String key) {
+		return machinesName.get(key);
 	}
 	
 	/* Annotations to put on the graph */
@@ -153,11 +161,28 @@ public class XmlOpener {
 				} catch (XMLStreamException e) {
 					e.printStackTrace();
 				}
+				
+				
 	    		  if(plots.get("DEFAULT") == null) {
     				  plots.put("DEFAULT", new ArrayList<GraphPlot>());
     			  }
+
 		    	  if(event.isStartElement() && timeLength < GraphConfig.getInstance().getEndTime()) {
 		    		  StartElement startElement = event.asStartElement();
+		    		  if(startElement.getName().toString().equals("machine")) {
+		    			  Iterator <Attribute> it = startElement.getAttributes();
+		    			  while(it.hasNext()) {
+		    				  Attribute attr = it.next();
+		    				  
+		    				  if(attr.getName().toString().equals("name")) {
+		    					  String key = configFile.substring(configFile.lastIndexOf("/")+1, configFile.length()-4);
+		    					  machinesName.put(key, attr.getValue().toString());
+		    					  GlobalLogger.debug("KEY:"+key+" NAME:"+attr.getValue().toString());
+		    					  
+		    				  }
+		    			  }
+		    			  
+		    		  }
 		    		  if(startElement.getName().toString().equals("timer")) {
 		    			  timeLength+=GRAPHPRECISION;
 

@@ -198,6 +198,8 @@ public class XMLGraphManager {
 		       /* Configuration and graph marking */  
 	 		   String annotation = orderedFileName.get(fileNum);
 	 	       annotation = annotation.substring(0, annotation.length()-4);
+	 	       annotation = xmlOpener.getMachineName(annotation);
+	 	       GlobalLogger.debug("File:"+orderedFileName.get(fileNum)+" Annotation:"+annotation);
 	 	       
 	 	       // Node legend
 	 	      XYTextAnnotation nodeAnnotation = new XYTextAnnotation(annotation, min-(min/2), (fileNum*5)-1);
