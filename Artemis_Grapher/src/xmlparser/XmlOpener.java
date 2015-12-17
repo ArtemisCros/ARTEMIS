@@ -26,6 +26,7 @@ import model.GraphLoadPoint;
 import model.GraphPlot;
 import model.GraphPlots;
 import model.GraphSerial;
+import model.colors.ColorPicker;
 
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYTextAnnotation;
@@ -226,14 +227,8 @@ public class XmlOpener {
 			    				  /* We add the new message code to the message list
 			    				   * We will use it later for color computing */
 			    				  if(messageCodes.get(key) == null) {
-			    					  Random randColor = new Random();
 			    					  
-			    					  float red 	= randColor.nextFloat();
-			    					  float green	= randColor.nextFloat();
-			    					  float blue 	= randColor.nextFloat();
-			    					  
-			    					  Color newColor = new Color(red, green, blue);
-			    					  messageCodes.put(key, newColor);
+			    					  messageCodes.put(key, ColorPicker.getColor(messageCodes.keySet().size()));
 			    				  }
 			    				  
 			    				  /* Adds default values for the beginning of the graph */

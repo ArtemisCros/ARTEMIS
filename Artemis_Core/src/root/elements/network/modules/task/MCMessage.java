@@ -16,7 +16,7 @@ public class MCMessage extends FrameMessage implements ISchedulable, Cloneable{
 	
 	/* Period of emission */
 	public int period;
-		
+	
 	public MCMessage(String name) {
 		super(name);
 		size = new HashMap<CriticalityLevel, Double>();
@@ -55,6 +55,10 @@ public class MCMessage extends FrameMessage implements ISchedulable, Cloneable{
 		this.period = period;
 	}
 
+	public Double getSize(CriticalityLevel critLvl) {
+		return size.get(critLvl);
+	}
+	
 	@Override
 	public double getWcet() {
 		return size.get(CriticalityLevel.NONCRITICAL)/ConfigParameters.FLOW_DATARATE;

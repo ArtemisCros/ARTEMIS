@@ -129,10 +129,20 @@ public class MessageManager {
 	/* Check whether to load or send messages */
 	public int prepareMessagesForTransfer(Machine fromMachine, double time) {
 		/* If current packet is no more treated */
-		if(fromMachine.analyseTime <= 0 && fromMachine.currentlyTransmittedMsg != null) {			
-				/* Put message in output buffer */
-				fromMachine.sendMessage(fromMachine.currentlyTransmittedMsg);		
-				
+		if(fromMachine.analyseTime <= 0 && fromMachine.currentlyTransmittedMsg != null) {
+			/* If currently transmitted message was not at the good criticality level
+			 * Ex : Start to send a non-critical message during the beginning of critical phase
+			 */
+			if(ConfigParameters.MIXED_CRITICALITY) { 
+				if(((MCMessage)fromMachine.currentlyTransmittedMsg).getSize(criticalityManager.getCurrentLevel())!= -1) {
+					/* Put message in output buffer */
+					fromMachine.sendMessage(fromMachine.currentlyTransmittedMsg);		
+				}
+			}
+			else {
+				/* Put message in output buffer without MC management*/
+				fromMachine.sendMessage(fromMachine.currentlyTransmittedMsg);
+			}
 				/* Clean the current analyzing buffer */
 				fromMachine.currentlyTransmittedMsg = null;	
 		}

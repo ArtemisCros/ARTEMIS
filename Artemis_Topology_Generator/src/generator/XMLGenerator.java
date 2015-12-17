@@ -1,5 +1,6 @@
 package generator;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.w3c.dom.Element;
@@ -7,6 +8,7 @@ import org.w3c.dom.Element;
 import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ConfigParameters;
 import utils.ConfigLogger;
+import logger.GlobalLogger;
 import logger.XmlLogger;
 import model.Node;
 
@@ -24,6 +26,8 @@ public class XMLGenerator {
 
 	
 	public void generateXMLNetworkFile(ArrayList<Node> nodes, ArrayList<Node> switches) {
+		new File(xmlInputPath).mkdirs();
+		
 		XmlLogger xmlLogger = new XmlLogger(xmlInputPath, "network.xml", "");
 		String nodeName, nodeId;
 		Element machine, links;

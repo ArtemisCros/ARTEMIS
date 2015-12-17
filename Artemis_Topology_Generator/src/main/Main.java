@@ -1,6 +1,7 @@
 package main;
 
 import root.util.constants.ConfigParameters;
+import utils.ConfigLogger;
 import logger.GlobalLogger;
 import generator.TopologyGenerator;
 import generator.XMLGenerator;
@@ -45,7 +46,8 @@ public class Main {
 			tGen.displayGeneratedTopology();
 			XMLGenerator xmlGen = new XMLGenerator();
 			// For test purposes 
-			xmlGen.setInputPath("gen/xml/"+simuId+"/input/");
+			xmlGen.setInputPath(ConfigLogger.RESSOURCES_PATH+"/"+
+					ConfigParameters.getInstance().getSimuId()+"/input/");
 			
 			xmlGen.generateXMLNetworkFile(tGen.getNodes(), tGen.getSwitches());
 			

@@ -61,6 +61,10 @@ public class TaskGenerator {
 		XmlLogger xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+
 				ConfigParameters.getInstance().getSimuId()+"/input/", "messages.xml", "");
 		
+		GlobalLogger.debug("TASKS:"+numberOfTasks+" Load:"+networkLoad+" Time:"+timeLimit+" Var:"+variance+" WCTT:"+highestWcet);
+		GlobalLogger.debug("DEST FILE:"+ConfigLogger.RESSOURCES_PATH+"/"+
+				ConfigParameters.getInstance().getSimuId()+"/input/messages.xml");
+		
 		xmlLogger.createDocument();
 		Element root = xmlLogger.createRoot("Messages");
 		Element criticality;
@@ -261,9 +265,9 @@ public class TaskGenerator {
 					/* In case of invalid sets with negative utilization on the last generated task */
 					if(utilisation <= 0) {
 						validSet = false;
-						if(GlobalLogger.DEBUG_ENABLED) {
+						/*if(GlobalLogger.DEBUG_ENABLED) {
 							GlobalLogger.debug("Network:"+networkLoad+"\t Global"+globalLoad);
-						}
+						}*/
 						break;
 					}
 				}
