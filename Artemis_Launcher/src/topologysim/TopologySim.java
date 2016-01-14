@@ -4,6 +4,7 @@ import logger.FileLogger;
 import logger.GlobalLogger;
 import main.CoreLauncher;
 import modeler.networkbuilder.NetworkBuilder;
+import generator.PathComputer;
 import generator.TaskGenerator;
 import generator.TopologyGenerator;
 import generator.XMLGenerator;
@@ -18,7 +19,7 @@ import utils.Errors;
 /* Simulation of random size topology generation and simulation with core */
 
 public class TopologySim {
-
+	
 	public static void dmain(String[] args) {
 		double alphaRate = 0.7;
 		int networkSize = 55;
@@ -52,8 +53,11 @@ public class TopologySim {
 			nBuilder.prepareNetwork();
 	
 			/* Get builder from automatic task generator */		
-			TaskGenerator tGenerator = new TaskGenerator();				
-			tGenerator.setNetworkBuilder(nBuilder);
+			TaskGenerator tGenerator = new TaskGenerator();		
+			
+			/* Generate task list and link it to a path */
+			PathComputer pathComp = new PathComputer(nBuilder);
+			pathComp.linkToPath(tGenerator.generateTaskList());
 			
 			double load=0.9;
 		//	for(double load=ComputationConstants.LOADSTART; load < ComputationConstants.LOADEND; load += ComputationConstants.LOADSTEP) {
@@ -61,7 +65,7 @@ public class TopologySim {
 				startTime = System.currentTimeMillis();
 				GlobalLogger.debug("-------- SCHEDULING SCENARIO LOAD:"+load+" NETWORK SIZE:"+networkSize);
 				tGenerator.setNetworkLoad(load);
-				scheduleScenario(tGenerator);
+				scheduleScenario(tGenerator, pathComp);
 				endTime = System.currentTimeMillis();
 				GlobalLogger.debug("-------- Done in "+(endTime-startTime)+"ms --------");
 				
@@ -73,16 +77,16 @@ public class TopologySim {
 		}
 	}
 	
-	public static void scheduleScenario(TaskGenerator tGenerator) {
+	public static void scheduleScenario(TaskGenerator tGenerator, PathComputer pathComp) {
 		/* Initalizes scheduler */
 		NetworkScheduler nScheduler = null;
-		NetworkBuilder nBuilder = tGenerator.getNetworkBuilder();
+		
+		NetworkBuilder nBuilder = pathComp.getNetworkBuilder();
 		
 		ISchedulable[] tasks = tGenerator.generateTaskList();
 		 /* Modelises network */
-		 tGenerator.linkTasksetToNetwork(tasks);
+		 pathComp.linkToPath(tasks);
 		
-		nBuilder = tGenerator.getNetworkBuilder();
 		nBuilder.prepareMessages();
 		
 		nBuilder.getMainNetwork().showCritSwitches();
