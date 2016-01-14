@@ -95,13 +95,14 @@ public class XmlOpener {
 	private ArrayList<XYSeries> buildPlotSerial(GraphPlots plots) {
 		ArrayList<XYSeries> series = new ArrayList<XYSeries>();
 		ArrayList<GraphPlot> copyPlots;
-		String key;
+		String key ="";
 		XYSeries currentSerie;
 		
 		Iterator<String> it = plots.keySet().iterator();
 		
 		while(it.hasNext()) {
 			key = it.next();
+
 			if(!key.equals("DEFAULT")) {
 				copyPlots = new ArrayList<GraphPlot>(plots.get(key));
 				currentSerie = new XYSeries(plots.get(key).size());
@@ -112,6 +113,7 @@ public class XmlOpener {
 					  double coordX = currentPlot.x;
 					  double coordY = currentPlot.y;
 					  currentSerie.add(coordX, coordY);
+					  
 				  }
 					
 				 series.add(currentSerie);
@@ -178,8 +180,6 @@ public class XmlOpener {
 		    				  if(attr.getName().toString().equals("name")) {
 		    					  String key = configFile.substring(configFile.lastIndexOf("/")+1, configFile.length()-4);
 		    					  machinesName.put(key, attr.getValue().toString());
-		    					  GlobalLogger.debug("KEY:"+key+" NAME:"+attr.getValue().toString());
-		    					  
 		    				  }
 		    			  }
 		    			  
@@ -219,16 +219,16 @@ public class XmlOpener {
 			    		  }
 			    		  
 			    		  if(message != "") {
-			    			  String key = message.substring(3, 5);
+			    			  String key = message.substring(3, message.indexOf("_"));
 			    			  
 			    			  if(plots.get(key) == null) {
 			    				  plots.put(key, new ArrayList<GraphPlot>());
 			    				  
 			    				  /* We add the new message code to the message list
 			    				   * We will use it later for color computing */
-			    				  if(messageCodes.get(key) == null) {
-			    					  
-			    					  messageCodes.put(key, ColorPicker.getColor(messageCodes.keySet().size()));
+			    				  if(messageCodes.get(key) == null) {				  
+			    					  messageCodes.put(key, ColorPicker.getColor(Integer.parseInt(key)));
+			    					  GlobalLogger.debug("MESSAGE KEY:"+key);
 			    				  }
 			    				  
 			    				  /* Adds default values for the beginning of the graph */
@@ -242,7 +242,8 @@ public class XmlOpener {
 			    			  }
 			    			  
 			    			  plots.get(key).add(new GraphPlot(value, graphSize));
-			    			  
+			    			 
+	    					  
 			    			  previous = true;
 			    			  
 			    			  /* For all other series, we add a default point */

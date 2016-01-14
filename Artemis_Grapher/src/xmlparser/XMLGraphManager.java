@@ -93,6 +93,7 @@ public class XMLGraphManager {
 			currentDataset.addSeries(series.get(series.size()-1));
 			
 			Color rendererColor = xmlOpener.getMessageCodes().get(series.get(cptSeries).getKey());
+			GlobalLogger.debug("KEY:"+series.get(cptSeries).getKey());
 			XYDifferenceRenderer currentRenderer = new XYDifferenceRenderer(Color.WHITE, rendererColor, false);
 			
 			plot.setDataset(datasetNum+cptSeries, currentDataset);
@@ -101,7 +102,6 @@ public class XMLGraphManager {
 			plot.getRenderer(datasetNum+cptSeries).setBaseOutlinePaint(rendererColor);
 			plot.getRenderer(datasetNum+cptSeries).setBasePaint(rendererColor);
 			plot.getRenderer(datasetNum+cptSeries).setSeriesPaint(0, rendererColor);
-			GlobalLogger.debug("Renderer num:"+(datasetNum+cptSeries)+" ColorR:"+rendererColor.getRed()+" ColorG:"+rendererColor.getGreen()+" ColorB:"+rendererColor.getBlue());
 		}			 
 
 		return (datasetNum+series.size()-1);
@@ -187,25 +187,28 @@ public class XMLGraphManager {
 	       for(fileNum=0;fileNum<orderedFileName.size();fileNum++) {		       
 		       /* To organize the different graphs, we define their position on the height of the y axis */
 		       /* Starting from xml infos, we build the different graphs */
-	    	   GlobalLogger.debug("NODE "+networkFolderName+orderedFileName.get(fileNum));
 	    	   
 	    	   ArrayList<XYSeries> plotSeries = xmlOpener.readFile(number, 
 	    			   networkFolderName+orderedFileName.get(fileNum),
 	    			   fileNum*5);   	   	   
 	    	    	  
+	    	   for(int cptAnnotation = 0;cptAnnotation < xmlOpener.annotations.size(); cptAnnotation++) {
+		 	    	  xyplot.addAnnotation(xmlOpener.annotations.get(cptAnnotation));
+		 	    	  GlobalLogger.debug("::"+cptAnnotation);
+		 	      }
+	    	   
 	    	   datasetNum = this.linkDataset(xyplot, datasetNum, plotSeries);  		   
  		   	          
 		       /* Configuration and graph marking */  
 	 		   String annotation = orderedFileName.get(fileNum);
 	 	       annotation = annotation.substring(0, annotation.length()-4);
 	 	       annotation = xmlOpener.getMachineName(annotation);
-	 	       GlobalLogger.debug("File:"+orderedFileName.get(fileNum)+" Annotation:"+annotation);
 	 	       
 	 	       // Node legend
 	 	      XYTextAnnotation nodeAnnotation = new XYTextAnnotation(annotation, min-(min/2), (fileNum*5)-1);
-	 	      nodeAnnotation.setFont(new Font("Arial", Font.BOLD, 35));
-	 	       
-	 	       xyplot.addAnnotation(nodeAnnotation);
+	 	      nodeAnnotation.setFont(new Font("Arial", Font.BOLD, 35));	      
+	 	     
+	 	      xyplot.addAnnotation(nodeAnnotation);
 	       }
 	       chart = initializeGraph(xyplot);
 	       return chart;
