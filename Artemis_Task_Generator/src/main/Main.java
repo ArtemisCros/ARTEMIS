@@ -15,6 +15,7 @@ import modeler.parser.XmlConfigHandler;
 import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import utils.ConfigLogger;
+import generator.GenerationLauncher;
 import generator.TaskGenerator;
 
 public class Main {
@@ -31,51 +32,15 @@ public class Main {
 		}
 		
 		ConfigParameters.getInstance().setSimuId(simuId);
-		
-		GlobalLogger.debug("Starting generation");
 		double start = System.currentTimeMillis();
 		
-		SAXParserFactory factoryParser = SAXParserFactory.newInstance();
-
-		// Creating a SAX Parser
-		try {
-			SAXParser parser = factoryParser.newSAXParser();
-		
-			GlobalLogger.log("Parsing config file "+ConfigLogger.RESSOURCES_PATH+"/"+
-					ConfigParameters.getInstance().getSimuId()+"/input/config.xml");
-			//Building the parser handler
-			XmlConfigHandler handler = new XmlConfigHandler();
-			String xmlInputFolder = ConfigLogger.RESSOURCES_PATH+"/"+
-					ConfigParameters.getInstance().getSimuId()+"/";
-			
-			File configFile = new File(xmlInputFolder+"input/config.xml");
-			
-			//Launch the parser
-			parser.parse(configFile, handler);
-			
-			TaskGenerator taskGen = new TaskGenerator();
-			NetworkBuilder nBuilder = new NetworkBuilder(xmlInputFolder);
-			
-			/* Read the pre-generated topology file */
-			nBuilder.prepareNetwork();
-					
-			taskGen.setNetworkBuilder(nBuilder);
-			taskGen.generateTaskList();
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-
+		GenerationLauncher launcher = new GenerationLauncher();
+		launcher.prepareGeneration();
+		launcher.launchGeneration();		
 		
 		double end = System.currentTimeMillis();
 		
 		System.out.println("Taskset generated in "+(end-start)+" ms");
 	}
+
 }

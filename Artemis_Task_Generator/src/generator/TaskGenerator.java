@@ -27,23 +27,16 @@ public class TaskGenerator {
 	double networkLoad; 
 	int timeLimit;
 	double variance;
-	private NetworkBuilder nBuilder;
 	public double globalLoad;
 	private double highestWcet;
 	
 	private ISchedulable[] tasks;
 	
-	public NetworkBuilder getNetworkBuilder() {
-		return nBuilder;
-	}
 	
 	public ISchedulable[] getTasks() {
 		return tasks;
 	}
 	
-	public void setNetworkBuilder(NetworkBuilder nBuilderP) {
-		this.nBuilder = nBuilderP;
-	}
 	
 	public void setNetworkLoad(double nLoad) {
 		networkLoad = nLoad;
@@ -61,9 +54,9 @@ public class TaskGenerator {
 		XmlLogger xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+
 				ConfigParameters.getInstance().getSimuId()+"/input/", "messages.xml", "");
 		
-		GlobalLogger.debug("TASKS:"+numberOfTasks+" Load:"+networkLoad+" Time:"+timeLimit+" Var:"+variance+" WCTT:"+highestWcet);
-		GlobalLogger.debug("DEST FILE:"+ConfigLogger.RESSOURCES_PATH+"/"+
-				ConfigParameters.getInstance().getSimuId()+"/input/messages.xml");
+	//	GlobalLogger.display("TASKS:"+numberOfTasks+" Load:"+networkLoad+" Time:"+timeLimit+" Var:"+variance+" WCTT:"+highestWcet);
+	//	GlobalLogger.debug("DEST FILE:"+ConfigLogger.RESSOURCES_PATH+"/"+
+	//			ConfigParameters.getInstance().getSimuId()+"/input/messages.xml");
 		
 		xmlLogger.createDocument();
 		Element root = xmlLogger.createRoot("Messages");
@@ -78,6 +71,7 @@ public class TaskGenerator {
 				criticality = xmlLogger.addChild("criticality", message, "level:NC");
 				 path = xmlLogger.addChild("path", criticality);
 				 String pathS = "";
+				 
 				 /* Compute the path of the message */
 				for(int cptPath=0; cptPath < taskList[cptMsg].getNetworkPath().size(); cptPath++) {	
 					pathS +=""+taskList[cptMsg].getNetworkPath().get(cptPath).value;
@@ -103,117 +97,6 @@ public class TaskGenerator {
 		}
 }
 	
-	/* Link messages to a random computed path */
-	public void linkToPath(ISchedulable[] tasks) {
-		/* Read the topology */
-		int nodePos = 0;
-		boolean pathFinished = false;
-		Machine current;
-		int cptLink;
-		NetworkAddress currentAdress;
-		
-		Network mainNet = nBuilder.getMainNetwork();
-		
-		for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {
-			pathFinished = false;
-		
-				
-			/* Create a path */	
-			nodePos = (int)Math.floor(Math.random() * mainNet.machineList.size());
-			current = mainNet.getMachineForAddressValue(mainNet.machineList.get(nodePos).getAddress().value);
-			currentAdress = current.getAddress();
-			
-			//GlobalLogger.debug("CPT:"+cptTasks);
-			tasks[cptTasks].setNetworkPath(new Vector<NetworkAddress>());
-			
-			tasks[cptTasks].getNetworkPath().add(currentAdress);
-			
-			//GlobalLogger.display("\nPath:"+currentAdress.value+"-");
-			/* Link each task with a given set of nodes from the network */		
-			while(!pathFinished) {	
-				/* Count the possible nodes */
-				cptLink = 0;
-				while(current.portsOutput[cptLink] != null) {
-					cptLink++;
-				}
-
-				/* Select the next node */
-				if(cptLink != 0) {
-					nodePos = (int)Math.floor(Math.random() * cptLink);
-
-					/* We choose the next machine's adress */
-					currentAdress = current.portsOutput[nodePos].getBindRightMachine().getAddress();
-					current = mainNet.getMachineForAddressValue(currentAdress.value);
-					
-					if(!tasks[cptTasks].getNetworkPath().contains(currentAdress)) {			
-						tasks[cptTasks].getNetworkPath().add(currentAdress);
-					}
-					else {
-						break;
-					}
-				}
-				else {
-					break;
-				}
-			}
-		//	GlobalLogger.display("\n");
-		}
-		
-	}
-	
-	/* Link tasks to network */
-	public int linkTasksetToNetwork(ISchedulable[] tasks) {
-		for(int cptMachine=0; cptMachine < nBuilder.getMainNetwork().machineList.size(); cptMachine++) {
-			nBuilder.getMainNetwork().machineList.get(cptMachine).messageGenerator = new ArrayList<ISchedulable>();
-		}
-		
-		for(int cptTasks=0; cptTasks < tasks.length; cptTasks++) {
-			try {
-				ISchedulable message;
-				
-				if(ConfigParameters.MIXED_CRITICALITY) {
-					message = new MCMessage( ""+cptTasks);
-				}
-				else {
-					message = new NetworkMessage(tasks[cptTasks].getCurrentWcet(), ""+cptTasks);
-				}
-				 
-				nBuilder.getMainNetwork().getMachineForAddressValue(tasks[cptTasks].getNetworkPath().get(0).value)
-					.messageGenerator.add(tasks[cptTasks]);
-				
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			
-			}
-		
-		return 0;
-	}
-	
-	/* Generate random path : For test purposes*/
-	@Deprecated
-	public void generatePath(AbstractMessage[] tasks) {
-		int limit = 0;
-		
-		/* Basic topology : 5 consecutive nodes */
-		
-		for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {
-			tasks[cptTasks].networkPath = new Vector<NetworkAddress>();
-			
-			if(cptTasks == 0) {
-				limit = 1;
-			}
-			else {
-				limit = 1+(int)Math.floor(Math.random() * 4);
-			}
-			
-			for(int cptNodesNumber=limit;cptNodesNumber<5;cptNodesNumber++) {
-				tasks[cptTasks].networkPath.add(new NetworkAddress(cptNodesNumber));
-			}
-			
-			//tasks[cptTasks].displayPath();
-		}
-	}
 	
 	public ISchedulable[] generateTaskList() {
 		return generateTaskList(this.highestWcet);
@@ -224,7 +107,9 @@ public class TaskGenerator {
 		double prob				= 0.0;
 		double periodComplete	= 0.0;
 		double criticalUtilisation = -1;
-		double critWcet			= 0.0;
+		double critWcet			= -1;
+		double utilisation 		= 0.0;
+		double precision 		= 1/ComputationConstants.TIMESCALE;
 		
 		/*Generated tasks list */
 		ISchedulable[] tasks = null;
@@ -244,56 +129,62 @@ public class TaskGenerator {
 			globalLoad = 0;
 			
 			//GlobalLogger.display("Retry\n");
-			for(int cptTask=1; cptTask <= numberOfTasks; cptTask++) {
+			for(int cptTask=1; cptTask <= numberOfTasks;  cptTask++) {			
 				ISchedulable newTask;
 				
 				/* Granularity */
 				iTg = 10;
 				/* First, we generate a random uniform-distributed value (Unifast method)*/
-				prob = RandomGenerator.genDouble(Math.log(timeLimit/10), Math.log(timeLimit + iTg));
-				
+				prob = RandomGenerator.genDouble(Math.log(timeLimit/10), Math.log(timeLimit + iTg));	
 				periodComplete = Math.min(iTg * (Math.floor(Math.exp(prob)/iTg)), timeLimit);			
 				
-				/* Generate utilisation from a uniform rule */
-				double utilisation = 0.0;
-				//while(utilisation < (1/periodComplete)) {
-					utilisation = generateUtilisation();
-				//}			
+				/* Generate utilisation */
+				utilisation = 0.0;		
 				
 				if(cptTask == numberOfTasks) {
+					/* As the left utilisation among all other generated messages */
 					utilisation = networkLoad - globalLoad;
+					
 					/* In case of invalid sets with negative utilization on the last generated task */
 					if(utilisation <= 0) {
 						validSet = false;
-						/*if(GlobalLogger.DEBUG_ENABLED) {
-							GlobalLogger.debug("Network:"+networkLoad+"\t Global"+globalLoad);
-						}*/
 						break;
 					}
 				}
-					
-				/* Generate utilisation for critical tasks */
-				double isTaskCritical = Math.random();
-				
-				if(isTaskCritical > (1-ConfigParameters.CRITICAL_RATE)) {		
-					while(criticalUtilisation <= utilisation) {
-						/* In case of high wcet tasks */
-						if(utilisation > networkLoad/numberOfTasks) {
-							break;
-						}
-
-						criticalUtilisation = generateUtilisation();
-					}
-				}
 				else {
-					criticalUtilisation = -1;
+					/* From a uniform rule */
+					utilisation = generateUtilisation();
 				}
-				
+					
 				/* Computes wcet from utilisation */
-				double wcetComplete = Math.floor(utilisation * periodComplete);
+				double wcetComplete = Math.floor(utilisation * periodComplete*precision)/(precision);
+				
 				if(highestWcet != 0 && wcetComplete > highestWcet) {
 					periodComplete = (highestWcet * periodComplete)/wcetComplete;
 					wcetComplete = highestWcet;
+				}
+				
+				/* Generate utilisation for critical tasks */
+				if(ConfigParameters.MIXED_CRITICALITY) {
+					double isTaskCritical = Math.random();
+					
+					if(isTaskCritical > (1-ConfigParameters.CRITICAL_RATE)) {		
+						while(criticalUtilisation <= utilisation) {
+							/* In case of high wcet tasks */
+	
+							criticalUtilisation = utilisation + 0.02;
+							/* Compute critical WCTT */
+							critWcet =  Math.floor(criticalUtilisation * periodComplete*precision)/(precision);
+							GlobalLogger.debug("CRIT WCET:"+critWcet+" "+criticalUtilisation);
+							if(highestWcet != 0 && critWcet > highestWcet) {
+								periodComplete = (highestWcet * periodComplete)/critWcet;
+								critWcet = highestWcet;
+							}	
+						}
+					}
+					else {
+						criticalUtilisation = -1;
+					}	
 				}
 				
 				/* Switched ethernet constraints */
@@ -311,30 +202,12 @@ public class TaskGenerator {
 					}
 					
 					newTask.setCurrentPeriod((int)periodComplete);
-					newTask.setWcet((int)wcetComplete);
-					
-					
-					/* Compute critical WCTT */
-					if(criticalUtilisation != -1 &&
-							ConfigParameters.MIXED_CRITICALITY) {
-						critWcet = Math.floor(criticalUtilisation * periodComplete);
-						if(highestWcet != 0 && critWcet > highestWcet) {
-							periodComplete = (highestWcet * periodComplete)/critWcet;
-							critWcet = highestWcet;
-						}			
-					}
-					else {
-						critWcet = -1;
-					}
-					
+					newTask.setWcet(wcetComplete, CriticalityLevel.NONCRITICAL);				
 					newTask.setWcet(critWcet, CriticalityLevel.CRITICAL);		
 					newTask.setId(cptTask);
 					newTask.setName("MSG"+cptTask);
 					
-					tasks[cptTask-1] = newTask;
-					
-					
-
+					tasks[cptTask-1] = newTask;			
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -345,24 +218,12 @@ public class TaskGenerator {
 				if(cptTask == numberOfTasks) {
 					if(Math.abs(networkLoad - globalLoad) <= errorMargin) {
 						validSet = true;
-						if(GlobalLogger.DEBUG_ENABLED) {
-							GlobalLogger.display("Network: "+networkLoad+"\t Global:"+globalLoad+"\n");
-						}
-					}
-					else {
-						if(GlobalLogger.DEBUG_ENABLED) {
-							GlobalLogger.display("Network: "+networkLoad+"\t Global:"+globalLoad+"\n");
-						}
 					}
 				}
 			}
 		}
 		
-		linkToPath(tasks);
-		
 		this.tasks = tasks;
-		
-		saveMessagesToXML(tasks);
 		
 		return tasks;
 	}
