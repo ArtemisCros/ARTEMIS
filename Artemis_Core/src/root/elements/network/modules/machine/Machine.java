@@ -5,7 +5,7 @@ import java.util.Vector;
 
 import logger.GlobalLogger;
 import logger.XmlLogger;
-
+import root.elements.network.modules.CriticalityLevel;
 import root.elements.network.modules.NetworkModule;
 import root.elements.network.modules.link.Link;
 import root.elements.network.modules.task.ISchedulable;
@@ -198,7 +198,7 @@ public class Machine extends Node {
 			else {
 				currentMsg = (NetworkMessage)inputBuffer.elementAt(cptMsgInput);
 			}
-			currentLoad += currentMsg.getCurrentWcet()/currentMsg.getCurrentPeriod();
+			currentLoad += currentMsg.getCurrentWcet(CriticalityLevel.NONCRITICAL)/currentMsg.getCurrentPeriod();
 		}
 		if(currentlyTransmittedMsg != null) {
 			currentLoad += this.analyseTime/this.currentlyTransmittedMsg.getPeriod();

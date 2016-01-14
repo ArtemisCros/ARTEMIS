@@ -18,7 +18,7 @@ public class NetworkMessage extends FrameMessage implements ISchedulable{
 		this.size = wcet*ConfigParameters.FLOW_DATARATE;
 	}
 	
-	public double getCurrentWcet() {
+	public double getCurrentWcet(CriticalityLevel critLvl) {
 		return size/ConfigParameters.FLOW_DATARATE;
 	}
 	

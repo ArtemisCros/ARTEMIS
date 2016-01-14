@@ -92,13 +92,13 @@ public class Network extends SimulableElement{
  		}
  		
  		/* We display the results (debug purposes) */
- 		for(int cptMachine=0; cptMachine < machineList.size(); cptMachine++) {
+ 		/*for(int cptMachine=0; cptMachine < machineList.size(); cptMachine++) {
  			if(GlobalLogger.DEBUG_ENABLED) {
  				String debug = "Machine "+machineList.get(cptMachine).name+
  	 					" load:"+machineList.get(cptMachine).nodeLoad;
  				GlobalLogger.debug(debug);
  			}			
- 		}
+ 		}*/
  		return 0;
  	}
  	

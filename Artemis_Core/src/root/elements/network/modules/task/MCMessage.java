@@ -3,6 +3,7 @@ package root.elements.network.modules.task;
 import java.util.HashMap;
 import java.util.Vector;
 
+import logger.GlobalLogger;
 import root.elements.network.modules.CriticalityLevel;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
@@ -22,12 +23,23 @@ public class MCMessage extends FrameMessage implements ISchedulable, Cloneable{
 		size = new HashMap<CriticalityLevel, Double>();
 	}
 	
-	public double getCurrentWcet() {
-		return 0;
+	public double getCurrentWcet(CriticalityLevel critLvl) {
+		if(wcetTask == -1) {
+			if(size.get(critLvl) != null && size.get(critLvl) > 0) {
+				wcetTask = size.get(critLvl)/ConfigParameters.FLOW_DATARATE; 
+				return wcetTask;
+			}
+			else {
+				return 0.0;
+			}
+		}
+		else {
+			return wcetTask;
+		}
 	}
 	
 	public void setCurrentWcet(double wcet) {
-		this.wcet = 0;
+		this.wcet = wcet;
 	}
 	
 	public int addCriticalityLevel(String critLvlName) {
@@ -59,26 +71,23 @@ public class MCMessage extends FrameMessage implements ISchedulable, Cloneable{
 		return size.get(critLvl);
 	}
 	
+	public HashMap<CriticalityLevel, Double> getSize() {
+		return size;
+	}
+	
 	@Override
 	public double getWcet() {
 		return size.get(CriticalityLevel.NONCRITICAL)/ConfigParameters.FLOW_DATARATE;
 	}
 	
 	public double getWcet(CriticalityLevel critLvl) {
-		if(wcetTask == -1) {
-			if(size.get(critLvl) != null && size.get(critLvl) > 0) {
-				wcetTask = size.get(critLvl)/ConfigParameters.FLOW_DATARATE; 
-				return wcetTask;
-			}
-			else {
-				return 0.0;
-			}
-			
+		if(size.get(critLvl) != -1) {
+			wcetTask = size.get(critLvl)/ConfigParameters.FLOW_DATARATE; 
 		}
 		else {
-			return wcetTask;
+			wcetTask = 0.0;
 		}
-		
+			return wcetTask;
 	}
 
 	@Override

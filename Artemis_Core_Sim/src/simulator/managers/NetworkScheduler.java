@@ -62,8 +62,7 @@ public class NetworkScheduler implements Runnable{
 				Machine currentMachine = network.machineList.get(machineCounter);
 				currentMachine.computeCurrentLoad();
 				/* First, put the generated messages in input buffers */
-				currentMachine.generateMessage(time);
-				
+				msgManager.generateMessages(currentMachine, time);
 				
 				/* Mixed-criticality management : filtering non-critical messages */
 				if(ConfigParameters.MIXED_CRITICALITY) {

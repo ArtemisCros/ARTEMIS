@@ -23,7 +23,7 @@ public interface ISchedulable {
 	
 	/* Get wcet corresponding to current criticality in case of MC-mode */
 	/* Wcet getter */
-	double getCurrentWcet();
+	double getCurrentWcet(CriticalityLevel critLvl);
 	
 	/* Wcet setter */
 	void setCurrentWcet(double wcet);

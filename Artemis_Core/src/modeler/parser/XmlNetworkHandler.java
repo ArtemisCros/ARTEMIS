@@ -116,25 +116,22 @@ public class XmlNetworkHandler extends XmlDefaultHandler{
 			currentMachine.name = currMachName;
 			currentMachine.setSpeed(speed);
 			
-			if(GlobalLogger.DEBUG_ENABLED) {
-				final String debug = "NAME:"+currMachName+"|ID:"+idAddr;
-				GlobalLogger.debug(debug);
-				
-				GlobalLogger.debug("Speed : "+speed);
-			}
-			
 			return 1;
 		}
 		if(qualif == XMLNetworkTags.TAG_MACHINELINK) {
 			/* If finding a tag for, machine link, 
 			 * we search for the corresponding machines to bind them */
 			final String idMachineToLink = pAttr.getValue(0);
-			mainNet.linkMachines(currentMachine, mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name));
-			
-			if(GlobalLogger.DEBUG_ENABLED) {
-				final String debug = "link between "+currMachName +" and "+mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name).name;
-				GlobalLogger.debug(debug);
-			}
+			Machine destination = mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name);
+			//if(!destination.name.startsWith("ES")) {
+				mainNet.linkMachines(currentMachine, destination);
+			//}
+			//else {
+				/* If destination machine is an end system, it can't have output links */
+				/*if(destination.portsOutput == null || destination.portsOutput[0].getBindRightMachine() == null) {
+					mainNet.linkMachines(currentMachine, destination);
+				}*/
+		//	}
 			
 			return 2; 
 		}

@@ -1,5 +1,7 @@
 package root.util.constants;
 
+import modeler.WCTTModel;
+import modeler.WCTTModelComputer;
 import root.util.tools.PriorityPolicy;
 
 /**
@@ -12,6 +14,7 @@ public class ConfigParameters {
 	private int timeLimitSimulation;
 	private double electronicalLatency;
 	private boolean automaticTaskGeneration;
+	private WCTTModel wcttComputerModel;
 	
 	/**
 	 * Simulation identifier
@@ -43,7 +46,6 @@ public class ConfigParameters {
 	private static ConfigParameters instance = null;
 	
 	public ConfigParameters() {
-
 	}
 	
 	public static ConfigParameters getInstance() {
@@ -94,5 +96,30 @@ public class ConfigParameters {
 	
 	public void setTimeStamp(String pTimeStamp) {
 		this.timeStamp = pTimeStamp;
+	}
+	
+	public void setWCTTModel(String wcttModel) {
+		if(wcttModel.equals("LIN20")) { wcttComputerModel = WCTTModel.LINEAR20;return; }
+		if(wcttModel.equals("LIN40")) { wcttComputerModel = WCTTModel.LINEAR40;return; }
+		if(wcttModel.equals("LIN60")) { wcttComputerModel = WCTTModel.LINEAR60;return; }
+		if(wcttModel.equals("LIN80")) { wcttComputerModel = WCTTModel.LINEAR80;return; }
+		if(wcttModel.equals("STR")) { wcttComputerModel = WCTTModel.STRICT;return; }
+		if(wcttModel.equals("GAU20")) { wcttComputerModel = WCTTModel.GAUSSIAN20;return; }
+		if(wcttModel.equals("GAU40")) { wcttComputerModel = WCTTModel.GAUSSIAN40;return; }
+		if(wcttModel.equals("GAU50")) { wcttComputerModel = WCTTModel.GAUSSIAN50;return; }
+		if(wcttModel.equals("GAU60")) { wcttComputerModel = WCTTModel.GAUSSIAN60;return; }
+		if(wcttModel.equals("GAU80")) { wcttComputerModel = WCTTModel.GAUSSIAN80;return; }
+		if(wcttModel.equals("GCO20")) { wcttComputerModel = WCTTModel.GCORRECTED20;return; }
+		if(wcttModel.equals("GCO40")) { wcttComputerModel = WCTTModel.GCORRECTED40;return; }
+		if(wcttModel.equals("GCO50")) { wcttComputerModel = WCTTModel.GCORRECTED50;return; }
+		if(wcttModel.equals("GCO60")) { wcttComputerModel = WCTTModel.GCORRECTED60;return; }
+		if(wcttModel.equals("GCO80")) { wcttComputerModel = WCTTModel.GCORRECTED80;return; }
+		
+		wcttComputerModel = WCTTModel.STRICT;
+		return;
+	}
+	
+	public WCTTModel getWCTTModel() {
+		return wcttComputerModel;
 	}
 }

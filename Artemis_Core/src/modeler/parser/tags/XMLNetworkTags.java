@@ -20,6 +20,9 @@ public class XMLNetworkTags {
 	public static final String TAG_AUTO_LOAD	= "autoload";
 	public static final String TAG_SPEED_MACHINE= "speed";
 	
+	/* WCTT Model */
+	public static final String TAG_WCTT_COMPUTE = "wcttcompute";
+	
 	/* Tasks automatic generation */
 	public static final String TAG_AUTOGEN_TASKS= "autogen";
 	public static final String TAG_HIGH_WCTT	= "highestwctt";

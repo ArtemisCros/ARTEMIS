@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Vector;
 
 import logger.GlobalLogger;
+import modeler.WCTTModelComputer;
 import root.elements.network.Network;
 import root.elements.network.modules.CriticalityLevel;
 import root.elements.network.modules.machine.Machine;
@@ -23,12 +24,14 @@ public class MessageManager {
 	public Network network;
 	public PriorityManager priorityManager;
 	public CriticalityManager criticalityManager;
+	public WCTTModelComputer wcttComputer;
 	
 	/* Waiting messages, in links */
 	/* this buffer is used to store all the messages currently transmitted in the links */
 	public Vector<ISchedulable> linkBuffer;
 	
 	public MessageManager() {
+
 		priorityManager = new PriorityManager();
 		criticalityManager = new CriticalityManager();
 		linkBuffer = new Vector<ISchedulable>();
@@ -62,6 +65,12 @@ public class MessageManager {
 		return 0;
 	}
 	
+	public int generateMessages(Machine fromMachine, double time) {
+		fromMachine.generateMessage(time, criticalityManager.getCurrentLevel());
+		
+		return 0;
+	}
+	
 	/* Load message from input buffer */
 	public int loadMessage(Machine fromMachine, double time) {
 		if(!fromMachine.inputBuffer.isEmpty() && fromMachine.analyseTime <= 0) {
@@ -83,17 +92,13 @@ public class MessageManager {
 			
 			/* We make the machine waiting */
 			if(ConfigParameters.MIXED_CRITICALITY) {
-				double wcet = messageToAnalyse.getWcet(criticalityManager.getCurrentLevel());
-				if(GlobalLogger.DEBUG_ENABLED) {
-					String debug = "Computed wcet loaded:"+(wcet/fromMachine.getSpeed());
-					GlobalLogger.debug(debug);					
-				}
+				double wcet = messageToAnalyse.getCurrentWcet(criticalityManager.getCurrentLevel());
 				
 				analyseTime = wcet/fromMachine.getSpeed();
 				//analyseTime = Math.floor(wcet/fromMachine.getSpeed())/ComputationConstants.TIMESCALE;
 			}
 			else {
-				analyseTime = messageToAnalyse.getCurrentWcet()/fromMachine.getSpeed();
+				analyseTime = messageToAnalyse.getCurrentWcet(criticalityManager.getCurrentLevel())/fromMachine.getSpeed();
 			}
 		//	fromMachine.analyseTime += (analyseTime * ComputationConstants.TIMESCALE);
 			/* Correcting time precision */

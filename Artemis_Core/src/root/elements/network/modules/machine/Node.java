@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import logger.GlobalLogger;
 import logger.XmlLogger;
+import root.elements.network.modules.CriticalityLevel;
 import root.elements.network.modules.NetworkModule;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.MCMessage;
@@ -19,6 +20,7 @@ public abstract class Node extends NetworkModule {
 	 *  Address of the machine
 	 */
 	public NetworkAddress networkAddress;
+	
 	
 	/**
 	 * current load at a given instant
@@ -108,7 +110,7 @@ public abstract class Node extends NetworkModule {
 		return 0;
 	}
 	
-	public int generateMessage(final double currentTime) {
+	public int generateMessage(final double currentTime, CriticalityLevel currentLvl) {
 		for(int i=0;i<messageGenerator.size();i++) {
 			
 			/* We get the message generator content. It includes all the messages
@@ -127,10 +129,20 @@ public abstract class Node extends NetworkModule {
 					else {
 						newMsg = (((NetworkMessage)messageGenerator.get(i)).copy());
 					}
-					
+	
 					newMsg.setCurrentNode(1);
 					newMsg.setName(currentMsg.getName() + "_" + currentMsg.getNbExec());
 					newMsg.setNextSend(currentTime);
+					
+					//We adjust the WCTT according to WCTT computation model
+					double wctt = ((MCMessage)(newMsg)).getSize(currentLvl);
+					if(wctt != -1) {
+						wctt = this.getWCTTModelComputer().getWcet(wctt);
+
+						wctt = new BigDecimal(wctt).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+						((MCMessage)(newMsg)).wcetTask = wctt;
+					}			
+					
 					currentMsg.increaseNbExec();
 					
 					/* We put the copy in the input buffer of the generating node */
