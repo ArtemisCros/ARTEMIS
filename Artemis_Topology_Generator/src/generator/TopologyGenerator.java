@@ -100,13 +100,13 @@ public class TopologyGenerator {
 	}
 	
 	public void displayGeneratedTopology() {
-		if(GlobalLogger.DEBUG_ENABLED) {
+		/*if(GlobalLogger.DEBUG_ENABLED) {
 			for(int cptNodes=0; cptNodes < nodes.size(); cptNodes++) {
 				GlobalLogger.debug(nodes.get(cptNodes).getName());
 			}
 			for(int cptSwitches=0; cptSwitches < switches.size(); cptSwitches++) {
 				GlobalLogger.debug(switches.get(cptSwitches).getName());
 			}
-		}
+		}*/
 	}
 }

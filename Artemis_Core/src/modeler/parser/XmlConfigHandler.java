@@ -38,6 +38,7 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 		if(qualif == XMLNetworkTags.TAG_AUTO_TASKS){triggers.put(TriggerCodes.AUTOGENNUMBER, trigger);}
 		if(qualif == XMLNetworkTags.TAG_AUTO_LOAD){triggers.put(TriggerCodes.AUTOLOAD, trigger);}
 		if(qualif == XMLNetworkTags.TAG_SPEED_MACHINE){triggers.put(TriggerCodes.SPEEDMACHINE, trigger);}
+		if(qualif == XMLNetworkTags.TAG_WCTT_COMPUTE){triggers.put(TriggerCodes.WCTT_COMPUTE, trigger);}
 	}
 	/**
 	 *  Start element 
@@ -62,6 +63,11 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 		String value = new String(pCh);
 		value = value.substring(start, start+length);
 		 
+		if(triggers.get(TriggerCodes.WCTT_COMPUTE)) {
+			final ConfigParameters config = ConfigParameters.getInstance();			
+			config.setWCTTModel(value);
+		}
+		
 		if(triggers.get(TriggerCodes.TIMELIMIT)) {
 			final ConfigParameters config = ConfigParameters.getInstance();			
 			config.setTimeLimitSimulation(Integer.parseInt(value));

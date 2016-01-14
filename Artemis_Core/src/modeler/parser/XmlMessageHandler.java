@@ -108,7 +108,10 @@ public class XmlMessageHandler extends XmlDefaultHandler{
 						newMsg.setWcet(wcet, critLvl);
 						
 						newMsg.setName("MSG"+currMsgProp.get("ID"));
-						
+						if(GlobalLogger.DEBUG_ENABLED) {
+							final String debug = "ID:"+newMsg.getName()+" WCET:"+wcet;
+							GlobalLogger.debug(debug);
+						}
 					}
 				 }
 				 else {
@@ -142,12 +145,7 @@ public class XmlMessageHandler extends XmlDefaultHandler{
 						newMsg.addNodeToPath(currentAddress); 
 					}
 					
-				}	
-				 			 
-				if(GlobalLogger.DEBUG_ENABLED) {
-					final String debug = "ID:"+newMsg.getName();
-					GlobalLogger.debug(debug);
-				}
+				}			
 				
 				Machine currentMachine = mainNet.findMachine(Integer.parseInt(firstPathId));
 				currentMachine.associateMessage(newMsg);
