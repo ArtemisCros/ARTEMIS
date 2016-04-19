@@ -3,6 +3,8 @@ package modeler;
 import java.util.Random;
 
 import logger.GlobalLogger;
+import root.elements.criticality.CriticalityLevel;
+import root.elements.network.modules.flow.MCFlow;
 import root.util.constants.ConfigParameters;
 
 /** Class used to compute the real value of a transmission time,
@@ -15,8 +17,11 @@ import root.util.constants.ConfigParameters;
 public class WCTTModelComputer {
 	private WCTTModel currentModel;
 	
+	public MCFlow currentMessage;
+	
 	public WCTTModelComputer() {
 		currentModel = ConfigParameters.getInstance().getWCTTModel();
+		currentMessage = null;
 	}
 	
 	public WCTTModel getModel() {
@@ -74,29 +79,61 @@ public class WCTTModelComputer {
 			if(currentModel == WCTTModel.GCORRECTED80) {
 				return getGaussianCorrectedWCTT(size, 0.8);
 			}
+			if(currentModel == WCTTModel.STRPROB) {
+				if(currentMessage != null) {
+					return getStrProb();
+				}
+				else {
+					return size;
+				}
+			}
 		}
 		return size;
 	}
 	
-	private double getGaussianCorrectedWCTT(double size, double deviation) {
+	private double getStrProb() {
 		Random rand = new Random();
-		double rate = Math.min(Math.max(0.2 , rand.nextGaussian()*deviation+0.2), 1);
+		int choice = rand.nextInt(currentMessage.size.size());
 		
+		int cpt = 0;
+		for(CriticalityLevel critLvl:currentMessage.size.keySet()) {
+			cpt++;
+			
+			if(cpt==choice) {
+				return (currentMessage.size.get(critLvl));
+			}
+		}
+		return 0.0;
+	}
+	
+	private double getGaussianCorrectedWCTT(double size, double deviation) {	
+		Random rand = new Random();
+		double rate = 0.0;
+		while(rate < 0.2 || rate > 1.0) {
+			rate =  (1-(rand.nextGaussian()*deviation));
+		}
+
 		return (rate*size);
 	}
 	
 	/* Gaussian distribution between 0 and WCTT */
 	private double getGaussianWCTT(double size, double deviation) {
 		Random rand = new Random();
-		double rate = Math.max(0.2, Math.min(rand.nextGaussian()*deviation+0.6, 1));
+		double rate = 0.0;
+		while(rate < 0.2 || rate > 1) {
+			rate =  rand.nextGaussian()*deviation+0.6;
+		}
 
-		return (rate*rate*size);
+		return (rate*size);
 	}
 	
 	/* Linear probability of each value between 0 and WCTT */
 	private double getLinearWCTT(double size, double margin) {
 		Random rand = new Random();
-		double rate = Math.max(rand.nextFloat(), margin);
+		double rate = 0.0;
+		while(rate < margin) {
+			rate = rand.nextFloat();
+		}
 		
 		return (rate*size);
 	}

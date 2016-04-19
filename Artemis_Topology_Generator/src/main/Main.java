@@ -62,7 +62,7 @@ public class Main {
 		TopologyGenerator tGen = new TopologyGenerator();
 		
 		tGen.generateTopology(networkSize, alphaRate);
-		tGen.displayGeneratedTopology();
+	//	tGen.displayGeneratedTopology();
 		XMLGenerator xmlGen = new XMLGenerator();
 		// For test purposes 
 		xmlGen.setInputPath(ConfigLogger.RESSOURCES_PATH+"/"+

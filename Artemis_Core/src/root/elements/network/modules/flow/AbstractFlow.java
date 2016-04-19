@@ -5,11 +5,13 @@
  * */
 
 
-package root.elements.network.modules.task;
+package root.elements.network.modules.flow;
 
 import java.util.Vector;
 
 import logger.GlobalLogger;
+import root.elements.network.modules.task.ISchedulable;
+import root.elements.network.modules.task.Task;
 import root.util.tools.NetworkAddress;
 
 /**
@@ -18,12 +20,12 @@ import root.util.tools.NetworkAddress;
  * Abstract generical message : generical description of a network message
  * 
  */
-public abstract class AbstractMessage extends Task implements ISchedulable, Cloneable{
+public abstract class AbstractFlow extends Task implements ISchedulable, Cloneable{
 	/**
 	 *  Destination addresses */
 	public Vector<NetworkAddress> networkPath;
 	
-	/** Wcet of the current task(computed at emission time) **/
+	/** Wcet of the current task (computed at emission time) **/
 	public double wcetTask;
 	
 	/**
@@ -31,7 +33,7 @@ public abstract class AbstractMessage extends Task implements ISchedulable, Clon
 	public int currentNode;
 	
 	/** 
-	 * Name of the message
+	 * Name of the flow
 	 */
 	public String name;
 	
@@ -39,7 +41,7 @@ public abstract class AbstractMessage extends Task implements ISchedulable, Clon
 	 * Message constructor
 	 * @param name message name
 	 */
-	public AbstractMessage(String name) {
+	public AbstractFlow(String name) {
 		super();	
 		
 		this.networkPath = new Vector<NetworkAddress>();
@@ -80,7 +82,7 @@ public abstract class AbstractMessage extends Task implements ISchedulable, Clon
 	public void setNextSend(double nextSend) {
 		this.nextSend = nextSend;
 	}
-	
+
 	@Override
 	public double getTimerArrival() {
 		return this.timerArrival;
@@ -133,9 +135,9 @@ public abstract class AbstractMessage extends Task implements ISchedulable, Clon
 		return this.nbExec;
 	}
 	
-	public AbstractMessage copy() {
+	public AbstractFlow copy() {
 		try {
-			return (AbstractMessage) this.clone();
+			return (AbstractFlow) this.clone();
 		} catch (CloneNotSupportedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

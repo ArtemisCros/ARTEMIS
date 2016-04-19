@@ -19,6 +19,26 @@ public class GenerationLauncher {
 	private NetworkBuilder nBuilder;
 	private TaskGenerator taskGen;
 	
+	public TaskGenerator getTaskGenerator() {
+		return taskGen;
+	}
+	
+	/* Used for performances and simulation */
+	public void setNetworkBuilder(NetworkBuilder nBuilderP) {
+		nBuilder = nBuilderP;
+	}
+	
+	public NetworkBuilder getNetworkBuilder() {
+		return nBuilder;
+	}
+	
+	public void initializeGenerator(String xmlInputFolder) {
+		taskGen = new TaskGenerator();
+		nBuilder = new NetworkBuilder(xmlInputFolder);
+		/* Read the pre-generated topology file */
+		nBuilder.prepareNetwork();
+	}
+	
 	public void prepareGeneration() {
 		SAXParserFactory factoryParser = SAXParserFactory.newInstance();
 
@@ -36,8 +56,7 @@ public class GenerationLauncher {
 			//Launch the parser
 			parser.parse(configFile, handler);
 			
-			 taskGen = new TaskGenerator();
-			 nBuilder = new NetworkBuilder(xmlInputFolder);
+			initializeGenerator(xmlInputFolder);
 		}
 		catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
@@ -52,16 +71,30 @@ public class GenerationLauncher {
 		
 	}
 	
-	public void launchGeneration() {
-		/* Read the pre-generated topology file */
-		nBuilder.prepareNetwork();
-		ISchedulable[] tasks = taskGen.generateTaskList();
+	/* For test and performances purposes */
+	public int getFailSet() {
+		return taskGen.failSet;
+	}
+	
+	public ISchedulable[] launchGeneration() {
+		return this.launchGeneration(0.0);
+	}
+	
+	public ISchedulable[] launchGeneration(double highestWctt, boolean linkToPath) {
+		ISchedulable[] tasks = taskGen.generateTaskList(highestWctt);
 		
-		/* Attach tasks to a topology */
-		PathComputer pathComp = new PathComputer(nBuilder);
-		pathComp.linkToPath(tasks);
+		if(linkToPath) {
+			/* Attach tasks to a topology */
+			PathComputer pathComp = new PathComputer(nBuilder);
+			pathComp.linkToPath(tasks);
+		}
 		
 		taskGen.saveMessagesToXML(tasks);
 		
+		return tasks;
+	}
+	
+	public ISchedulable[] launchGeneration(double highestWctt) {
+		return launchGeneration(highestWctt, true);
 	}
 }

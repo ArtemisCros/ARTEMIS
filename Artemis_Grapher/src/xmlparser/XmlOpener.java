@@ -228,7 +228,7 @@ public class XmlOpener {
 			    				   * We will use it later for color computing */
 			    				  if(messageCodes.get(key) == null) {				  
 			    					  messageCodes.put(key, ColorPicker.getColor(Integer.parseInt(key)));
-			    					  GlobalLogger.debug("MESSAGE KEY:"+key);
+			    					//  GlobalLogger.debug("MESSAGE KEY:"+key);
 			    				  }
 			    				  
 			    				  /* Adds default values for the beginning of the graph */

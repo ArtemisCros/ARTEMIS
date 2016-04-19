@@ -7,13 +7,13 @@ import logger.FileLogger;
 import logger.GlobalLogger;
 import modeler.networkbuilder.DijkstraBuilder;
 import root.elements.SimulableElement;
+import root.elements.criticality.CriticalitySwitch;
 import root.elements.network.address.AddressGenerator;
-import root.elements.network.modules.CriticalitySwitch;
+import root.elements.network.modules.flow.MCFlow;
+import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.link.Link;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
-import root.elements.network.modules.task.MCMessage;
-import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 import utils.ConfigLogger;
@@ -73,10 +73,10 @@ public class Network extends SimulableElement{
  			for(int i=0;i<currentMachine.messageGenerator.size();i++) {
  				ISchedulable currentMsg;
  				if(ConfigParameters.MIXED_CRITICALITY) {
- 					currentMsg = (MCMessage) currentMachine.messageGenerator.get(i);
+ 					currentMsg = (MCFlow) currentMachine.messageGenerator.get(i);
  				}
  				else {
- 					currentMsg = (NetworkMessage) currentMachine.messageGenerator.get(i);
+ 					currentMsg = (NetworkFlow) currentMachine.messageGenerator.get(i);
  				}
  				
  				
@@ -193,10 +193,10 @@ public class Network extends SimulableElement{
 			for(int j=0;j<currentMachine.messageGenerator.size();j++) {
 				ISchedulable currentMsg;
 				if(ConfigParameters.MIXED_CRITICALITY) {
-					currentMsg = (MCMessage) currentMachine.messageGenerator.get(j);
+					currentMsg = (MCFlow) currentMachine.messageGenerator.get(j);
 				}
 				else {
-					currentMsg = (NetworkMessage) currentMachine.messageGenerator.get(j);
+					currentMsg = (NetworkFlow) currentMachine.messageGenerator.get(j);
 				}
 				
 				networkDescription +="\t\tMSG:"+currentMsg.getName()+" WCET:"+currentMsg.getWcet();	
@@ -271,10 +271,10 @@ public class Network extends SimulableElement{
 			for(int msgCpt=0;msgCpt<machineList.get(machCpt).messageGenerator.size();msgCpt++) {
 				ISchedulable currentMessage;
 				if(ConfigParameters.MIXED_CRITICALITY) {
-					 currentMessage = (MCMessage) machineList.get(machCpt).messageGenerator.get(msgCpt);
+					 currentMessage = (MCFlow) machineList.get(machCpt).messageGenerator.get(msgCpt);
 				}
 				else {
-					 currentMessage = (NetworkMessage) machineList.get(machCpt).messageGenerator.get(msgCpt);
+					 currentMessage = (NetworkFlow) machineList.get(machCpt).messageGenerator.get(msgCpt);
 				}
 				
 				currentMessage.displayPath();

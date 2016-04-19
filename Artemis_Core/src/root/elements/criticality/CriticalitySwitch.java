@@ -1,4 +1,4 @@
-package root.elements.network.modules;
+package root.elements.criticality;
 
 /* Used to manage criticality switches during time */
 

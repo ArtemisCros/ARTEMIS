@@ -1,4 +1,4 @@
-package root.elements.network.modules;
+package root.elements.criticality;
 
 /**
  * List of common known criticality levels

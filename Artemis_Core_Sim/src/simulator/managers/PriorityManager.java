@@ -3,8 +3,9 @@ package simulator.managers;
 import java.util.Vector;
 
 import logger.GlobalLogger;
+import root.elements.network.modules.flow.MCFlow;
+import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.task.ISchedulable;
-import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigParameters;
 import simulator.policies.FIFOISolatedSchedulingPolicy;
@@ -20,8 +21,8 @@ public class PriorityManager {
 		
 	}
 	
-	public ISchedulable getNextMessage(Vector<ISchedulable> buffer) {
-		ISchedulable rstMessage = null;
+	public NetworkMessage getNextMessage(Vector<NetworkMessage> buffer) {
+		NetworkMessage rstMessage = null;
 		ISchedulingPolicy policy = null;
 		
 		/* Picking priority policy */
@@ -44,12 +45,7 @@ public class PriorityManager {
 		}
 
 		try {
-			if(ConfigParameters.MIXED_CRITICALITY) {
-				rstMessage = (MCMessage) policy.getSchedulingMessage(buffer);
-			}
-			else {
-				rstMessage = (NetworkMessage) policy.getSchedulingMessage(buffer);
-			}
+			rstMessage =  policy.getSchedulingMessage(buffer);
 			
 		}
 		catch(Exception e) {

@@ -3,13 +3,14 @@ package simulator.policies;
 import java.util.Vector;
 
 import root.elements.network.modules.task.ISchedulable;
+import root.elements.network.modules.task.NetworkMessage;
 
 public class FIFOISolatedSchedulingPolicy implements ISchedulingPolicy {
 
 	/* FIFO Policy to compute worst-case delay for a given packet */
 	@Override
-	public ISchedulable getSchedulingMessage(Vector<ISchedulable> buffer) {
-		ISchedulable rstMessage = null;
+	public NetworkMessage getSchedulingMessage(Vector<NetworkMessage> buffer) {
+		NetworkMessage rstMessage = null;
 		int cptBuffer = 0;
 		
 		for(cptBuffer=0;cptBuffer<buffer.size();cptBuffer++) {

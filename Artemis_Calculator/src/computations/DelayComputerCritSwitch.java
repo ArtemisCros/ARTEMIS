@@ -3,7 +3,7 @@ package computations;
 import generator.TaskGenerator;
 import logger.FileLogger;
 import modeler.networkbuilder.NetworkBuilder;
-import root.elements.network.modules.CriticalityLevel;
+import root.elements.criticality.CriticalityLevel;
 import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import utils.ConfigLogger;
@@ -29,11 +29,12 @@ public class DelayComputerCritSwitch {
 		
 		ConfigParameters.getInstance().setTimeLimitSimulation(timeLimit);	
 		
-		taskGen.setNetworkBuilder(nBuilder);
+		nBuilder.prepareMessages();
+		//taskGen.setNetworkBuilder(nBuilder);
 		taskGen.setNetworkLoad(networkLoad);
 		taskGen.generateTaskList();
 		
-		totalSDelay = critDC.computeSDelay(taskGen.getTasks(), taskGen.getNetworkBuilder().getMainNetwork());
+		totalSDelay = critDC.computeSDelay(taskGen.getTasks(), nBuilder.getMainNetwork());
 		
 		return totalSDelay;
 	}

@@ -3,6 +3,7 @@ package simulator.managers;
 import java.math.BigDecimal;
 
 import logger.GlobalLogger;
+import root.elements.criticality.CriticalityModel;
 import root.elements.network.Network;
 import root.elements.network.modules.machine.Machine;
 import root.util.constants.ComputationConstants;
@@ -44,15 +45,15 @@ public class NetworkScheduler implements Runnable{
 	public int schedule() {
 		/* Association between network modelization and criticality manager */
 		/* CritSwitches dump */
-		msgManager.associateCritSwitches();
+		if(ComputationConstants.getInstance().CRITMODEL == CriticalityModel.CENTRALIZED_STATIC) {
+			msgManager.associateCritSwitches();
+		}
 		
 		if(GlobalLogger.DEBUG_ENABLED) {
 			GlobalLogger.log("--------------- NETWORK INITIALIZED ---------------");
 			GlobalLogger.log("--------------- STARTING SIMULATION ---------------");
 		}
 		for(double time = 0.00; time <= ConfigParameters.getInstance().getTimeLimitSimulation();time+=ComputationConstants.TIMESCALE) {
-			//time = Math.floor(time/ComputationConstants.TIMESCALE)*ComputationConstants.TIMESCALE;
-			
 			time  = new BigDecimal(time).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
 			
 			if(GlobalLogger.DEBUG_ENABLED) {
@@ -60,7 +61,7 @@ public class NetworkScheduler implements Runnable{
 			}
 			for(int machineCounter=0; machineCounter < network.machineList.size(); machineCounter++) {
 				Machine currentMachine = network.machineList.get(machineCounter);
-				currentMachine.computeCurrentLoad();
+				
 				/* First, put the generated messages in input buffers */
 				msgManager.generateMessages(currentMachine, time);
 				
@@ -95,6 +96,9 @@ public class NetworkScheduler implements Runnable{
 			
 		}
 		
+		if(ConfigParameters.MIXED_CRITICALITY) {
+			msgManager.generateMCSwitchesLog();
+		}
 		return 0;
 	}
 

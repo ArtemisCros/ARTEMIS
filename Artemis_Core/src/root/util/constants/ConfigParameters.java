@@ -16,6 +16,9 @@ public class ConfigParameters {
 	private boolean automaticTaskGeneration;
 	private WCTTModel wcttComputerModel;
 	
+	/* Rate of critical tasks in the random task generator */
+	private double CRITICAL_RATE = 0.3;
+	
 	/**
 	 * Simulation identifier
 	 */
@@ -32,14 +35,14 @@ public class ConfigParameters {
 	public static final PriorityPolicy PRIORITY_POLICY = PriorityPolicy.FIFO;
 	
 	public static final boolean MIXED_CRITICALITY = true;
+	public static final MCIncreaseModel MIXED_CRITICALITY_MODEL = MCIncreaseModel.STATIC;
 	
 	/* Error margin on the auto-generated load */
-	public static final double ERROR_MARGIN = 0.05;
+	public static final double ERROR_MARGIN = 0.02;
 	
-	/* Rate of critical tasks */
-	public static final double CRITICAL_RATE = 0.3;
 	
-	/* Data rate in o/s */
+	
+	/* Data rate in Mo/s */
 	public static final double FLOW_DATARATE = 1;//*1024;
 	
 	//Singloton config manager
@@ -90,6 +93,14 @@ public class ConfigParameters {
 		this.simuId = simuIdP;
 	}
 	
+	public double getCriticalRate() {
+		return this.CRITICAL_RATE;
+	}
+	
+	public void setCriticalRate(double critRate) {
+		this.CRITICAL_RATE = critRate;
+	}
+	
 	public String getTimeStamp() {
 		return this.timeStamp;
 	}
@@ -104,6 +115,7 @@ public class ConfigParameters {
 		if(wcttModel.equals("LIN60")) { wcttComputerModel = WCTTModel.LINEAR60;return; }
 		if(wcttModel.equals("LIN80")) { wcttComputerModel = WCTTModel.LINEAR80;return; }
 		if(wcttModel.equals("STR")) { wcttComputerModel = WCTTModel.STRICT;return; }
+		if(wcttModel.equals("STRPROB")) { wcttComputerModel = WCTTModel.STRPROB;return; }
 		if(wcttModel.equals("GAU20")) { wcttComputerModel = WCTTModel.GAUSSIAN20;return; }
 		if(wcttModel.equals("GAU40")) { wcttComputerModel = WCTTModel.GAUSSIAN40;return; }
 		if(wcttModel.equals("GAU50")) { wcttComputerModel = WCTTModel.GAUSSIAN50;return; }

@@ -3,7 +3,7 @@ package root.elements.network.modules.task;
 import java.awt.peer.FramePeer;
 import java.util.Vector;
 
-import root.elements.network.modules.CriticalityLevel;
+import root.elements.criticality.CriticalityLevel;
 import root.util.tools.NetworkAddress;
 
 /* Interface for schedulable elements

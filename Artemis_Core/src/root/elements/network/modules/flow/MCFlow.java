@@ -1,14 +1,15 @@
-package root.elements.network.modules.task;
+package root.elements.network.modules.flow;
 
 import java.util.HashMap;
 import java.util.Vector;
 
 import logger.GlobalLogger;
-import root.elements.network.modules.CriticalityLevel;
+import root.elements.criticality.CriticalityLevel;
+import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 
-public class MCMessage extends FrameMessage implements ISchedulable, Cloneable{	
+public class MCFlow extends FrameFlow implements ISchedulable, Cloneable{	
 	/* Size in bytes */
 	/* Each different size corresponds to a criticality level */
 	public HashMap<CriticalityLevel, Double> size;
@@ -18,7 +19,7 @@ public class MCMessage extends FrameMessage implements ISchedulable, Cloneable{
 	/* Period of emission */
 	public int period;
 	
-	public MCMessage(String name) {
+	public MCFlow(String name) {
 		super(name);
 		size = new HashMap<CriticalityLevel, Double>();
 	}
@@ -66,6 +67,16 @@ public class MCMessage extends FrameMessage implements ISchedulable, Cloneable{
 	public void setPeriod(int period) {
 		this.period = period;
 	}
+	
+	public Double getMaxWCTT() { 
+		double result = -1;
+		for(CriticalityLevel critLvl : size.keySet()) {
+			if(result == - 1 || result < size.get(critLvl)) {
+				result = size.get(critLvl);
+			}
+		}
+		return result;
+	}
 
 	public Double getSize(CriticalityLevel critLvl) {
 		return size.get(critLvl);
@@ -81,13 +92,19 @@ public class MCMessage extends FrameMessage implements ISchedulable, Cloneable{
 	}
 	
 	public double getWcet(CriticalityLevel critLvl) {
-		if(size.get(critLvl) != -1) {
-			wcetTask = size.get(critLvl)/ConfigParameters.FLOW_DATARATE; 
+		if(size.get(critLvl) == null) {
+			wcetTask = -1.0;
 		}
 		else {
-			wcetTask = 0.0;
+			if(size.get(critLvl) != -1) {
+				wcetTask = size.get(critLvl)/ConfigParameters.FLOW_DATARATE; 
+			}
+			else {
+				wcetTask = -1.0;
+			}
 		}
-			return wcetTask;
+		
+		return wcetTask;
 	}
 
 	@Override

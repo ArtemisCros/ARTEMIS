@@ -5,11 +5,12 @@ import java.util.Vector;
 
 import logger.GlobalLogger;
 import logger.XmlLogger;
-import root.elements.network.modules.CriticalityLevel;
+import root.elements.criticality.CriticalityLevel;
 import root.elements.network.modules.NetworkModule;
+import root.elements.network.modules.flow.MCFlow;
+import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.link.Link;
 import root.elements.network.modules.task.ISchedulable;
-import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
@@ -68,8 +69,8 @@ public class Machine extends Node {
 		name = pName;
 		openPorts(ConfigParameters.CONST_PORT_NUMBER);
 		networkAddress = pAddr;
-		outputBuffer = new Vector<ISchedulable>();
-		inputBuffer  = new Vector<ISchedulable>();
+		outputBuffer = new Vector<NetworkMessage>();
+		inputBuffer  = new Vector<NetworkMessage>();
 		messageGenerator = new ArrayList<ISchedulable>();
 		analyseTime = 0;
 		needReload = true;
@@ -126,7 +127,7 @@ public class Machine extends Node {
 	public int connectInput(final Link link_) {
 		/* Searching for next free port */
 		int i = 0;
-		while(portsInput[i] != null){i++;}
+		while(i < portsInput.length && portsInput[i] != null){i++;}
 		if(portsNumber <= i) {
 			GlobalLogger.warning("Can't connect machine : no free input port found");
 			return 1;
@@ -153,14 +154,9 @@ public class Machine extends Node {
 		String message = "OuputBuffer de la machine "+networkAddress.value+"|";
 		
 		for(int cptMsgOutput = 0; cptMsgOutput < outputBuffer.size(); cptMsgOutput++) {
-			ISchedulable currentMsg;
-			if(ConfigParameters.MIXED_CRITICALITY) {
-				 currentMsg = (MCMessage) outputBuffer.elementAt(cptMsgOutput);
-			}
-			else {
-				 currentMsg = (NetworkMessage) outputBuffer.elementAt(cptMsgOutput);
-			}
-			
+			NetworkMessage currentMsg;
+			currentMsg =  outputBuffer.elementAt(cptMsgOutput);
+
 			message += currentMsg.getName();
 		}
 		message += "|";
@@ -169,40 +165,17 @@ public class Machine extends Node {
 	}
 	
 	public int displayInputBuffer() {
-		ISchedulable currentMsg;
+		NetworkMessage currentMsg;
 		String message = "InputBuffer de la machine "+networkAddress.value+"|";
 		
 		for(int cptMsgInput = 0; cptMsgInput < inputBuffer.size(); cptMsgInput++) {
-			if(ConfigParameters.MIXED_CRITICALITY) {
-				currentMsg = (MCMessage)inputBuffer.elementAt(cptMsgInput);
-			}
-			else {
-				currentMsg = (NetworkMessage)inputBuffer.elementAt(cptMsgInput);
-			}
+			currentMsg = inputBuffer.elementAt(cptMsgInput);
+
 			message += currentMsg.getName()+" ";
 		}
 		
 		message += "|";
 		//GlobalLogger.log(message);
 		return 0;
-	}
-	
-	public void computeCurrentLoad() {
-		currentLoad = 0.0;
-		ISchedulable currentMsg;
-		
-		for(int cptMsgInput = 0; cptMsgInput < inputBuffer.size(); cptMsgInput++) {
-			if(ConfigParameters.MIXED_CRITICALITY) {
-				currentMsg = (MCMessage)inputBuffer.elementAt(cptMsgInput);
-			}
-			else {
-				currentMsg = (NetworkMessage)inputBuffer.elementAt(cptMsgInput);
-			}
-			currentLoad += currentMsg.getCurrentWcet(CriticalityLevel.NONCRITICAL)/currentMsg.getCurrentPeriod();
-		}
-		if(currentlyTransmittedMsg != null) {
-			currentLoad += this.analyseTime/this.currentlyTransmittedMsg.getPeriod();
-		}
-
 	}
 }

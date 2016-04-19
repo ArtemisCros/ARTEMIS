@@ -5,11 +5,12 @@ import java.util.Vector;
 
 import logger.GlobalLogger;
 import modeler.WCTTModelComputer;
+import root.elements.criticality.CriticalityLevel;
 import root.elements.network.Network;
-import root.elements.network.modules.CriticalityLevel;
+import root.elements.network.modules.flow.MCFlow;
+import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
-import root.elements.network.modules.task.MCMessage;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
@@ -28,13 +29,17 @@ public class MessageManager {
 	
 	/* Waiting messages, in links */
 	/* this buffer is used to store all the messages currently transmitted in the links */
-	public Vector<ISchedulable> linkBuffer;
+	public Vector<NetworkMessage> linkBuffer;
 	
 	public MessageManager() {
 
 		priorityManager = new PriorityManager();
 		criticalityManager = new CriticalityManager();
-		linkBuffer = new Vector<ISchedulable>();
+		linkBuffer = new Vector<NetworkMessage>();
+	}
+	
+	public void generateMCSwitchesLog(){
+		criticalityManager.generateMCSwitchesLog();
 	}
 	
 	/* Association between Network criticality switches and the criticality manager data */
@@ -55,9 +60,9 @@ public class MessageManager {
 		CriticalityLevel critLvl = criticalityManager.getCurrentLevel();
 		
 		for(int cptMsg=0;cptMsg < fromMachine.inputBuffer.size(); cptMsg++) {
-			MCMessage currentMessage = (MCMessage) fromMachine.inputBuffer.get(cptMsg);
+			NetworkMessage currentMessage = fromMachine.inputBuffer.get(cptMsg);
 			
-			if(currentMessage.getWcet(critLvl) <= 0) {
+			if(!currentMessage.critLevel.contains(criticalityManager.getCurrentLevel()) && (criticalityManager.getCurrentLevel() != CriticalityLevel.NONCRITICAL)) {
 				fromMachine.inputBuffer.remove(currentMessage);
 			}
 		}
@@ -66,7 +71,7 @@ public class MessageManager {
 	}
 	
 	public int generateMessages(Machine fromMachine, double time) {
-		fromMachine.generateMessage(time, criticalityManager.getCurrentLevel());
+		criticalityManager.generateMessages(fromMachine, time);
 		
 		return 0;
 	}
@@ -77,30 +82,18 @@ public class MessageManager {
 			double analyseTime = 0.0;
 			
 			/* If no message is treated AND input buffer not empty */
-			ISchedulable messageToAnalyse;
+			NetworkMessage messageToAnalyse;
 			
-			if(ConfigParameters.MIXED_CRITICALITY) {
-				messageToAnalyse = (MCMessage) priorityManager.getNextMessage(fromMachine.inputBuffer);
-			}
-			else {
-				messageToAnalyse = (NetworkMessage) priorityManager.getNextMessage(fromMachine.inputBuffer);
-			}
+			messageToAnalyse = priorityManager.getNextMessage(fromMachine.inputBuffer);
 			
 			/* We get first message of input buffer(FIFO or other policy) and put it into the node */
 			fromMachine.currentlyTransmittedMsg = messageToAnalyse;
 			fromMachine.inputBuffer.remove(messageToAnalyse);
 			
 			/* We make the machine waiting */
-			if(ConfigParameters.MIXED_CRITICALITY) {
-				double wcet = messageToAnalyse.getCurrentWcet(criticalityManager.getCurrentLevel());
-				
-				analyseTime = wcet/fromMachine.getSpeed();
-				//analyseTime = Math.floor(wcet/fromMachine.getSpeed())/ComputationConstants.TIMESCALE;
-			}
-			else {
-				analyseTime = messageToAnalyse.getCurrentWcet(criticalityManager.getCurrentLevel())/fromMachine.getSpeed();
-			}
-		//	fromMachine.analyseTime += (analyseTime * ComputationConstants.TIMESCALE);
+			double wctt = messageToAnalyse.wctt;	
+			analyseTime = wctt/fromMachine.getSpeed();
+
 			/* Correcting time precision */
 			fromMachine.analyseTime  = new BigDecimal(analyseTime).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
 		}
@@ -135,21 +128,11 @@ public class MessageManager {
 	public int prepareMessagesForTransfer(Machine fromMachine, double time) {
 		/* If current packet is no more treated */
 		if(fromMachine.analyseTime <= 0 && fromMachine.currentlyTransmittedMsg != null) {
-			/* If currently transmitted message was not at the good criticality level
-			 * Ex : Start to send a non-critical message during the beginning of critical phase
-			 */
-			if(ConfigParameters.MIXED_CRITICALITY) { 
-				if(((MCMessage)fromMachine.currentlyTransmittedMsg).getSize(criticalityManager.getCurrentLevel())!= -1) {
-					/* Put message in output buffer */
-					fromMachine.sendMessage(fromMachine.currentlyTransmittedMsg);		
-				}
-			}
-			else {
-				/* Put message in output buffer without MC management*/
-				fromMachine.sendMessage(fromMachine.currentlyTransmittedMsg);
-			}
-				/* Clean the current analyzing buffer */
-				fromMachine.currentlyTransmittedMsg = null;	
+			/* Put message in output buffer */
+			fromMachine.sendMessage(fromMachine.currentlyTransmittedMsg);		
+
+			/* Clean the current analyzing buffer */
+			fromMachine.currentlyTransmittedMsg = null;	
 		}
 		
 		return 0;
@@ -159,18 +142,12 @@ public class MessageManager {
 	public int sendMessages(Machine fromMachine, double time) {
 		/* For each output port of current machine */
 		while(!fromMachine.outputBuffer.isEmpty()) {
-			ISchedulable currentMsg;
+			NetworkMessage currentMsg;
 			
-			if(ConfigParameters.MIXED_CRITICALITY) {
-				 currentMsg = (MCMessage) fromMachine.outputBuffer.firstElement();
-			}
-			else {
-				 currentMsg = (NetworkMessage) fromMachine.outputBuffer.firstElement();
-			}
-			
-			
+			currentMsg =  fromMachine.outputBuffer.firstElement();
+	
 			/* If there's still nodes in the message's path */
-			if(currentMsg.getCurrentNode() < currentMsg.getNetworkPath().size()) {
+			if(currentMsg.getCurrentNode() < currentMsg.networkPath.size()) {
 				linkBuffer.add(currentMsg);
 				/* Adding the electronical latency to transmission time */
 				currentMsg.setTimerArrival(time+ConfigParameters.getInstance().getElectronicalLatency());
@@ -183,7 +160,7 @@ public class MessageManager {
 			if(time == linkBuffer.get(cptMsg).getTimerArrival()) {
 				
 				/* We put the message in the code, then clear it from path */
-				NetworkAddress nextAddress = linkBuffer.get(cptMsg).getNetworkPath().elementAt(
+				NetworkAddress nextAddress = linkBuffer.get(cptMsg).networkPath.elementAt(
 						linkBuffer.get(cptMsg).getCurrentNode());
 				linkBuffer.get(cptMsg).setCurrentNode(linkBuffer.get(cptMsg).getCurrentNode()+1);;
 				

@@ -1,6 +1,6 @@
 package root.util;
 
-import root.elements.network.modules.CriticalityLevel;
+import root.elements.criticality.CriticalityLevel;
 
 public class Utils{
 	public Utils() {

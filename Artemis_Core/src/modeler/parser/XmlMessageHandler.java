@@ -5,12 +5,12 @@ import java.util.Vector;
 
 import org.xml.sax.Attributes;
 
+import root.elements.criticality.CriticalityLevel;
 import root.elements.network.Network;
-import root.elements.network.modules.CriticalityLevel;
+import root.elements.network.modules.flow.MCFlow;
+import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
-import root.elements.network.modules.task.MCMessage;
-import root.elements.network.modules.task.NetworkMessage;
 import root.util.Utils;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
@@ -92,7 +92,7 @@ public class XmlMessageHandler extends XmlDefaultHandler{
 				 ISchedulable newMsg;
 				 
 				 if(ConfigParameters.MIXED_CRITICALITY) {
-					newMsg = new MCMessage(""); 
+					newMsg = new MCFlow(""); 
 					for(int cptCrit=0;cptCrit < criticalities.size();cptCrit++) {
 						/* Associating a wcet to each criticality level */
 						final String rawWcet = currMsgProp.get(criticalities.get(cptCrit));
@@ -108,15 +108,11 @@ public class XmlMessageHandler extends XmlDefaultHandler{
 						newMsg.setWcet(wcet, critLvl);
 						
 						newMsg.setName("MSG"+currMsgProp.get("ID"));
-						if(GlobalLogger.DEBUG_ENABLED) {
-							final String debug = "ID:"+newMsg.getName()+" WCET:"+wcet;
-							GlobalLogger.debug(debug);
-						}
 					}
 				 }
 				 else {
 				//	 GlobalLogger.debug(currMsgProp.get("WCET"));
-					newMsg = new NetworkMessage(Double.parseDouble(currMsgProp.get("WCET")),
+					newMsg = new NetworkFlow(Double.parseDouble(currMsgProp.get("WCET")),
 							"MSG"+currMsgProp.get("ID")); 
 					
 				 }

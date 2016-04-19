@@ -9,13 +9,13 @@ import org.xml.sax.helpers.DefaultHandler;
 import logger.GlobalLogger;
 import modeler.parser.tags.TriggerCodes;
 import modeler.parser.tags.XMLNetworkTags;
+import root.elements.criticality.CriticalityLevel;
+import root.elements.criticality.CriticalitySwitch;
 import root.elements.network.Network;
-import root.elements.network.modules.CriticalityLevel;
-import root.elements.network.modules.CriticalitySwitch;
+import root.elements.network.modules.flow.MCFlow;
+import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
-import root.elements.network.modules.task.MCMessage;
-import root.elements.network.modules.task.NetworkMessage;
 import root.util.Utils;
 import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
@@ -124,6 +124,7 @@ public class XmlNetworkHandler extends XmlDefaultHandler{
 			final String idMachineToLink = pAttr.getValue(0);
 			Machine destination = mainNet.findMachine(Integer.parseInt(idMachineToLink), currentMachine.name);
 			//if(!destination.name.startsWith("ES")) {
+				//GlobalLogger.debug("LINK:"+currentMachine.networkAddress.value+"-"+destination.networkAddress.value);
 				mainNet.linkMachines(currentMachine, destination);
 			//}
 			//else {

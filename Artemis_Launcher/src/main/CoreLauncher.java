@@ -54,30 +54,8 @@ public class CoreLauncher {
 			
 			GlobalLogger.log("------------ LAUNCHING MODELIZER ------------");
 			
-			/* Manual generation or automatic generation */
-//			/*if(ConfigParameters.getInstance().getAutomaticTaskGeneration()) {
-//				
-//				GlobalLogger.log("------------ LAUNCHING AUTOMATIC TASK GENERATOR ------------");
-//				/* Get builder from automatic task generator */		
-//				TaskGenerator tGenerator = new TaskGenerator();				
-//				tGenerator.setNetworkBuilder(nBuilder);
-//				
-//				 ISchedulable[] tasks = tGenerator.generateTaskList();
-//				 GlobalLogger.log("------------ TASKLIST GENERATED ------------");
-//				 /* Modelises network */
-//
-//				 GlobalLogger.log("------------ MESSAGES FILE CREATED ------------");
-//				 tGenerator.linkTasksetToNetwork(tasks);
-//				
-//				GlobalLogger.log("------------ TASKLIST OK ------------");
-//				nBuilder = tGenerator.getNetworkBuilder();			 
-//			}
-//			else {
-//				/* Get a new builder */
-//				//nBuilder = new NetworkBuilder(xmlInputFile);
-//			}
-			
 			nBuilder.prepareMessages();
+		
 			GlobalLogger.log("------------ CRITICALITY SWITCHES ------------");
 			nBuilder.getMainNetwork().showCritSwitches();
 			

@@ -8,9 +8,10 @@ import modeler.parser.tags.XMLNetworkTags;
 
 import org.xml.sax.Attributes;
 
+import root.elements.criticality.CriticalityLevel;
+import root.elements.criticality.CriticalityModel;
+import root.elements.criticality.CriticalitySwitch;
 import root.elements.network.Network;
-import root.elements.network.modules.CriticalityLevel;
-import root.elements.network.modules.CriticalitySwitch;
 import root.util.Utils;
 import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
@@ -136,7 +137,7 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 					
 			 	}
 			 	else {
-					critSwitch.setTime(currentCritSwitch.getTime());
+			 		critSwitch.setTime(currentCritSwitch.getTime());
 					critSwitch.setCritLvl(currentCritSwitch.getCritLvl());
 					mainNet.critSwitches.addElement(critSwitch);
 					

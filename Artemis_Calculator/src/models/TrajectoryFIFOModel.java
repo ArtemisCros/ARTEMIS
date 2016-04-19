@@ -1,8 +1,10 @@
 package models;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
-import root.elements.network.modules.CriticalityLevel;
+import logger.GlobalLogger;
+import root.elements.criticality.CriticalityLevel;
 import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ComputationConstants;
 import root.util.tools.NetworkAddress;
@@ -14,7 +16,6 @@ import root.util.tools.NetworkAddress;
  *
  */
 public class TrajectoryFIFOModel implements IComputationModel{
-	public double nonPreemptiveDelay;
 	private CriticalityLevel currentLevel;
 	
 	public TrajectoryFIFOModel() {
@@ -40,16 +41,27 @@ public class TrajectoryFIFOModel implements IComputationModel{
 		/* TODO : limit */
 		while(task.getOffset() < task.getPeriod()) {
 			temp = computeWiLast(tasks, task, inducedDelayValidated) - task.getOffset() + task.getWcet(currentLevel);
-			if(temp > responseTime) {
-				responseTime = temp;
+			if(temp > 0) {
+				if(temp > responseTime) {
+					responseTime = temp;
+				}
+				task.setOffset(task.getOffset()+1);
 			}
-			task.setOffset(task.getOffset()+1);
+			else {
+				break;
+			}
 		}
-		
-		
 		return responseTime;
 	}
 	
+	public boolean isNodePresent(Vector<NetworkAddress> path, NetworkAddress indexNode) {
+		for(int cptPath=0; cptPath < path.size(); cptPath++) {
+			if(path.get(cptPath).value == indexNode.value) {
+				return true;
+			}
+		}
+		return false;
+	}
 	/**
 	 * Compute pure delay
 	 * @param tasks set of tasks
@@ -102,27 +114,21 @@ public class TrajectoryFIFOModel implements IComputationModel{
 		nonPreemptiveDel += task.getWcet(currentLevel);
 		
 		/* Searching for the max WCET, for each encountered node */
-		while(cptNodes < (task.getNetworkPath().size()-1)) {
+		for(cptNodes=1;cptNodes < (task.getNetworkPath().size()); cptNodes++) {
 			indexNode = task.getNetworkPath().get(cptNodes);
 			
 			/* Search for all messages in the node */
 			for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {
-				if(tasks[cptTasks].getNetworkPath().contains(indexNode))  {
-					if(!changeWCET || tasks[cptTasks].getWcet() > maxWCET) {
-						maxWCET = tasks[cptTasks].getWcet(currentLevel);
-						changeWCET = true;
-					}
+				if(isNodePresent(tasks[cptTasks].getNetworkPath(), indexNode)
+					&& tasks[cptTasks].getWcet(currentLevel) > maxWCET) {
+						maxWCET = tasks[cptTasks].getWcet(currentLevel);			
 				}
-				
-				cptNodes++;
-				
-				nonPreemptiveDel += maxWCET;
-				maxWCET = 0;
-			}
-			cptNodes++;
+			}	
+			nonPreemptiveDel += maxWCET;
+			maxWCET = 0;
+
 		}
-		nonPreemptiveDelay = nonPreemptiveDel;
-		
+
 		/* Term 3 : Switching latency */
 		switchingLatency = task.getNetworkPath().size()*ComputationConstants.SWITCHINGLATENCY;
 		
@@ -133,7 +139,7 @@ public class TrajectoryFIFOModel implements IComputationModel{
 		wcetCorrect = task.getWcet(currentLevel);
 		
 		endToEndDelay = inducedDelay + nonPreemptiveDel + switchingLatency - serialization - wcetCorrect;
-		
+
 		return endToEndDelay;
 	}
 	

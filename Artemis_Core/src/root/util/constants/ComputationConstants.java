@@ -1,5 +1,7 @@
 package root.util.constants;
 
+import root.elements.criticality.CriticalityModel;
+
 
 /**
  * Constants used for setup the computation
@@ -14,7 +16,7 @@ public class ComputationConstants {
 		
 		/**
 		 *  Electronical latency in the network */
-		public static final double SWITCHINGLATENCY = 0.00;
+		public static final double SWITCHINGLATENCY = 0.20;
 		
 		public static final double LOADSTART = 0.3;
 		
@@ -22,7 +24,7 @@ public class ComputationConstants {
 		
 		/**
 		 *  Load variation step*/
-		public static final double LOADSTEP = 0.01;
+		public static final double LOADSTEP = 0.005;
 		
 		/**
 		 *  Number of tests for each load level */
@@ -30,23 +32,28 @@ public class ComputationConstants {
 		
 		/**
 		 *  Variance for the task generator */
-		public static final double VARIANCE = 0.005;
+		public static final double VARIANCE = 0.0055;
 	
 	
 		/**
+		 * Mixed-criticality integration model
+		 */
+		public static final CriticalityModel CRITMODEL = CriticalityModel.CENTRALIZED_STATIC;
+		
+		/**
 		 *  Number of generated tasks */
-		public int generatedTasks = 10;
+		public int generatedTasks;
 	
 		/**
 		 * Highest WCTT in the network
 		 */
-		public double highestWctt = 150;
+		public double highestWctt;
 		
 		/**
 		 * WCET of switching criticality packet
 		*/
 		
-		public double switchingCritWctt = 80;
+		public double switchingCritWctt = 2;
 		
 		/** 
 		 * Load of the auto-generated taskset
@@ -109,5 +116,5 @@ public class ComputationConstants {
 	/** 
 	 * Timescaling for simulation
 	 */
-	public static final double TIMESCALE = 0.1;
+	public static final double TIMESCALE = 1;
 }

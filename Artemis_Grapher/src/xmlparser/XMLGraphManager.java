@@ -93,7 +93,7 @@ public class XMLGraphManager {
 			currentDataset.addSeries(series.get(series.size()-1));
 			
 			Color rendererColor = xmlOpener.getMessageCodes().get(series.get(cptSeries).getKey());
-			GlobalLogger.debug("KEY:"+series.get(cptSeries).getKey());
+			//GlobalLogger.debug("KEY:"+series.get(cptSeries).getKey());
 			XYDifferenceRenderer currentRenderer = new XYDifferenceRenderer(Color.WHITE, rendererColor, false);
 			
 			plot.setDataset(datasetNum+cptSeries, currentDataset);
