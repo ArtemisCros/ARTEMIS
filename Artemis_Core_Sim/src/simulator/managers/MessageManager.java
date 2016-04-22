@@ -32,10 +32,12 @@ public class MessageManager {
 	public Vector<NetworkMessage> linkBuffer;
 	
 	public MessageManager() {
-
-		priorityManager = new PriorityManager();
-		criticalityManager = new CriticalityManager();
+		priorityManager = new PriorityManager();		
 		linkBuffer = new Vector<NetworkMessage>();
+	}
+	
+	public void initializeCriticalityManager() {
+		criticalityManager = new CriticalityManager(network);
 	}
 	
 	public void generateMCSwitchesLog(){
@@ -46,7 +48,7 @@ public class MessageManager {
 	public int associateCritSwitches() {
 		for(int cptSwitch=0;cptSwitch<network.critSwitches.size();cptSwitch++) {
 			/* We associate CriticalitySwitches to the criticality manager */
-			criticalityManager.critSwitches.put(network.critSwitches.get(cptSwitch).getTime(), 
+			criticalityManager.addNewCritSwitch(network.critSwitches.get(cptSwitch).getTime(), 
 					network.critSwitches.get(cptSwitch).getCritLvl());
 		}
 		
@@ -62,7 +64,8 @@ public class MessageManager {
 		for(int cptMsg=0;cptMsg < fromMachine.inputBuffer.size(); cptMsg++) {
 			NetworkMessage currentMessage = fromMachine.inputBuffer.get(cptMsg);
 			
-			if(!currentMessage.critLevel.contains(criticalityManager.getCurrentLevel()) && (criticalityManager.getCurrentLevel() != CriticalityLevel.NONCRITICAL)) {
+			if(!currentMessage.critLevel.contains(critLvl) && 
+					(criticalityManager.getCurrentLevel() != CriticalityLevel.NONCRITICAL)) {
 				fromMachine.inputBuffer.remove(currentMessage);
 			}
 		}
@@ -94,13 +97,29 @@ public class MessageManager {
 			double wctt = messageToAnalyse.wctt;	
 			analyseTime = wctt/fromMachine.getSpeed();
 
+			if(ConfigParameters.MIXED_CRITICALITY) {
+				criticalityManager.updateCritTable(fromMachine, messageToAnalyse.currentCritLevel);
+			}
+			
 			/* Correcting time precision */
-			fromMachine.analyseTime  = new BigDecimal(analyseTime).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+			fromMachine.analyseTime  = new BigDecimal(analyseTime).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue()+ComputationConstants.TIMESCALE;
 		}
-	
+		
+		if(fromMachine.inputBuffer.isEmpty() && fromMachine.currentlyTransmittedMsg == null) {
+			/* In case of an empty input buffer, we set the criticality level of the node to non critical */
+			criticalityManager.updateCritTable(fromMachine, CriticalityLevel.NONCRITICAL);
+		}
 		return 0;
 	}
 	
+	
+	/** In case all nodes updated their current criticality level, we change back to a lower
+	 * criticality level
+	 **/
+	public void updateCriticalityState(double time) {
+	//	criticalityManager.displayCritTable();
+		criticalityManager.updateCriticalityState(time);
+	}
 	
 	/* Represents the action made by a switch when it takes a message into consideration
 	 * Simulation:

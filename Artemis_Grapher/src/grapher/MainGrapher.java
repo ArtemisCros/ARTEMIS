@@ -9,7 +9,7 @@ import model.GraphConfig;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 
-
+import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import utils.ConfigLogger;
 import utils.Errors;
@@ -20,7 +20,7 @@ public class MainGrapher {
 	/* Starting from a list of xml files, draw the network graph */
 	public void drawGraph() {
 	       int width = 2000;
-	       int height = 1000;
+	       int height = ComputationConstants.GRAPH_HEIGHT;
 		   
 		   XMLGraphManager graphManager = new XMLGraphManager();
 		   graphManager.prepareGraphConfig();

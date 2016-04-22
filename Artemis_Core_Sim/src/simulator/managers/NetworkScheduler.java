@@ -27,6 +27,7 @@ public class NetworkScheduler implements Runnable{
 		
 		network = network_;
 		msgManager.network = network;
+		msgManager.initializeCriticalityManager();
 	}
 	
 	/* Initializes xml logging for each machine*/
@@ -37,7 +38,6 @@ public class NetworkScheduler implements Runnable{
 		
 		return 0;
 	}
-	
 	
 	/* 
 	 * Main simulation function 
@@ -73,7 +73,9 @@ public class NetworkScheduler implements Runnable{
 				/* Loading messages from input port */
 				msgManager.loadMessage(currentMachine, time);
 				
+				/* Debug log */
 				currentMachine.displayInputBuffer();
+				
 				/* Analyze messages in each node */
 				msgManager.analyzeMessage(currentMachine, time);
 				
@@ -89,6 +91,10 @@ public class NetworkScheduler implements Runnable{
 				/*  Transfer output buffer to input buffer of next node */
 				msgManager.sendMessages(currentMachine, time);					
 			}
+			
+			/* In case of a need to decrease criticality level */
+			msgManager.updateCriticalityState(time);
+			
 			if(GlobalLogger.DEBUG_ENABLED) {
 				final String log = "--------------- END TIME "+time+" ---------------";
 				GlobalLogger.debug(log);

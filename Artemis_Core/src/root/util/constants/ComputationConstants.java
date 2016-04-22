@@ -34,16 +34,23 @@ public class ComputationConstants {
 		 *  Variance for the task generator */
 		public static final double VARIANCE = 0.0055;
 	
+		public static final int GRAPH_HEIGHT = 1000;
 	
 		/**
 		 * Mixed-criticality integration model
 		 */
-		public static final CriticalityModel CRITMODEL = CriticalityModel.CENTRALIZED_STATIC;
+		public static final CriticalityModel CRITMODEL = CriticalityModel.CENTRALIZED_DYNAMIC;
 		
 		/**
 		 *  Number of generated tasks */
 		public int generatedTasks;
 	
+		/**
+		 * Delay to wait before triggering a change to
+		 * a lower criticality level
+		 */
+		public static final double CRITCHANGEDELAY = 10.0;
+		
 		/**
 		 * Highest WCTT in the network
 		 */

@@ -126,6 +126,11 @@ public class ConfigParameters {
 		if(wcttModel.equals("GCO50")) { wcttComputerModel = WCTTModel.GCORRECTED50;return; }
 		if(wcttModel.equals("GCO60")) { wcttComputerModel = WCTTModel.GCORRECTED60;return; }
 		if(wcttModel.equals("GCO80")) { wcttComputerModel = WCTTModel.GCORRECTED80;return; }
+		if(wcttModel.equals("GAP20")) { wcttComputerModel = WCTTModel.GANTIPROG20;return; }
+		if(wcttModel.equals("GAP40")) { wcttComputerModel = WCTTModel.GANTIPROG40;return; }
+		if(wcttModel.equals("GAP50")) { wcttComputerModel = WCTTModel.GANTIPROG50;return; }
+		if(wcttModel.equals("GAP60")) { wcttComputerModel = WCTTModel.GANTIPROG60;return; }
+		if(wcttModel.equals("GAP80")) { wcttComputerModel = WCTTModel.GANTIPROG80;return; }
 		
 		wcttComputerModel = WCTTModel.STRICT;
 		return;

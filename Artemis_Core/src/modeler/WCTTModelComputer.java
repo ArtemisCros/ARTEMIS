@@ -1,10 +1,15 @@
 package modeler;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Random;
+
+import javax.swing.text.html.HTMLDocument.Iterator;
 
 import logger.GlobalLogger;
 import root.elements.criticality.CriticalityLevel;
 import root.elements.network.modules.flow.MCFlow;
+import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 
 /** Class used to compute the real value of a transmission time,
@@ -18,10 +23,12 @@ public class WCTTModelComputer {
 	private WCTTModel currentModel;
 	
 	public MCFlow currentMessage;
+	private Random rand;
 	
 	public WCTTModelComputer() {
 		currentModel = ConfigParameters.getInstance().getWCTTModel();
 		currentMessage = null;
+		rand = new Random();
 	}
 	
 	public WCTTModel getModel() {
@@ -30,6 +37,102 @@ public class WCTTModelComputer {
 	
 	public void setModel(WCTTModel model) {
 		currentModel = model;
+	}
+	
+	public double getWcet(MCFlow currentFlow) {
+		double transmissionTimeResult = 0.0;
+		
+		if(currentModel == WCTTModel.STRICT) {
+			ArrayList<CriticalityLevel> potentialLevels = new ArrayList<CriticalityLevel>();
+			
+			// First, we filter the potential criticality levels to pick
+			for(CriticalityLevel critLvl: currentFlow.size.keySet()) {
+				if(currentFlow.size.get(critLvl) != -1) {
+					potentialLevels.add(critLvl);
+				}
+			}
+			
+			// Then we select a criticality level
+			int randLevel = rand.nextInt(potentialLevels.size());
+			
+			CriticalityLevel pickedLevel = potentialLevels.get(randLevel);			
+			transmissionTimeResult = currentFlow.size.get(pickedLevel);		
+		}
+		else {
+			/* First, we search for the maxWCTT */
+			double maxWctt = -1;
+			for(CriticalityLevel critLvl: currentFlow.size.keySet()) {
+				if(currentFlow.size.get(critLvl) > maxWctt) {
+					maxWctt = currentFlow.size.get(critLvl);
+				}
+			}
+			
+			switch(currentModel) {
+				case LINEAR20 :
+					transmissionTimeResult = getLinearWCTT(maxWctt, 0.2); 
+					break;
+				case LINEAR40 :
+					transmissionTimeResult = getLinearWCTT(maxWctt, 0.4);
+					break;
+				case LINEAR60 :
+					transmissionTimeResult = getLinearWCTT(maxWctt, 0.6);
+					break;
+				case LINEAR80 :
+					transmissionTimeResult = getLinearWCTT(maxWctt, 0.8);
+					break;
+				case GAUSSIAN20:
+					transmissionTimeResult = getGaussianWCTT(maxWctt, 0.2);
+					break;
+				case GAUSSIAN40:
+					transmissionTimeResult = getGaussianWCTT(maxWctt, 0.4);
+					break;
+				case GAUSSIAN50:
+					transmissionTimeResult = getGaussianWCTT(maxWctt, 0.5);
+					break;
+				case GAUSSIAN60:
+					transmissionTimeResult = getGaussianWCTT(maxWctt, 0.6);
+					break;
+				case GAUSSIAN80:
+					transmissionTimeResult = getGaussianWCTT(maxWctt, 0.8);
+					break;
+				case GCORRECTED20:
+					transmissionTimeResult = getGaussianCorrectedWCTT(maxWctt, 0.2, true);
+					break;
+				case GCORRECTED40:
+					transmissionTimeResult = getGaussianCorrectedWCTT(maxWctt, 0.4, true);
+					break;
+				case GCORRECTED50:
+					transmissionTimeResult = getGaussianCorrectedWCTT(maxWctt, 0.5, true);
+					break;
+				case GCORRECTED60:
+					transmissionTimeResult = getGaussianCorrectedWCTT(maxWctt, 0.6, true);
+					break;
+				case GCORRECTED80:
+					transmissionTimeResult = getGaussianCorrectedWCTT(maxWctt, 0.8, true);
+					break;
+				case GANTIPROG20:
+					transmissionTimeResult = getGaussianCorrectedWCTT(maxWctt, 0.2, false);
+					break;
+				case GANTIPROG40:
+					transmissionTimeResult = getGaussianCorrectedWCTT(maxWctt, 0.4, false);
+					break;
+				case GANTIPROG50:
+					transmissionTimeResult = getGaussianCorrectedWCTT(maxWctt, 0.5, false);
+					break;
+				case GANTIPROG60:
+					transmissionTimeResult = getGaussianCorrectedWCTT(maxWctt, 0.6, false);
+					break;
+				case GANTIPROG80:
+					transmissionTimeResult = getGaussianCorrectedWCTT(maxWctt, 0.8, false);
+					break;
+			default:
+				transmissionTimeResult =  0.0; 
+			}
+		}
+		
+		transmissionTimeResult =  (Math.floor(transmissionTimeResult/ComputationConstants.TIMESCALE)*ComputationConstants.TIMESCALE);
+		
+		return transmissionTimeResult;
 	}
 	
 	public double getWcet(double size) {
@@ -65,19 +168,34 @@ public class WCTTModelComputer {
 				return getGaussianWCTT(size, 0.8);
 			}
 			if(currentModel == WCTTModel.GCORRECTED20) {
-				return getGaussianCorrectedWCTT(size, 0.2);
+				return getGaussianCorrectedWCTT(size, 0.2, true);
 			}
 			if(currentModel == WCTTModel.GCORRECTED40) {
-				return getGaussianCorrectedWCTT(size, 0.4);
+				return getGaussianCorrectedWCTT(size, 0.4, true);
 			}
 			if(currentModel == WCTTModel.GCORRECTED50) {
-				return getGaussianCorrectedWCTT(size, 0.5);
+				return getGaussianCorrectedWCTT(size, 0.5, true);
 			}
 			if(currentModel == WCTTModel.GCORRECTED60) {
-				return getGaussianCorrectedWCTT(size, 0.6);
+				return getGaussianCorrectedWCTT(size, 0.6, true);
 			}
 			if(currentModel == WCTTModel.GCORRECTED80) {
-				return getGaussianCorrectedWCTT(size, 0.8);
+				return getGaussianCorrectedWCTT(size, 0.8, true);
+			}
+			if(currentModel == WCTTModel.GANTIPROG20) {
+				return getGaussianCorrectedWCTT(size, 0.2, false);
+			}
+			if(currentModel == WCTTModel.GANTIPROG40) {
+				return getGaussianCorrectedWCTT(size, 0.4, false);
+			}
+			if(currentModel == WCTTModel.GANTIPROG50) {
+				return getGaussianCorrectedWCTT(size, 0.5, false);
+			}
+			if(currentModel == WCTTModel.GANTIPROG60) {
+				return getGaussianCorrectedWCTT(size, 0.6, false);
+			}
+			if(currentModel == WCTTModel.GANTIPROG80) {
+				return getGaussianCorrectedWCTT(size, 0.8, false);
 			}
 			if(currentModel == WCTTModel.STRPROB) {
 				if(currentMessage != null) {
@@ -106,11 +224,16 @@ public class WCTTModelComputer {
 		return 0.0;
 	}
 	
-	private double getGaussianCorrectedWCTT(double size, double deviation) {	
+	private double getGaussianCorrectedWCTT(double size, double deviation, boolean prog) {	
 		Random rand = new Random();
 		double rate = 0.0;
 		while(rate < 0.2 || rate > 1.0) {
-			rate =  (1-(rand.nextGaussian()*deviation));
+			if(prog) {
+				rate =  (1-(rand.nextGaussian()*deviation));
+			}
+			else {
+				rate =  rand.nextGaussian()*deviation;
+			}
 		}
 
 		return (rate*size);
@@ -136,5 +259,15 @@ public class WCTTModelComputer {
 		}
 		
 		return (rate*size);
+	}
+	
+	public double computeDynamicWCTT(MCFlow newMsg) {
+		this.currentMessage = newMsg;
+		double wctt = this.getWcet(this.currentMessage);
+		this.currentMessage = null;
+		
+		wctt = new BigDecimal(wctt).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+		
+		return wctt;
 	}
 }

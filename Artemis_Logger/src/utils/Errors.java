@@ -32,4 +32,7 @@ public class Errors {
 	/* Ethernet errors */
 	public static final int BAD_MAC						= 10500;
 	public static final int BAD_MAC_SRC					= 10501;
+	
+	/* Simulation errors */
+	public static final int ERROR_CREATING_MSG			= 10601;
 }

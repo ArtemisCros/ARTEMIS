@@ -3,21 +3,21 @@ package model.colors;
 import java.awt.Color;
 import java.util.Random;
 
+import root.util.constants.ConfigParameters;
+import utils.ConfigLogger;
 import logger.GlobalLogger;
 
 public class ColorPicker {
 	
 	public static Color getColor(int id) {	
 		/* We compute the message color */
+		String colorCode = ColorsList.colors[id%ColorsList.colors.length];
 		
-		int value = id%216;
-		int blue = value%6;
-		int green = ((value - blue)/6)%6;
-		int red =  (((value - blue)/6) - green)/6;
+		/* We convert from hexadecimal code to 255-based code */
+		int red = Integer.valueOf(colorCode.substring(1, 3), 16);
+		int green = Integer.valueOf(colorCode.substring(3, 5), 16);
+		int blue = Integer.valueOf(colorCode.substring(5, 7), 16);
 			
-		GlobalLogger.debug("ID:"+id+" R:"+(red*51)+" G:"+(green*51)+" B:"+(blue*51));
-		/* Each component is a multiple of 51(33h) */
-		
-		return (new Color(red*51, green*51, blue*51));
+		return (new Color(red, green, blue));
 	}
 }

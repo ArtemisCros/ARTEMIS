@@ -36,9 +36,15 @@ public class NetworkMessage {
 	}
 	
 	/**
-	 * The criticality level of the message
+	 * The potential criticality levels of the message
 	 */
 	public ArrayList<CriticalityLevel> critLevel;
+	
+	
+	/**
+	 * The current criticality level of the message
+	 */
+	public CriticalityLevel currentCritLevel;
 	
 	/**
 	 *  Destination addresses */

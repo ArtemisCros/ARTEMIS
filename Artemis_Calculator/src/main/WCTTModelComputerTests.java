@@ -40,6 +40,11 @@ public class WCTTModelComputerTests {
 		if(wcttModel.equals("GCO50")) { model.setModel(WCTTModel.GCORRECTED50); }
 		if(wcttModel.equals("GCO60")) { model.setModel(WCTTModel.GCORRECTED60); }
 		if(wcttModel.equals("GCO80")) { model.setModel(WCTTModel.GCORRECTED80); }
+		if(wcttModel.equals("GAP20")) { model.setModel(WCTTModel.GANTIPROG20); }
+		if(wcttModel.equals("GAP40")) { model.setModel(WCTTModel.GANTIPROG40); }
+		if(wcttModel.equals("GAP50")) { model.setModel(WCTTModel.GANTIPROG50); }
+		if(wcttModel.equals("GAP60")) { model.setModel(WCTTModel.GANTIPROG60); }
+		if(wcttModel.equals("GAP80")) { model.setModel(WCTTModel.GANTIPROG80); }
 		
 		for(int precision=0; precision < limitPrecision;precision++) {
 			while(result < 0.61) {

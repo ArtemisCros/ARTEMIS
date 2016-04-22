@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Event;
 import java.awt.Font;
 import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -57,12 +59,12 @@ public class XMLGraphManager {
  	   
  	   /* Sets units and limits of the graph axis */
  	   int lengthGraph = GraphConfig.getInstance().getEndTime() - GraphConfig.getInstance().getStartTime();
-	   int tickUnit = lengthGraph/25;
+	   int tickUnit = lengthGraph/50;
 	       
  	   int min = GraphConfig.getInstance().getStartTime() - ((lengthGraph) / 20);
  	   
  	   domain.setRange(min, GraphConfig.getInstance().getEndTime());
- 	   Font domainFont = new Font("Dialog", Font.PLAIN, 25);
+ 	   Font domainFont = new Font("Dialog", Font.PLAIN, 15);
  	   domain.setTickLabelFont(domainFont);
 	   domain.setTickUnit(new NumberTickUnit(tickUnit)); 
 	      
@@ -93,15 +95,16 @@ public class XMLGraphManager {
 			currentDataset.addSeries(series.get(series.size()-1));
 			
 			Color rendererColor = xmlOpener.getMessageCodes().get(series.get(cptSeries).getKey());
-			//GlobalLogger.debug("KEY:"+series.get(cptSeries).getKey());
-			XYDifferenceRenderer currentRenderer = new XYDifferenceRenderer(Color.WHITE, rendererColor, false);
+			XYDifferenceRenderer currentRenderer = new XYDifferenceRenderer(rendererColor, rendererColor, false);		
 			
 			plot.setDataset(datasetNum+cptSeries, currentDataset);
 			plot.setRenderer(datasetNum+cptSeries, currentRenderer, false);
 			plot.getRenderer(datasetNum+cptSeries).setSeriesPaint(datasetNum+cptSeries, rendererColor);
 			plot.getRenderer(datasetNum+cptSeries).setBaseOutlinePaint(rendererColor);
+			
 			plot.getRenderer(datasetNum+cptSeries).setBasePaint(rendererColor);
 			plot.getRenderer(datasetNum+cptSeries).setSeriesPaint(0, rendererColor);
+			plot.getRenderer(datasetNum+cptSeries).setSeriesPaint(1, Color.WHITE);
 		}			 
 
 		return (datasetNum+series.size()-1);
@@ -177,11 +180,12 @@ public class XMLGraphManager {
 	       XYPlot xyplot = new XYPlot();  
 	       xyplot.setBackgroundPaint(Color.WHITE);
 	       
+	       
 	       /* We hide y axis scale, because it has no more sense */
 	       NumberAxis range = new NumberAxis("");
 	       range.setVisible(false);
 	       xyplot.setRangeAxis(range);
-	       
+
 	       int min = this.configureAxes(xyplot);  
 	       
 	       for(fileNum=0;fileNum<orderedFileName.size();fileNum++) {		       
@@ -194,7 +198,7 @@ public class XMLGraphManager {
 	    	    	  
 	    	   for(int cptAnnotation = 0;cptAnnotation < xmlOpener.annotations.size(); cptAnnotation++) {
 		 	    	  xyplot.addAnnotation(xmlOpener.annotations.get(cptAnnotation));
-		 	    	  GlobalLogger.debug("::"+cptAnnotation);
+		 	    	 // GlobalLogger.debug("::"+cptAnnotation);
 		 	      }
 	    	   
 	    	   datasetNum = this.linkDataset(xyplot, datasetNum, plotSeries);  		   
@@ -210,10 +214,37 @@ public class XMLGraphManager {
 	 	     
 	 	      xyplot.addAnnotation(nodeAnnotation);
 	       }
+	       
+	       this.checkCriticalitySwitches(xyplot, datasetNum, orderedFileName.size());
+	       
 	       chart = initializeGraph(xyplot);
 	       return chart;
 	}
 
+	public void checkCriticalitySwitches(XYPlot plot, int index, int size) {
+		XMLCriticalityParser critParser = new XMLCriticalityParser();
+		ArrayList<XYSeries> critSwitches = critParser.parseCritSwitches(size);
+		
+		XYLineAndShapeRenderer currentRenderer;
+		
+		XYSeriesCollection critDataset = new XYSeriesCollection();
+		for(int cptSeries=0; cptSeries < critSwitches.size(); cptSeries++) {
+			critDataset.addSeries(critSwitches.get(cptSeries));
+			
+			currentRenderer = new XYLineAndShapeRenderer();
+			
+			plot.setDataset(index+cptSeries, critDataset);
+			plot.setRenderer(index+cptSeries, currentRenderer, false);
+			plot.getRenderer(index+cptSeries).setSeriesStroke(cptSeries, new BasicStroke(5.0f));
+			plot.getRenderer(index+cptSeries).setSeriesPaint(index, Color.BLACK);
+			plot.getRenderer(index+cptSeries).setBaseOutlinePaint(Color.BLACK);
+			plot.getRenderer(index+cptSeries).setBasePaint(Color.BLACK);
+			plot.getRenderer(index+cptSeries).setSeriesPaint(cptSeries, Color.BLACK);	
+		}
+		
+		
+	}
+	
 	public void prepareGraphConfig() {
 		XMLConfigReader configReader = new XMLConfigReader();
 		
