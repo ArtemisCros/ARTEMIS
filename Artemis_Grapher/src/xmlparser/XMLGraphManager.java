@@ -195,14 +195,18 @@ public class XMLGraphManager {
 	    	   
 	    	   ArrayList<XYSeries> plotSeries = xmlOpener.readFile(number, 
 	    			   networkFolderName+orderedFileName.get(fileNum),
-	    			   fileNum*5);   	   	   
-	    	    	  
+	    			   fileNum*5);   	   	  
+	    	   
+	    	   ArrayList<XYSeries> critSwitches = 
+	    			   xmlOpener.parseCritSwitches(fileNum*5);
+	    	   
 	    	   for(int cptAnnotation = 0;cptAnnotation < xmlOpener.annotations.size(); cptAnnotation++) {
-		 	    	  xyplot.addAnnotation(xmlOpener.annotations.get(cptAnnotation));
-		 	      }
+		 	    	 xyplot.addAnnotation(xmlOpener.annotations.get(cptAnnotation));
+		 	   }   
 	    	   
 	    	   datasetNum = this.linkDataset(xyplot, datasetNum, plotSeries);  		   
- 		   	          
+ 		   	   datasetNum = this.addCritSwitches(xyplot, critSwitches, datasetNum);
+
 		       /* Configuration and graph marking */  
 	 		   String annotation = orderedFileName.get(fileNum);
 	 	       annotation = annotation.substring(0, annotation.length()-4);
@@ -215,41 +219,36 @@ public class XMLGraphManager {
 	 	      xyplot.addAnnotation(nodeAnnotation);
 	       }
 	       
-	       this.checkCriticalitySwitches(xyplot, datasetNum, orderedFileName.size());
-	       
-	       
 	       chart = initializeGraph(xyplot);
 	       return chart;
 	}
 
-	public void checkCriticalitySwitches(XYPlot plot, int index, int size) {
-		XMLCriticalityParser critParser = new XMLCriticalityParser();
-		ArrayList<XYSeries> critSwitches = critParser.parseCritSwitches(size);
+	public int addCritSwitches(XYPlot plot, ArrayList<XYSeries> critSwitches, 
+			int index) {
 		
+		XYSeriesCollection critDataset;
 		XYLineAndShapeRenderer currentRenderer;
+
 		
-		for(int cptAnnot=0; cptAnnot<critParser.critLvlAnnotations.size(); cptAnnot++) {
-			XYTextAnnotation currentAnnotation = critParser.critLvlAnnotations.get(cptAnnot);
-			currentAnnotation.setFont(new Font("Arial", Font.BOLD, 35));	 
-			plot.addAnnotation(currentAnnotation);
-		}
-		
-		XYSeriesCollection critDataset = new XYSeriesCollection();
-		for(int cptSeries=0; cptSeries < critSwitches.size(); cptSeries++) {
-			critDataset.addSeries(critSwitches.get(cptSeries));
+		for(int cptSwitches=0;cptSwitches < critSwitches.size(); cptSwitches++) {
+			critDataset = new XYSeriesCollection();
 			
+			critDataset.addSeries(critSwitches.get(cptSwitches));
+		
 			currentRenderer = new XYLineAndShapeRenderer();
 			
-			plot.setDataset(index+cptSeries, critDataset);
-			plot.setRenderer(index+cptSeries, currentRenderer, false);
-			plot.getRenderer(index+cptSeries).setSeriesStroke(cptSeries, new BasicStroke(5.0f));
-			plot.getRenderer(index+cptSeries).setSeriesPaint(index, Color.BLACK);
-			plot.getRenderer(index+cptSeries).setBaseOutlinePaint(Color.BLACK);
-			plot.getRenderer(index+cptSeries).setBasePaint(Color.BLACK);
-			plot.getRenderer(index+cptSeries).setSeriesPaint(cptSeries, Color.BLACK);	
+			plot.setDataset(index+cptSwitches, critDataset);
+			
+			currentRenderer.setSeriesStroke(0, new BasicStroke(5.0f));
+			currentRenderer.setSeriesPaint(0, Color.BLACK);
+			currentRenderer.setBaseOutlinePaint(Color.BLACK);
+			currentRenderer.setBasePaint(Color.BLACK);
+			currentRenderer.setSeriesPaint(0, Color.BLACK);
+			
+			plot.setRenderer(index+cptSwitches, currentRenderer, false);
 		}
 		
-		
+		return (critSwitches.size()+index);
 	}
 	
 	public void prepareGraphConfig() {

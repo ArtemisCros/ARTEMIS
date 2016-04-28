@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import logger.GlobalLogger;
 import root.elements.criticality.CriticalityModel;
+import root.elements.criticality.CriticalityProtocol;
 import root.elements.network.Network;
 import root.elements.network.modules.machine.Machine;
 import root.util.constants.ComputationConstants;
@@ -45,7 +46,7 @@ public class NetworkScheduler implements Runnable{
 	public int schedule() {
 		/* Association between network modelization and criticality manager */
 		/* CritSwitches dump */
-		if(ComputationConstants.getInstance().CRITMODEL == CriticalityModel.CENTRALIZED_STATIC) {
+		if(ComputationConstants.getInstance().getCritmodel() == CriticalityModel.STATIC) {
 			msgManager.associateCritSwitches();
 		}
 		
@@ -59,6 +60,7 @@ public class NetworkScheduler implements Runnable{
 			if(GlobalLogger.DEBUG_ENABLED) {
 				GlobalLogger.log("--------------- CURRENT TIME "+time+" ---------------");
 			}
+			
 			for(int machineCounter=0; machineCounter < network.machineList.size(); machineCounter++) {
 				Machine currentMachine = network.machineList.get(machineCounter);
 				
@@ -92,8 +94,13 @@ public class NetworkScheduler implements Runnable{
 				msgManager.sendMessages(currentMachine, time);					
 			}
 			
-			/* In case of a need to decrease criticality level */
-			msgManager.updateCriticalityState(time);
+			/* We update the criticality table */
+		//	if(ComputationConstants.getInstance().getCritprotocol() == 
+		//			CriticalityProtocol.CENTRALIZED) {
+				msgManager.updateCriticalityState(time);
+		//	}
+			
+			
 			
 			if(GlobalLogger.DEBUG_ENABLED) {
 				final String log = "--------------- END TIME "+time+" ---------------";
@@ -101,10 +108,8 @@ public class NetworkScheduler implements Runnable{
 			}
 			
 		}
+		msgManager.generateMCSwitchesLog();
 		
-		if(ConfigParameters.MIXED_CRITICALITY) {
-			msgManager.generateMCSwitchesLog();
-		}
 		return 0;
 	}
 

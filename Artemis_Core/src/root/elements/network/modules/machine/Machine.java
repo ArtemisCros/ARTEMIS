@@ -1,6 +1,8 @@
 package root.elements.network.modules.machine;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 
 import logger.GlobalLogger;
@@ -25,7 +27,19 @@ public class Machine extends Node {
 	 */
 	public double speed;
 	
-
+	/** 
+	 * Delay to wait before switching back to a lower criticality level
+	 */
+	public double critWaitingDelay;
+	
+	/**
+	 * List of the crit switches likely to occur in the node
+	 *  Mixed-criticality management 
+	 **/
+	private HashMap<Double, CriticalityLevel> critSwitches;
+	
+	
+	
 	/** 
 	 * Indicates the total load for the node 
 	 */
@@ -41,7 +55,10 @@ public class Machine extends Node {
 	 */
 	public Link[] portsInput;
 	
-
+	/**
+	 * Current criticality level of the machine
+	 */
+	private CriticalityLevel critLevel;
 	
 	/**
 	 * The number of input/output ports
@@ -75,6 +92,8 @@ public class Machine extends Node {
 		analyseTime = 0;
 		needReload = true;
 		nodeLoad = 0.0;
+		critSwitches = new HashMap<Double, CriticalityLevel>();
+		critWaitingDelay = 0.0;
 	}
 	
 	/**
@@ -176,6 +195,43 @@ public class Machine extends Node {
 		
 		message += "|";
 		//GlobalLogger.log(message);
+		return 0;
+	}
+	
+	public CriticalityLevel getCritLevel() {
+		return critLevel;
+	}
+	
+	public void setCritLevel(CriticalityLevel critLevel) {
+		this.critLevel = critLevel;
+	}
+	
+	public HashMap<Double, CriticalityLevel> getCritSwitches() {
+		return critSwitches;
+	}
+	public void setCritSwitches(HashMap<Double, CriticalityLevel> critSwitches) {
+		this.critSwitches = critSwitches;
+	}
+	
+	/* XML Writing functions */
+	public int writeLogToFile(final double timer) {
+		currentLoad = new BigDecimal(currentLoad).setScale(5, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+		if(currentlyTransmittedMsg != null) {
+			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+timer,
+					"message:"+currentlyTransmittedMsg.getName(), "load:"+currentLoad);		
+		}
+		else {
+			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+timer+"", "load:"+currentLoad);
+		}
+		
+		if(this.getCritSwitches().get(timer) != null) {
+			xmlLogger.addChild(
+					"critswitch", xmlLogger.getRoot(), 
+					"value:"+timer,
+					"level:"+ this.getCritSwitches().get(timer)
+						.toString().substring(0, 2));
+		}
+		
 		return 0;
 	}
 }

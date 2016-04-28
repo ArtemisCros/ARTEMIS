@@ -1,6 +1,7 @@
 package root.util.constants;
 
 import root.elements.criticality.CriticalityModel;
+import root.elements.criticality.CriticalityProtocol;
 
 
 /**
@@ -47,7 +48,13 @@ public class ComputationConstants {
 		/**
 		 * Mixed-criticality integration model
 		 */
-		public static final CriticalityModel CRITMODEL = CriticalityModel.CENTRALIZED_DYNAMIC;
+		private CriticalityModel CRITMODEL = CriticalityModel.DYNAMIC;
+			
+		//TODO
+		/**
+		 * Mixed-criticality management protocol
+		 */
+		private CriticalityProtocol CRITPROTOCOL = CriticalityProtocol.CENTRALIZED;
 		
 		/**
 		 *  Number of generated tasks */
@@ -131,6 +138,18 @@ public class ComputationConstants {
 		this.autoLoad = pAutoLoad;
 	}
 	
+	public CriticalityModel getCritmodel() {
+		return CRITMODEL;
+	}
+
+	public CriticalityProtocol getCritprotocol() {
+		return CRITPROTOCOL;
+	}
+	
+	public void setCritProtocol(CriticalityProtocol protP) {
+		this.CRITPROTOCOL = protP;
+	}
+
 	/**
 	 *  Precision of the results */
 	public static final int PRECISION = 1000;

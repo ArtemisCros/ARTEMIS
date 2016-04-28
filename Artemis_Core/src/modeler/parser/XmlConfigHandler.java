@@ -10,6 +10,7 @@ import org.xml.sax.Attributes;
 
 import root.elements.criticality.CriticalityLevel;
 import root.elements.criticality.CriticalityModel;
+import root.elements.criticality.CriticalityProtocol;
 import root.elements.criticality.CriticalitySwitch;
 import root.elements.network.Network;
 import root.util.Utils;
@@ -41,6 +42,8 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 		if(qualif == XMLNetworkTags.TAG_SPEED_MACHINE){triggers.put(TriggerCodes.SPEEDMACHINE, trigger);}
 		if(qualif == XMLNetworkTags.TAG_WCTT_COMPUTE){triggers.put(TriggerCodes.WCTT_COMPUTE, trigger);}
 		if(qualif == XMLNetworkTags.TAG_WCTT_RATE){triggers.put(TriggerCodes.WCTT_RATE, trigger);}
+		if(qualif == XMLNetworkTags.TAG_MC_PROTO){triggers.put(TriggerCodes.MC_PROTO, trigger);}
+		if(qualif == XMLNetworkTags.TAG_MC_MODEL){triggers.put(TriggerCodes.MC_MODEL, trigger);}
 	}
 	
 	/**
@@ -69,6 +72,18 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 		if(triggers.get(TriggerCodes.WCTT_COMPUTE)) {
 			final ConfigParameters config = ConfigParameters.getInstance();			
 			config.setWCTTModel(value);
+		}
+		
+		if(triggers.get(TriggerCodes.MC_PROTO)) {
+			if(value.equals("Centralized")) {
+				ComputationConstants.getInstance().setCritProtocol(
+						CriticalityProtocol.CENTRALIZED);
+			}
+			
+			if(value.equals("Decentralized")) {
+				ComputationConstants.getInstance().setCritProtocol(
+						CriticalityProtocol.DECENTRALIZED);
+			}
 		}
 		
 		if(triggers.get(TriggerCodes.WCTT_RATE)) {

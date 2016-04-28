@@ -25,5 +25,7 @@ public enum TriggerCodes {
 	AUTOLOAD,
 	SPEEDMACHINE,
 	WCTT_COMPUTE,
-	WCTT_RATE
+	WCTT_RATE,
+	MC_PROTO,
+	MC_MODEL
 }

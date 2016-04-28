@@ -116,6 +116,9 @@ public class XmlNetworkHandler extends XmlDefaultHandler{
 			currentMachine.name = currMachName;
 			currentMachine.setSpeed(speed);
 			
+			/* The basic criticality level of each machine is non-critical */
+			currentMachine.setCritLevel(CriticalityLevel.NONCRITICAL);
+			
 			return 1;
 		}
 		if(qualif == XMLNetworkTags.TAG_MACHINELINK) {

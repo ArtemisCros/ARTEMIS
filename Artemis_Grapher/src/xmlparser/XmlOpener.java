@@ -2,19 +2,12 @@ package xmlparser;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.geom.Rectangle2D;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.Vector;
 
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
@@ -25,19 +18,11 @@ import model.GraphConfig;
 import model.GraphLoadPoint;
 import model.GraphPlot;
 import model.GraphPlots;
-import model.GraphSerial;
 import model.colors.ColorPicker;
 
-import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYTextAnnotation;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.event.AnnotationChangeListener;
-import org.jfree.chart.plot.PlotRenderingInfo;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
-import org.junit.runner.Computer;
 
-import root.util.constants.ComputationConstants;
 
 public class XmlOpener {
 	
@@ -63,6 +48,9 @@ public class XmlOpener {
 	 */
 	public static final int RANGETICK = 2;
 	
+	
+	public ArrayList<Double> critSwitchesInstants;
+	
 	/**
 	 * Graph timing precision
 	 */
@@ -73,6 +61,21 @@ public class XmlOpener {
 		messageCodes = new HashMap<String, Color>();
 		machinesName = new HashMap<String, String>();
 	}
+	
+	public ArrayList<XYSeries> parseCritSwitches(int graphSize) {
+		ArrayList<XYSeries> seriesList = new ArrayList<XYSeries>();
+		for(int cptEvents =0;cptEvents < critSwitchesInstants.size(); cptEvents++) {
+			XYSeries plots = new XYSeries(cptEvents);
+			double coordX = critSwitchesInstants.get(cptEvents).doubleValue();
+			plots.add(coordX, graphSize-RANGETICK);
+			plots.add(coordX, graphSize+RANGETICK);
+			
+			//GlobalLogger.debug("ADD "+coordX+" "+(graphSize-RANGETICK)+" "+(graphSize+RANGETICK));
+			seriesList.add(plots);
+		}
+		return seriesList;
+	}
+	
 	
 	public HashMap<String, Color> getMessageCodes() {
 		return messageCodes;
@@ -146,7 +149,8 @@ public class XmlOpener {
 	public ArrayList<XYSeries> readFile(int size, String configFile, int graphSize) {
 			/* Graph annotations and messages ids */
 			annotations = new Vector<XYTextAnnotation>();
-		
+			critSwitchesInstants = new ArrayList<Double>();
+			
 			ArrayList<XYSeries> pointSeries;
 			GraphPlots plots = new GraphPlots();
 			boolean previous = false;
@@ -158,7 +162,7 @@ public class XmlOpener {
 			double value = 0;
   		  	double previousValue = 0;
 			
-		      XMLEventReader eventReader =XMLGraphManager.createXMLEventReader(configFile);
+		      XMLEventReader eventReader = XMLGraphManager.createXMLEventReader(configFile);
     		  
 		      // read the XML document
     		  String message = "";
@@ -190,10 +194,37 @@ public class XmlOpener {
 		    			  }
 		    			  
 		    		  }
+		    		  timeLength+=GRAPHPRECISION;
+	    			  Iterator <Attribute> it = startElement.getAttributes();
+	    			  
+		    		  //Criticality switch event
+		    		  if(startElement.getName().toString().equals("critswitch"))
+		    		  {
+			    		  String criticalityLevel = "";
+			    		  double timeValue = 0.0;
+			    		  
+			    		  while(it.hasNext()) {
+			    			  Attribute attr = it.next();
+			    			  
+			    			  if(attr.getName().toString().equals("level")) {
+			    				  criticalityLevel = attr.getValue().toString();
+			    			  }
+			    			  else if(attr.getName().toString().equals("value")) {
+			    				  timeValue = Double.parseDouble(
+			    						  attr.getValue().toString());
+			    			  }
+			    		  }
+			    		  XYTextAnnotation currentAnnotation =
+			    				  new XYTextAnnotation(criticalityLevel, timeValue+1, graphSize+(RANGETICK/2));
+			    		  currentAnnotation.setFont(new Font("Arial", Font.BOLD, 22));
+			    		  
+			    		  annotations.add(currentAnnotation);
+			    		  
+			    		  critSwitchesInstants.add(new Double(timeValue));
+		    		  }
 		    		  
-		    		  if(startElement.getName().toString().equals("timer")) {
-		    			  timeLength+=GRAPHPRECISION;
-		    			  Iterator <Attribute> it = startElement.getAttributes();  
+		    		  // Time transmission event
+		    		  if(startElement.getName().toString().equals("timer")) {   
 			    		  message = "";
 			    		  
 			    		  while(it.hasNext()) {
@@ -203,79 +234,67 @@ public class XmlOpener {
 			    				  message = attr.getValue().toString();
 			    			  }
 			    			  else if(attr.getName().toString().equals("value")) {
-			    				  value = Double.parseDouble(attr.getValue().toString());
+			    				  value = Double.parseDouble(
+			    						  attr.getValue().toString());
 			    			  }
 			    		  }
 			    		  // We add the default point
-			    		  plots.get("DEFAULT").add(new GraphPlot(value, graphSize-RANGETICK));
+			    		  plots.get("DEFAULT").add(new GraphPlot(
+			    				  value, graphSize-RANGETICK));
 			    		  
 			    		  if(message != "") {
 			    			  String key = message.substring(3, message.indexOf("_"));
 			    			  
 			    			  if(!key.equals("DEFAULT")) {
-				    			  if(plots.get(key) == null) {
-				    				  plots.put(key, new ArrayList<GraphPlot>());
-				    				  
-				    				  /* We add the new message code to the message list
-				    				   * We will use it later for color computing */
-				    				  if(messageCodes.get(key) == null) {				  
-				    					  messageCodes.put(key, ColorPicker.getColor(Integer.parseInt(key)));
-				    				  }
-				    				  
-				    				  /* Adds default values for the beginning of the graph */
-				    				  if(previousValue == GraphConfig.getInstance().getStartTime()) {
-				    					  plots.get(key).add(new GraphPlot(previousValue-GRAPHPRECISION, graphSize));
-				    					  plots.get(key).add(new GraphPlot(previousValue, graphSize));
-				    				  }
-				    				  else {
-					    				  for(double time= GraphConfig.getInstance().getStartTime(); time < previousValue;time+=GRAPHPRECISION) {
-					    						  plots.get(key).add(new GraphPlot(time, graphSize-RANGETICK));
-					    				  }
-				    				  }
-				    			  }	 
-				    			  
-				    			  
-				    			 
-				    			  if(!previous) {		
-				    				  plots.get(key).add(new GraphPlot(previousValue, graphSize-RANGETICK)); 
-				    				  plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
-				    			  }
-				    			  else {
-				    				  plots.get(key).add(new GraphPlot(previousValue, graphSize));
-				    			  }
-				    			  
-				    			  plots.get(key).add(new GraphPlot(value, graphSize)); 
-				    			  
-				    			 seriesMarked.add(key);
-				    			 previous = true;
+			    					 if(plots.get(key) == null) {
+			    						  plots.put(key, new ArrayList<GraphPlot>());
+			    						  
+			    						  /* We add the new message code to the message list
+			    						   * We will use it later for color computing */
+			    						  if(messageCodes.get(key) == null) {				  
+			    							  messageCodes.put(key, ColorPicker.getColor(Integer.parseInt(key)));
+			    						  }
+			    						  
+			    						  /* Adds default values for the beginning of the graph */
+			    						  if(previousValue == GraphConfig.getInstance().getStartTime()) {
+			    							  plots.get(key).add(new GraphPlot(
+			    									  previousValue-GRAPHPRECISION, graphSize));
+			    							  plots.get(key).add(new GraphPlot(
+			    									  previousValue, graphSize));
+			    						  }
+			    						  else {
+			    							  for(double time= GraphConfig.getInstance().getStartTime(); time < previousValue;time+=GRAPHPRECISION) {
+			    									  plots.get(key).add(new GraphPlot(
+			    											  time, graphSize-RANGETICK));
+			    							  }
+			    						  }
+			    					  }	   
+			    					 
+			    					  if(!previous) {		
+			    						  plots.get(key).add(new GraphPlot(previousValue, graphSize-RANGETICK)); 
+			    						  plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
+			    					  }
+			    					  else {
+			    						  plots.get(key).add(new GraphPlot(previousValue, graphSize));
+			    					  }
+			    					  
+			    					  plots.get(key).add(new GraphPlot(value, graphSize)); 
+			    					  
+			    					 seriesMarked.add(key);
+			    					 previous = true;
 			    			  }
 			    		  }
 			    		  else {	
 			    			  previous = false;
-				    		  /* In default case, we had a ground point to each serie */
-				    		  Iterator itKey = plots.keySet().iterator();
-				    		  while(itKey.hasNext()) {
-				    			  String key = (String) itKey.next();
-				    			  if(!key.equals("DEFAULT") && !seriesMarked.contains(key)) { 
-					    			 if(!previous) {
-					    				  plots.get(key).add(new GraphPlot(previousValue, graphSize-RANGETICK));
-					    			 }
-				    			  	plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
-				    			  }
-				    		  }  		  
+			    			  addGroundPoint(plots, seriesMarked, previousValue,
+			    					  value, graphSize);		  
 			    		  }
 			    		  
 			    		  //We update a set a default point for each serie
 			    		  if(value > previousValue) {
-			    			Iterator itKey = plots.keySet().iterator();
-			    			 
-				    		  while(itKey.hasNext()) {
-				    			  String currentKey = (String)itKey.next();
-				    			  if(!seriesMarked.contains(currentKey) && !currentKey.equals("DEFAULT")) {
-				    				  plots.get(currentKey).add(new GraphPlot(previousValue, graphSize-RANGETICK));
-				    				  plots.get(currentKey).add(new GraphPlot(value, graphSize-RANGETICK));
-				    			  }
-				    		  }
+			    			  updateDefaultSet(plots, seriesMarked, 
+			    					  previousValue, value, graphSize);
+			    			
 				    		  previousValue = value;
 				    		  seriesMarked = new ArrayList<String>();
 			    		  }
@@ -284,9 +303,46 @@ public class XmlOpener {
 		      }
 
 			pointSeries = buildPlotSerial(plots);
-			  
+			 
 			simulationTimeLimit = timeLength;
 			
 		    return pointSeries;
+	}
+	
+	/**
+	 * Updates the default set of points (bottom line of the graph of
+	 * each node
+	 * @param plots The global set of plots
+	 * @param seriesMarked The series marked as set
+	 * @param previousValue the previous time value
+	 * @param value the current time value
+	 * @param graphSize the global graph height
+	 */
+	private void updateDefaultSet(GraphPlots plots, ArrayList<String> seriesMarked,
+			double previousValue, double value, int graphSize) {
+		Iterator itKey = plots.keySet().iterator();
+		 
+		  while(itKey.hasNext()) {
+			  String currentKey = (String)itKey.next();
+			  if(!seriesMarked.contains(currentKey) && !currentKey.equals("DEFAULT")) {
+				  plots.get(currentKey).add(new GraphPlot(previousValue, graphSize-RANGETICK));
+				  plots.get(currentKey).add(new GraphPlot(value, graphSize-RANGETICK));
+			  }
+		  }
+	}
+	
+	/**
+	 *  In default case, we had a ground point to each serie 
+	 */
+	private void addGroundPoint(GraphPlots plots, ArrayList<String> seriesMarked,
+			double previousValue, double value, int graphSize) {
+		Iterator itKey = plots.keySet().iterator();
+		  while(itKey.hasNext()) {
+			  String key = (String) itKey.next();
+			  if(!key.equals("DEFAULT") && !seriesMarked.contains(key)) { 
+  				plots.get(key).add(new GraphPlot(previousValue, graphSize-RANGETICK));
+			  	plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
+			  }
+		  }
 	}
 }

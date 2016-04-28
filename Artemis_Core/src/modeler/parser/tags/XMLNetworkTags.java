@@ -45,4 +45,8 @@ public class XMLNetworkTags {
 	public static final String TAG_OFFSET		= "offset"; 
 	public static final String TAG_WCET			= "wcet"; 
 	public static final String TAG_PATH			= "path";
+	
+	/* Mixed-criticality */
+	public static final String TAG_MC_PROTO 	= "protocol";
+	public static final String TAG_MC_MODEL		= "switch";
 }

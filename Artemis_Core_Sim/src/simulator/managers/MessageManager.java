@@ -7,25 +7,30 @@ import logger.GlobalLogger;
 import modeler.transmission.WCTTModelComputer;
 import root.elements.criticality.CriticalityLevel;
 import root.elements.network.Network;
-import root.elements.network.modules.flow.MCFlow;
-import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.machine.Machine;
-import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
+import simulator.generation.MessageGenerator;
+import simulator.generation.WCTTComputer;
 
 /* Author : Olivier Cros
  * Bind and generate messages with machines 
  * */
 
-/* Class to select, transmit and simulate the behavior of packets */
+/* Class to select, transmit and simulate the behavior of messages */
 public class MessageManager {
 	public Network network;
 	public PriorityManager priorityManager;
 	public CriticalityManager criticalityManager;
-	public WCTTModelComputer wcttComputer;
+	public WCTTModelComputer wcttModelComputer;
+	
+	/**
+	 * The entity used to produce messages to
+	 * send in the network
+	 */
+	private MessageGenerator msgGenerator;
 	
 	/* Waiting messages, in links */
 	/* this buffer is used to store all the messages currently transmitted in the links */
@@ -36,8 +41,14 @@ public class MessageManager {
 		linkBuffer = new Vector<NetworkMessage>();
 	}
 	
+	/** 
+	 * We prepare and create all entities
+	 * linked to message generation and 
+	 * criticality management
+	 */
 	public void initializeCriticalityManager() {
-		criticalityManager = new CriticalityManager(network);
+		this.criticalityManager = new CriticalityManager(network);
+		this.msgGenerator = new MessageGenerator(criticalityManager);
 	}
 	
 	public void generateMCSwitchesLog(){
@@ -48,24 +59,25 @@ public class MessageManager {
 	public int associateCritSwitches() {
 		for(int cptSwitch=0;cptSwitch<network.critSwitches.size();cptSwitch++) {
 			/* We associate CriticalitySwitches to the criticality manager */
-			criticalityManager.addNewCritSwitch(network.critSwitches.get(cptSwitch).getTime(), 
+			criticalityManager.addNewGlobalCritSwitch(network.critSwitches.get(cptSwitch).getTime(), 
 					network.critSwitches.get(cptSwitch).getCritLvl());
 		}
 		
 		return 0;
 	}
+	
 	public int filterCriticalMessages(Machine fromMachine, double time) {
 		/* First, we check changes in criticality level */
-		criticalityManager.checkCriticalityLevel(time);
+		criticalityManager.updateCriticalityLevel(time);
 		
 		/* We filter the messages unadapted to current criticality level */
-		CriticalityLevel critLvl = criticalityManager.getCurrentLevel();
+		CriticalityLevel critLvl = fromMachine.getCritLevel();
 		
 		for(int cptMsg=0;cptMsg < fromMachine.inputBuffer.size(); cptMsg++) {
 			NetworkMessage currentMessage = fromMachine.inputBuffer.get(cptMsg);
 			
 			if(!currentMessage.critLevel.contains(critLvl) && 
-					(criticalityManager.getCurrentLevel() != CriticalityLevel.NONCRITICAL)) {
+					(fromMachine.getCritLevel() != CriticalityLevel.NONCRITICAL)) {
 				fromMachine.inputBuffer.remove(currentMessage);
 			}
 		}
@@ -74,7 +86,7 @@ public class MessageManager {
 	}
 	
 	public int generateMessages(Machine fromMachine, double time) {
-		criticalityManager.generateMessages(fromMachine, time);
+		msgGenerator.generateMessages(fromMachine, time);
 		
 		return 0;
 	}
@@ -98,7 +110,7 @@ public class MessageManager {
 			analyseTime = wctt/fromMachine.getSpeed();
 
 			if(ConfigParameters.MIXED_CRITICALITY) {
-				criticalityManager.updateCritTable(fromMachine, messageToAnalyse.currentCritLevel);
+				criticalityManager.updateCritTable(fromMachine, messageToAnalyse.currentCritLevel, time);
 			}
 			
 			/* Correcting time precision */
@@ -107,7 +119,7 @@ public class MessageManager {
 		
 		if(fromMachine.inputBuffer.isEmpty() && fromMachine.currentlyTransmittedMsg == null) {
 			/* In case of an empty input buffer, we set the criticality level of the node to non critical */
-			criticalityManager.updateCritTable(fromMachine, CriticalityLevel.NONCRITICAL);
+			criticalityManager.updateCritTable(fromMachine, CriticalityLevel.NONCRITICAL, time);
 		}
 		return 0;
 	}

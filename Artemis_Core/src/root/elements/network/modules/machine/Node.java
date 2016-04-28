@@ -108,19 +108,6 @@ public abstract class Node extends NetworkModule {
 		return 0;
 	}
 	
-	/* XML Writing functions */
-	public int writeLogToFile(final double timer) {
-		currentLoad = new BigDecimal(currentLoad).setScale(5, BigDecimal.ROUND_HALF_DOWN).doubleValue();
-		if(currentlyTransmittedMsg != null) {
-			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+timer,
-					"message:"+currentlyTransmittedMsg.getName(), "load:"+currentLoad);		
-		}
-		else {
-			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+timer+"", "load:"+currentLoad);
-		}
-		return 0;
-	}
-	
 	public XmlLogger createXMLLog() {
 		xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/", this.networkAddress.value+".xml");
 		xmlLogger.createDocument();
