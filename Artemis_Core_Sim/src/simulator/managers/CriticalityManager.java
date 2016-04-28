@@ -6,7 +6,7 @@ import java.util.Vector;
 
 import logger.GlobalLogger;
 import logger.XmlLogger;
-import modeler.WCTTModelComputer;
+import modeler.transmission.WCTTModelComputer;
 import root.elements.criticality.CriticalityLevel;
 import root.elements.network.Network;
 import root.elements.network.modules.flow.MCFlow;
@@ -27,7 +27,7 @@ public class CriticalityManager {
 	/**
 	 * Delay used to determine if we need to switch the criticality level or not
 	 */
-	private double critChangeDelay;
+	private double critWaitingDelay;
 	
 	private CriticalityLevel currentCritLvl;
 	
@@ -38,17 +38,47 @@ public class CriticalityManager {
 	private HashMap<Node, CriticalityLevel> criticalityTable;
 	
 	public CriticalityManager(Network network) {
-		critChangeDelay = 0.0;
+		critWaitingDelay = 0.0;
 		critSwitches = new HashMap<Double, CriticalityLevel>();
 		currentCritLvl = CriticalityLevel.NONCRITICAL;
 		wcttComputer = new WCTTModelComputer();
 		criticalityTable = new HashMap<Node, CriticalityLevel>();
+		ComputationConstants.getInstance().setCritChangeDelay(computeCritChangeDelay(network));
+		GlobalLogger.debug("WAITING DELAY:"+ComputationConstants.getInstance().getCritChangeDelay());
 		
 		for(int cptNodes=0; cptNodes < network.machineList.size(); cptNodes++) {
 		//	GlobalLogger.debug("Machine "+network.machineList.get(cptNodes).name+" NONCRITICAL");
 			criticalityTable.put(network.machineList.get(cptNodes), CriticalityLevel.NONCRITICAL);
 		}
 	}
+	
+	/**
+	 *  Computes the minimum delay of a criticality phase
+	 * @param networkP the global network
+	 * @return the waiting delay
+	 */
+	
+	private double computeCritChangeDelay(Network networkP) {
+		double critChangeDelay = 0.0;
+		
+		if(ConfigParameters.MIXED_CRITICALITY) {		
+			for(int cptMachine=0; cptMachine < networkP.machineList.size(); cptMachine++) {
+				Node currentNode = networkP.machineList.get(cptMachine);
+				
+				for(int cptFlow=0;cptFlow < currentNode.messageGenerator.size(); cptFlow++) {
+						MCFlow flow = (MCFlow)currentNode.messageGenerator.get(cptFlow);
+						
+						if(critChangeDelay < flow.getPeriod()) {
+							critChangeDelay = flow.getPeriod();
+						}
+				}
+					
+			}
+		}
+
+		return critChangeDelay*ComputationConstants.CHANGE_DELAY_FACTOR;
+	}
+	
 	
 	public CriticalityLevel getCurrentLevel() {
 		return this.currentCritLvl;
@@ -107,16 +137,16 @@ public class CriticalityManager {
 			}
 			/* If there is at least a node staying at the current level */
 			if(nodeLevel == this.currentCritLvl || currentLevel == this.currentCritLvl) {
-				critChangeDelay = 0.0;
+				critWaitingDelay = 0.0;
 				return 1;
 			}
 		}
 		
 		/* In case all nodes needs to switch */
-		critChangeDelay += ComputationConstants.TIMESCALE;
-		GlobalLogger.debug("DELAY TO CHANGE:"+critChangeDelay);
-		if(critChangeDelay == ComputationConstants.getInstance().CRITCHANGEDELAY) {
-			addNewCritSwitch(time+ComputationConstants.TIMESCALE, currentLevel);
+		critWaitingDelay += ComputationConstants.TIMESCALE;
+		
+		if(critWaitingDelay == ComputationConstants.getInstance().getCritChangeDelay()) {
+			addNewCritSwitch(time+ComputationConstants.CRITSWITCHDELAY, currentLevel);
 		}
 		return 0;
 	}
@@ -127,8 +157,10 @@ public class CriticalityManager {
 	 * level : the level to switch to
 	 * **/
 	public void addNewCritSwitch(double time, CriticalityLevel level) {
-		critSwitches.put(time, level);
-		GlobalLogger.debug("CRIT LVL SWITCH TO "+level+" AT "+(time+ComputationConstants.TIMESCALE));
+		if(critSwitches.get(time) == null) {
+			critSwitches.put(time, level);
+			GlobalLogger.debug("CRIT LVL SWITCH TO "+level+" AT "+(time+ComputationConstants.TIMESCALE));
+		}
 	}
 	
 	
@@ -148,21 +180,22 @@ public class CriticalityManager {
 		double currentWCTT = -1;
 		CriticalityLevel level = CriticalityLevel.NONCRITICAL;
 		
-		for(CriticalityLevel critLvl : flow.getSize().keySet()) {		
+		for(CriticalityLevel critLvl : flow.getSize().keySet()) {	
+		
 			/* If the computed WCTT is compliant with the level */
 			if(transmissionTime <= flow.getSize().get(critLvl) 
-					&& (currentWCTT > transmissionTime || currentWCTT == -1)) {
+					&& (currentWCTT > flow.getSize().get(critLvl) || currentWCTT == -1)) {
 				
 				/* We compute the closest superior WCTT 
 				 * and the corresponding criticality level
 				 */
-				if(flow.getSize().get(currentCritLvl) != -1) {
-						currentWCTT = transmissionTime;
+				if(flow.getSize().get(critLvl) != -1) {
+						currentWCTT = flow.getSize().get(critLvl) ;
 						level = critLvl;
 				}
 			}
 		}
-		
+
 		return level;
 	}
 	
@@ -172,22 +205,20 @@ public class CriticalityManager {
 		double transmissionTime = 0.0;
 		CriticalityLevel destination = this.currentCritLvl;
 		
-		if(transmissionTime != -1) {
-			transmissionTime = this.getWCTTModelComputer().computeDynamicWCTT(newMsg);
-			destination = checkMessageCritLevel(newMsg, transmissionTime);
-		}
+		
+		transmissionTime = this.getWCTTModelComputer().computeDynamicWCTT(newMsg);
+		destination = checkMessageCritLevel(newMsg, transmissionTime);
 		
 		if(destination != currentCritLvl) {
-			if(newMsg.getSize(destination) < newMsg.getSize(currentCritLvl)) {
+			if(newMsg.getSize(destination) <= newMsg.getSize(currentCritLvl)) {
 				/* Decrease case */
 				updateCritTable(currentNode, destination);
 			}
-			else {
+			else if(newMsg.getSize(currentCritLvl) > 0){
 				/* Increase case */
 				// TODO : We suppose switching criticality level delay equal to 1
-				if(critSwitches.get(time+ComputationConstants.TIMESCALE) == null) {
-					addNewCritSwitch(time+ComputationConstants.TIMESCALE, destination);
-				}
+				//GlobalLogger.debug("DEST:"+newMsg.getSize(destination)+" CURRENT:"+newMsg.getSize(currentCritLvl));
+					addNewCritSwitch(time+ComputationConstants.CRITSWITCHDELAY, destination);
 			}
 			
 		}
@@ -312,7 +343,7 @@ public class CriticalityManager {
 		xmlLogger.createRoot("CritSwitches");
 		
 		for(double time : critSwitches.keySet()) {
-			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+time,"level:"+critSwitches.get(time));
+			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+time,"level:"+critSwitches.get(time).toString().substring(0, 2));
 		}
 	}
 }

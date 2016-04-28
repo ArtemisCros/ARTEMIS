@@ -20,6 +20,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import logger.GlobalLogger;
 import model.GraphConfig;
 import model.GraphLoadPoint;
 import model.GraphPlot;
@@ -192,9 +193,7 @@ public class XmlOpener {
 		    		  
 		    		  if(startElement.getName().toString().equals("timer")) {
 		    			  timeLength+=GRAPHPRECISION;
-
-		    			  Iterator <Attribute> it = startElement.getAttributes();
-			    		  
+		    			  Iterator <Attribute> it = startElement.getAttributes();  
 			    		  message = "";
 			    		  
 			    		  while(it.hasNext()) {
@@ -207,6 +206,8 @@ public class XmlOpener {
 			    				  value = Double.parseDouble(attr.getValue().toString());
 			    			  }
 			    		  }
+			    		  // We add the default point
+			    		  plots.get("DEFAULT").add(new GraphPlot(value, graphSize-RANGETICK));
 			    		  
 			    		  if(message != "") {
 			    			  String key = message.substring(3, message.indexOf("_"));
@@ -233,7 +234,16 @@ public class XmlOpener {
 				    				  }
 				    			  }	 
 				    			  
-				    			  plots.get(key).add(new GraphPlot(previousValue, graphSize)); 
+				    			  
+				    			 
+				    			  if(!previous) {		
+				    				  plots.get(key).add(new GraphPlot(previousValue, graphSize-RANGETICK)); 
+				    				  plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
+				    			  }
+				    			  else {
+				    				  plots.get(key).add(new GraphPlot(previousValue, graphSize));
+				    			  }
+				    			  
 				    			  plots.get(key).add(new GraphPlot(value, graphSize)); 
 				    			  
 				    			 seriesMarked.add(key);
@@ -246,12 +256,11 @@ public class XmlOpener {
 				    		  Iterator itKey = plots.keySet().iterator();
 				    		  while(itKey.hasNext()) {
 				    			  String key = (String) itKey.next();
-				    			  if(!key.equals("DEFAULT") && !seriesMarked.contains(key)) {
-					    			  if(!previous) {
+				    			  if(!key.equals("DEFAULT") && !seriesMarked.contains(key)) { 
+					    			 if(!previous) {
 					    				  plots.get(key).add(new GraphPlot(previousValue, graphSize-RANGETICK));
-					    			  }
+					    			 }
 				    			  	plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
-				    			  	
 				    			  }
 				    		  }  		  
 			    		  }

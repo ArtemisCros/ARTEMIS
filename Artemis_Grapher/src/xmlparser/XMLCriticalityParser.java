@@ -2,6 +2,7 @@ package xmlparser;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Vector;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -13,6 +14,7 @@ import javax.xml.stream.events.Attribute;
 
 import logger.GlobalLogger;
 
+import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.data.xy.XYSeries;
 
 import root.util.constants.ConfigParameters;
@@ -26,9 +28,16 @@ import utils.ConfigLogger;
  */
 public class XMLCriticalityParser {
 	
+	/* Annotations to put on the graph */
+	public Vector<XYTextAnnotation> critLvlAnnotations;
+	
+	public XMLCriticalityParser() {
+		critLvlAnnotations = new Vector<XYTextAnnotation>();
+	}
+
 	public ArrayList<XYSeries> parseCritSwitches(int graphHeight) {
 		ArrayList<XYSeries> seriesList = new ArrayList<XYSeries>();
-		ArrayList<Double> critTimeEvents = this.readFile();
+		ArrayList<Double> critTimeEvents = this.readFile(graphHeight);
 		
 		for(int cptEvents =0;cptEvents < critTimeEvents.size(); cptEvents++) {
 			XYSeries plots = new XYSeries(cptEvents);
@@ -40,12 +49,15 @@ public class XMLCriticalityParser {
 		return seriesList;
 	}
 	
-	private ArrayList<Double> readFile() {
+	private ArrayList<Double> readFile(int graphHeight) {
 		ArrayList<Double> critTimeEvents = new ArrayList<Double>();
 
 		String critSwitchesFile = ConfigLogger.RESSOURCES_PATH+"/"+
 				   ConfigParameters.getInstance().getSimuId()+"/"+
 				   ConfigLogger.CRIT_SWITCHES_PATH;
+		
+		String level = "";
+		double value = 0.0;
 		
 		XMLEventReader eventReader = XMLGraphManager.createXMLEventReader(critSwitchesFile);
 		  
@@ -68,15 +80,17 @@ public class XMLCriticalityParser {
 	    			  while(itAttr.hasNext()) {
 	    				  Attribute attr = (Attribute)itAttr.next();
 	    				  if(attr.getName().toString().equals(XMLGrapherTags.TAG_LEVEL)) {
-	    					  
+	    					  level = attr.getValue();
 	    				  }
-	    				  if(attr.getName().toString().equals(XMLGrapherTags.TAG_VALUE)) {
-	    					  critTimeEvents.add(Double.parseDouble(attr.getValue()));
+	    				  if(attr.getName().toString().equals(XMLGrapherTags.TAG_VALUE)) 
+	    					  value = Double.parseDouble(attr.getValue());
 	    				  }
 	    			  }
+	    			  critLvlAnnotations.add(new XYTextAnnotation(level, 
+							  value+5, graphHeight*5));
+					  critTimeEvents.add(value);
 	    		  }
 			  }
-		  }
 
 		  return critTimeEvents;
 	}

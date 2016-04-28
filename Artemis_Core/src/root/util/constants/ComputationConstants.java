@@ -27,6 +27,14 @@ public class ComputationConstants {
 		public static final double LOADSTEP = 0.005;
 		
 		/**
+		 * This constant is used to determine the
+		 * minimum delay of a critical phase.
+		 * It is computed based on this factor multiplied by the 
+		 * longest period
+		 */
+		public static final double CHANGE_DELAY_FACTOR = 2;
+		
+		/**
 		 *  Number of tests for each load level */
 		public static final double NUMBERTESTS = 1000;
 		
@@ -49,7 +57,12 @@ public class ComputationConstants {
 		 * Delay to wait before triggering a change to
 		 * a lower criticality level
 		 */
-		public static final double CRITCHANGEDELAY = 10.0;
+		private double CRITCHANGEDELAY = 10.0;
+		
+		/**
+		 * Delay to occur a criticality switch
+		 */
+		public static final double CRITSWITCHDELAY = ComputationConstants.TIMESCALE;
 		
 		/**
 		 * Highest WCTT in the network
@@ -82,6 +95,13 @@ public class ComputationConstants {
 			return instance;
 		}
 		
+		public void setCritChangeDelay(double critChangeDelayP) {
+			this.CRITCHANGEDELAY = critChangeDelayP;
+		}
+		
+		public double getCritChangeDelay() {
+			return this.CRITCHANGEDELAY;
+		}
 		
 
 

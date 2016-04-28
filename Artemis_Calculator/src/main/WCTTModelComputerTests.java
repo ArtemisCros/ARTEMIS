@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import logger.GlobalLogger;
-import modeler.WCTTModel;
-import modeler.WCTTModelComputer;
+import modeler.transmission.WCTTModel;
+import modeler.transmission.WCTTModelComputer;
 
 public class WCTTModelComputerTests {
 	public static void main(String[] args) {
@@ -24,27 +24,12 @@ public class WCTTModelComputerTests {
 		
 		String wcttModel = args[0];
 		
-		if(wcttModel.equals("LIN20")) { model.setModel(WCTTModel.LINEAR20);}
-		if(wcttModel.equals("LIN40")) { model.setModel(WCTTModel.LINEAR40); }
-		if(wcttModel.equals("LIN60")) { model.setModel(WCTTModel.LINEAR60); }
-		if(wcttModel.equals("LIN80")) { model.setModel(WCTTModel.LINEAR80); }
-		if(wcttModel.equals("STR")) { model.setModel(WCTTModel.STRICT); }
-		if(wcttModel.equals("STRPROB")) { model.setModel(WCTTModel.STRPROB); }
-		if(wcttModel.equals("GAU20")) { model.setModel(WCTTModel.GAUSSIAN20); }
-		if(wcttModel.equals("GAU40")) { model.setModel(WCTTModel.GAUSSIAN40); }
-		if(wcttModel.equals("GAU50")) { model.setModel(WCTTModel.GAUSSIAN50); }
-		if(wcttModel.equals("GAU60")) { model.setModel(WCTTModel.GAUSSIAN60); }
-		if(wcttModel.equals("GAU80")) { model.setModel(WCTTModel.GAUSSIAN80); }
-		if(wcttModel.equals("GCO20")) { model.setModel(WCTTModel.GCORRECTED20); }
-		if(wcttModel.equals("GCO40")) { model.setModel(WCTTModel.GCORRECTED40); }
-		if(wcttModel.equals("GCO50")) { model.setModel(WCTTModel.GCORRECTED50); }
-		if(wcttModel.equals("GCO60")) { model.setModel(WCTTModel.GCORRECTED60); }
-		if(wcttModel.equals("GCO80")) { model.setModel(WCTTModel.GCORRECTED80); }
-		if(wcttModel.equals("GAP20")) { model.setModel(WCTTModel.GANTIPROG20); }
-		if(wcttModel.equals("GAP40")) { model.setModel(WCTTModel.GANTIPROG40); }
-		if(wcttModel.equals("GAP50")) { model.setModel(WCTTModel.GANTIPROG50); }
-		if(wcttModel.equals("GAP60")) { model.setModel(WCTTModel.GANTIPROG60); }
-		if(wcttModel.equals("GAP80")) { model.setModel(WCTTModel.GANTIPROG80); }
+		if(wcttModel.equals("STR")) {model.setModel(WCTTModel.STRICT); }
+		if(wcttModel.equals("LIN")) { model.setModel(WCTTModel.LINEAR); }
+		if(wcttModel.equals("GAU")) {model.setModel(WCTTModel.GAUSSIAN); }
+		if(wcttModel.equals("GCO")) {model.setModel(WCTTModel.COGAUSSIAN); }
+		if(wcttModel.equals("CAP")) {model.setModel(WCTTModel.ANTICOGAUSSIAN); }
+		if(wcttModel.equals("STRP")) {model.setModel(WCTTModel.LINPROB); }
 		
 		for(int precision=0; precision < limitPrecision;precision++) {
 			while(result < 0.61) {

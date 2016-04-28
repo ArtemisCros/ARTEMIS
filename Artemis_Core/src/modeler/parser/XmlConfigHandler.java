@@ -40,7 +40,9 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 		if(qualif == XMLNetworkTags.TAG_AUTO_LOAD){triggers.put(TriggerCodes.AUTOLOAD, trigger);}
 		if(qualif == XMLNetworkTags.TAG_SPEED_MACHINE){triggers.put(TriggerCodes.SPEEDMACHINE, trigger);}
 		if(qualif == XMLNetworkTags.TAG_WCTT_COMPUTE){triggers.put(TriggerCodes.WCTT_COMPUTE, trigger);}
+		if(qualif == XMLNetworkTags.TAG_WCTT_RATE){triggers.put(TriggerCodes.WCTT_RATE, trigger);}
 	}
+	
 	/**
 	 *  Start element 
 	 */
@@ -69,6 +71,11 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 			config.setWCTTModel(value);
 		}
 		
+		if(triggers.get(TriggerCodes.WCTT_RATE)) {
+			final ConfigParameters config = ConfigParameters.getInstance();
+			config.setWCTTRate(Double.parseDouble(value));
+		}
+		
 		if(triggers.get(TriggerCodes.TIMELIMIT)) {
 			final ConfigParameters config = ConfigParameters.getInstance();			
 			config.setTimeLimitSimulation(Integer.parseInt(value));
@@ -90,8 +97,7 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 				config.setAutomaticTaskGeneration(false);
 			}
 		}
-		
-
+	
 		if(triggers.get(TriggerCodes.AUTOGENNUMBER)) {
 			final ConfigParameters config 			= ConfigParameters.getInstance();	
 			final ComputationConstants simuConst 	= ComputationConstants.getInstance();
@@ -122,7 +128,6 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 		if(triggers.get(TriggerCodes.CRITSWITCH)) {
 			final CriticalityLevel newLevel = Utils.convertToCritLevel(value);
 			currentCritSwitch.setCritLvl(newLevel);
-		//	GlobalLogger.debug("Crit switch at"+currentCritSwitch.getTime()+" Dest:"+currentCritSwitch.getCritLvl().name());
 		}
 	 }
 	 public void endElement(final String uri,final String name,final String qName) {

@@ -1,7 +1,7 @@
 package root.elements.network.modules;
 
+import modeler.transmission.WCTTModelComputer;
 import root.elements.SimulableElement;
-import modeler.WCTTModelComputer;
 
 public class NetworkModule extends SimulableElement{
 

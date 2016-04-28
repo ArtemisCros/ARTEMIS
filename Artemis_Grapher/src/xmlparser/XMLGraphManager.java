@@ -28,6 +28,7 @@ import model.GraphLoadPoint;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
@@ -198,7 +199,6 @@ public class XMLGraphManager {
 	    	    	  
 	    	   for(int cptAnnotation = 0;cptAnnotation < xmlOpener.annotations.size(); cptAnnotation++) {
 		 	    	  xyplot.addAnnotation(xmlOpener.annotations.get(cptAnnotation));
-		 	    	 // GlobalLogger.debug("::"+cptAnnotation);
 		 	      }
 	    	   
 	    	   datasetNum = this.linkDataset(xyplot, datasetNum, plotSeries);  		   
@@ -217,6 +217,7 @@ public class XMLGraphManager {
 	       
 	       this.checkCriticalitySwitches(xyplot, datasetNum, orderedFileName.size());
 	       
+	       
 	       chart = initializeGraph(xyplot);
 	       return chart;
 	}
@@ -226,6 +227,12 @@ public class XMLGraphManager {
 		ArrayList<XYSeries> critSwitches = critParser.parseCritSwitches(size);
 		
 		XYLineAndShapeRenderer currentRenderer;
+		
+		for(int cptAnnot=0; cptAnnot<critParser.critLvlAnnotations.size(); cptAnnot++) {
+			XYTextAnnotation currentAnnotation = critParser.critLvlAnnotations.get(cptAnnot);
+			currentAnnotation.setFont(new Font("Arial", Font.BOLD, 35));	 
+			plot.addAnnotation(currentAnnotation);
+		}
 		
 		XYSeriesCollection critDataset = new XYSeriesCollection();
 		for(int cptSeries=0; cptSeries < critSwitches.size(); cptSeries++) {

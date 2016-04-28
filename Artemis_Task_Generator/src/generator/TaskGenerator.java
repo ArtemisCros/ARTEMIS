@@ -231,16 +231,17 @@ public class TaskGenerator {
 				
 				if(Math.abs(networkLoad - globalLoad) <= errorMargin) {
 					validSet = true;
-				//	GlobalLogger.debug("Set ok, Load:"+networkLoad+" "+globalLoad);
+			//		GlobalLogger.debug("Set ok, Load:"+networkLoad+" "+globalLoad);
 				}else {
 					failSet++;
-				//	GlobalLogger.debug("Set Nok, Load:"+networkLoad+" "+globalLoad);
+			//		GlobalLogger.debug("Set Nok, Load:"+networkLoad+" "+globalLoad);
 				}
 			}
 			else {
 				failSet++;
 			//	GlobalLogger.debug("Set size Nok, Load:"+networkLoad+" "+globalLoad);
 			}
+			globalLoad = 0.0;
 		}
 		
 		return tasks;

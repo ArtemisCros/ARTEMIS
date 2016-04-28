@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Vector;
 
 import logger.GlobalLogger;
-import modeler.WCTTModelComputer;
+import modeler.transmission.WCTTModelComputer;
 import root.elements.criticality.CriticalityLevel;
 import root.elements.network.Network;
 import root.elements.network.modules.flow.MCFlow;
@@ -117,7 +117,7 @@ public class MessageManager {
 	 * criticality level
 	 **/
 	public void updateCriticalityState(double time) {
-	//	criticalityManager.displayCritTable();
+		//criticalityManager.displayCritTable();
 		criticalityManager.updateCriticalityState(time);
 	}
 	

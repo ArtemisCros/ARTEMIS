@@ -3,6 +3,9 @@ package generator;
 import java.util.ArrayList;
 
 import root.util.constants.ComputationConstants;
+import root.util.constants.ConfigParameters;
+import utils.ConfigLogger;
+import logger.FileLogger;
 import logger.GlobalLogger;
 import model.Node;
 
@@ -41,9 +44,8 @@ public class TopologyGenerator {
 		for(cptNodes=0; cptNodes < size; cptNodes++) {
 			nodes.add(new Node(""+cptNodes, "ES"+cptNodes));
 		}
- 		
-		/* Creating the switches */
 		
+		/* Creating the switches */
 		for(cptNodes = 0; cptNodes < nodes.size(); cptNodes++) {
 			if(cptNodes == 0) {
 				cptSwitches++;
@@ -57,16 +59,21 @@ public class TopologyGenerator {
 				}	
 			}
 			nodes.get(cptNodes).setName(nodes.get(cptNodes).getName()+",S"+cptSwitches);
-		}
+		}	
 		
-		linkSwitches(alphaRate, size);
-		return 0;
+		return linkSwitches(alphaRate, size);
 	}
 	
 	/**
 	 * Tree-based network 
 	 * */
 	public int linkSwitches(double switchRate, int size) {
+		/* Network size computation 
+		 * Depth indication (longest distance between central node and the farest node in the network 
+		 */
+		 
+		int networkDepth = 2; // Considering first lane of switches + end-systems
+		
 		double rate;
 		int currentSwitchIndex = switches.size();
 		String newNode;
@@ -91,22 +98,49 @@ public class TopologyGenerator {
 				if(!newNode.equals(switches.get(cptSwitches).getName().split(",")[0])) {
 					switches.get(cptSwitches).setName(switches.get(cptSwitches).getName()+","+newNode);
 				}	
-			}
+			}		
 			startingSwitch = stoppingSwitch;
 			stoppingSwitch = switches.size();
+			networkDepth++;
 		}
 		
-		return 0;
+		return networkDepth;
 	}
 	
-	public void displayGeneratedTopology() {
-		/*if(GlobalLogger.DEBUG_ENABLED) {
+	public void displayGeneratedTopology(int depth) {
+		Node currentNode = null;
+		String linksList[];
+		
+		/* Displays the network graph in a .dot file */
+		if(GlobalLogger.DEBUG_ENABLED) {
+			FileLogger.logToFile("digraph Network {",ConfigLogger.RESSOURCES_PATH+"/"+
+					ConfigParameters.getInstance().getSimuId()+"/input/"+ "network_"+depth+".dot");
+			
 			for(int cptNodes=0; cptNodes < nodes.size(); cptNodes++) {
-				GlobalLogger.debug(nodes.get(cptNodes).getName());
+				currentNode = nodes.get(cptNodes);
+				
+				linksList = nodes.get(cptNodes).getName().split(",");
+				
+				for(int cptLink = 1; cptLink < linksList.length; cptLink++ ) {
+					FileLogger.logToFile(linksList[0]+" -> "+linksList[cptLink]+";\n", ConfigLogger.RESSOURCES_PATH+"/"+
+							ConfigParameters.getInstance().getSimuId()+"/input/"+"network_"+depth+".dot");
+	
+				}
 			}
 			for(int cptSwitches=0; cptSwitches < switches.size(); cptSwitches++) {
-				GlobalLogger.debug(switches.get(cptSwitches).getName());
+				currentNode = switches.get(cptSwitches);
+				
+				linksList = switches.get(cptSwitches).getName().split(",");
+				
+				for(int cptLink = 1; cptLink < linksList.length; cptLink++ ) {
+					FileLogger.logToFile(linksList[0]+" -> "+linksList[cptLink]+";\n", ConfigLogger.RESSOURCES_PATH+"/"+
+							ConfigParameters.getInstance().getSimuId()+"/input/"+"network_"+depth+".dot");
+	
+				}
 			}
-		}*/
+			
+			FileLogger.logToFile("}", ConfigLogger.RESSOURCES_PATH+"/"+
+					ConfigParameters.getInstance().getSimuId()+"/input/"+"network_"+depth+".dot");
+		}
 	}
 }
