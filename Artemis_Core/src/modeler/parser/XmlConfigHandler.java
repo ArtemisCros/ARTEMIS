@@ -79,10 +79,27 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 				ComputationConstants.getInstance().setCritProtocol(
 						CriticalityProtocol.CENTRALIZED);
 			}
-			
-			if(value.equals("Decentralized")) {
+			else if(value.equals("Decentralized")) {
 				ComputationConstants.getInstance().setCritProtocol(
 						CriticalityProtocol.DECENTRALIZED);
+			}else {
+				ComputationConstants.getInstance().setCritProtocol(
+						CriticalityProtocol.CENTRALIZED);
+			}
+		}
+		
+		if(triggers.get(TriggerCodes.MC_MODEL)) {		
+			if(value.equals("Static")) {
+				ComputationConstants.getInstance().setCritModel(
+						CriticalityModel.STATIC);
+			}
+			else if(value.equals("Dynamic")) {
+				ComputationConstants.getInstance().setCritModel(
+						CriticalityModel.DYNAMIC);
+			}
+			else {
+				ComputationConstants.getInstance().setCritModel(
+						CriticalityModel.STATIC);
 			}
 		}
 		

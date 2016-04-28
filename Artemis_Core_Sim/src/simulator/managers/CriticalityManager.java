@@ -165,6 +165,7 @@ public class CriticalityManager {
 		
 		if(ComputationConstants.getInstance().getCritprotocol() == 
 				CriticalityProtocol.CENTRALIZED) {
+			GlobalLogger.debug("CENTRALIZED");
 			for(Machine node : criticalityTable.keySet()) {
 				nodeLevel = criticalityTable.get(node);
 				

@@ -48,7 +48,7 @@ public class ComputationConstants {
 		/**
 		 * Mixed-criticality integration model
 		 */
-		private CriticalityModel CRITMODEL = CriticalityModel.DYNAMIC;
+		private CriticalityModel CRITMODEL;
 			
 		//TODO
 		/**
@@ -142,6 +142,10 @@ public class ComputationConstants {
 		return CRITMODEL;
 	}
 
+	public void setCritModel(CriticalityModel critModelP) {
+		this.CRITMODEL = critModelP;
+	}
+	
 	public CriticalityProtocol getCritprotocol() {
 		return CRITPROTOCOL;
 	}
