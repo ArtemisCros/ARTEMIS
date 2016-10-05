@@ -11,7 +11,7 @@ import root.util.tools.NetworkAddress;
 public class NetworkFlow extends FrameFlow implements ISchedulable{
 	
 	/* Needed */
-	public int period;
+	public double period;
 	
 	public NetworkFlow(double wcet, String name) {
 		super(name);
@@ -27,23 +27,23 @@ public class NetworkFlow extends FrameFlow implements ISchedulable{
 		this.size = wcet*ConfigParameters.FLOW_DATARATE;
 	}
 	
-	public int getCurrentPeriod() {
+	public double getCurrentPeriod() {
 		return period;
 	}
 	
-	public void setCurrentPeriod(int period) {
+	public void setCurrentPeriod(double period) {
 		this.period = period;
 	}
 	
 
 
 	@Override
-	public int getPeriod() {
+	public double getPeriod() {
 		return this.period;
 	}
 
 	@Override
-	public void setPeriod(int period) {
+	public void setPeriod(double period) {
 		this.period = period;
 	}
 

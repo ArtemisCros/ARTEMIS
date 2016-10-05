@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -24,6 +26,7 @@ import logger.GlobalLogger;
 import main.GraphBuilder;
 import model.GraphConfig;
 import model.GraphLoadPoint;
+import modeler.parser.XmlConfigHandler;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
@@ -42,6 +45,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import root.util.constants.ConfigParameters;
 import utils.ConfigLogger;
+import utils.Errors;
 
 public class XMLGraphManager {
 	
@@ -96,6 +100,7 @@ public class XMLGraphManager {
 			currentDataset.addSeries(series.get(series.size()-1));
 			
 			Color rendererColor = xmlOpener.getMessageCodes().get(series.get(cptSeries).getKey());
+			GlobalLogger.debug("Color:"+rendererColor.toString()+" Id:"+series.get(cptSeries).getKey());
 			XYDifferenceRenderer currentRenderer = new XYDifferenceRenderer(rendererColor, rendererColor, false);		
 			
 			plot.setDataset(datasetNum+cptSeries, currentDataset);
@@ -167,7 +172,6 @@ public class XMLGraphManager {
 			
 	       GraphBuilder gBuilder = new GraphBuilder();
 	       xmlOpener = new XmlOpener();
-		   XMLConfigReader configReader = new XMLConfigReader();
 		   
 		   String networkFolderName = ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/"
 	    		   +ConfigLogger.GENERATED_FILES_PATH+"xml/";
@@ -252,6 +256,7 @@ public class XMLGraphManager {
 	}
 	
 	public void prepareGraphConfig() {
+		//Building the parser handler
 		XMLConfigReader configReader = new XMLConfigReader();
 		
 		/* Set config file name */
@@ -259,6 +264,19 @@ public class XMLGraphManager {
 				   ConfigParameters.getInstance().getSimuId()+"/"+
 				   ConfigLogger.GRAPH_CONF_PATH;
 		
-		configReader.readFile(configFileName);
+		try {	
+			// Creating a SAX Parser
+			SAXParserFactory factoryParser = SAXParserFactory.newInstance();
+			File fichier = new File(configFileName);
+			SAXParser parser = null;
+
+			parser = factoryParser.newSAXParser();
+			//Launch the parser
+			parser.parse(fichier, configReader);
+		} catch (Exception e) {
+			GlobalLogger.error(Errors.ERROR_XML_CONFIG_GRAPHER, 
+					"Error in parsing Grapher XML config file");
+			e.printStackTrace();
+		}
 	}
 }

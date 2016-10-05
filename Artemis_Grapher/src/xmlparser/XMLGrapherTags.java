@@ -8,4 +8,6 @@ public class XMLGrapherTags {
 	public static final String TAG_SWITCHES		= "timer";
 	public static final String TAG_LEVEL		= "level";
 	public static final String TAG_VALUE		= "value";
+	public static final String TAG_COLORS		= "colors";
+	public static final String TAG_COLOR		= "color";
 }

@@ -20,7 +20,7 @@ public class MessageGenerator {
 	/**
 	 * 
 	 */
-	private WCTTComputer wcttComputer;
+	private WCTTManager wcttComputer;
 	
 	/**
 	 * Message generation module
@@ -29,7 +29,7 @@ public class MessageGenerator {
 	 */
 	public MessageGenerator(CriticalityManager critManagerP) {
 		this.critManager 	= critManagerP;
-		this.wcttComputer 	= new WCTTComputer(critManagerP);
+		this.wcttComputer 	= new WCTTManager(critManagerP);
 	}
 	
 	/**

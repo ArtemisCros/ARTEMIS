@@ -5,6 +5,7 @@ import java.io.File;
 import generator.TaskGenerator;
 import grapher.MainGrapher;
 import logger.GlobalLogger;
+import logger.XmlLogger;
 import modeler.networkbuilder.NetworkBuilder;
 import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ComputationConstants;
@@ -48,6 +49,8 @@ public class CoreLauncher {
 			String xmlInputFile = ConfigLogger.RESSOURCES_PATH+"/"+
 					ConfigParameters.getInstance().getSimuId()+"/";
 					
+			GlobalLogger.log("------------ EMPTY XML OUTPUT DIRECTORY ------------");
+			XmlLogger.prepareSimulation(xmlInputFile);
 			NetworkBuilder nBuilder = new NetworkBuilder(xmlInputFile);
 			/* Parse the network input file */
 			nBuilder.prepareNetwork();
@@ -73,14 +76,15 @@ public class CoreLauncher {
 				GlobalLogger.error(Errors.NULL_SCHEDULER_AT_LAUNCH, "Scheduler is null, error on network topology");
 			}
 			
-			GlobalLogger.log("------------ LAUNCHING GRAPHER ------------");
+			GlobalLogger.log("------------ SIMULATION DONE ------------");
+			//GlobalLogger.log("------------ LAUNCHING GRAPHER ------------");
 			 
 			/* Launch grapher */
-			MainGrapher mainGrapher = new MainGrapher();
+			//MainGrapher mainGrapher = new MainGrapher();
 			
-			mainGrapher.drawGraph();
+			//mainGrapher.drawGraph();
 	       
-	       GlobalLogger.log("------------ GRAPHER DONE ------------");
+	       //GlobalLogger.log("------------ GRAPHER DONE ------------");
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

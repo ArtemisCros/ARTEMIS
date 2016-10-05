@@ -29,10 +29,10 @@ public interface ISchedulable {
 	void setCurrentWcet(double wcet);
 	
 	/* Period getter */
-	int getCurrentPeriod();
+	double getCurrentPeriod();
 	
 	/* Period setter */
-	void setCurrentPeriod(int period);
+	void setCurrentPeriod(double period);
 	
 	/* Next send getter */
 	double getNextSend();
@@ -67,9 +67,9 @@ public interface ISchedulable {
 	public int getNbExec();
 	
 	/* Get the message period (for periodic messages)*/
-	public int getPeriod();
+	public double getPeriod();
 	/* Set the message period */
-	public void setPeriod(int period);
+	public void setPeriod(double period);
 	
 	/* Get the wcet for current criticality level */
 	public double getWcet();

@@ -44,6 +44,7 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 		if(qualif == XMLNetworkTags.TAG_WCTT_RATE){triggers.put(TriggerCodes.WCTT_RATE, trigger);}
 		if(qualif == XMLNetworkTags.TAG_MC_PROTO){triggers.put(TriggerCodes.MC_PROTO, trigger);}
 		if(qualif == XMLNetworkTags.TAG_MC_MODEL){triggers.put(TriggerCodes.MC_MODEL, trigger);}
+		if(qualif == XMLNetworkTags.TAG_WORST_CASE_ANALYSIS){triggers.put(TriggerCodes.WC_ANALYSIS, trigger);}
 	}
 	
 	/**
@@ -88,12 +89,21 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 			}
 		}
 		
+		if(triggers.get(TriggerCodes.WC_ANALYSIS)) {
+			if(value.equals("true")) {
+				ComputationConstants.getInstance().setWorstCaseAnalysis(true);
+			}
+			else {
+				ComputationConstants.getInstance().setWorstCaseAnalysis(false);
+			}
+		}
+		
 		if(triggers.get(TriggerCodes.MC_MODEL)) {		
-			if(value.equals("Static")) {
+			if(value.equals("S")) {
 				ComputationConstants.getInstance().setCritModel(
 						CriticalityModel.STATIC);
 			}
-			else if(value.equals("Dynamic")) {
+			else if(value.equals("D")) {
 				ComputationConstants.getInstance().setCritModel(
 						CriticalityModel.DYNAMIC);
 			}
@@ -153,7 +163,9 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 			final ComputationConstants simuConst 	= ComputationConstants.getInstance();
 			
 			if(config.getAutomaticTaskGeneration()) {
-				simuConst.setAutoLoad(Double.parseDouble(value));
+				if(simuConst.getAutoLoad() == -1) {
+					simuConst.setAutoLoad(Double.parseDouble(value));
+				}
 			}
 		}
 		
@@ -162,6 +174,7 @@ public class XmlConfigHandler extends XmlDefaultHandler {
 			currentCritSwitch.setCritLvl(newLevel);
 		}
 	 }
+	 
 	 public void endElement(final String uri,final String name,final String qName) {
 		 switchTrigger(qName, false);	 
 		 

@@ -35,4 +35,9 @@ public class Errors {
 	
 	/* Simulation errors */
 	public static final int ERROR_CREATING_MSG			= 10601;
+	public static final int ERROR_COMPUTING_PATH		= 10602;
+	
+	/* Grapher errors */
+	public static final int ERROR_MALFORMED_MSG_ID		= 11000;
+	public static final int ERROR_XML_CONFIG_GRAPHER	= 11001;
 }

@@ -8,6 +8,7 @@ package root.elements.criticality;
 public enum CriticalityLevel {
 	NONCRITICAL,
 	CRITICAL,
-	SAFETYCRITICAL,
-	MISSIONCRITICAL
+	MISSIONCRITICAL,
+	VEHICLECRITICAL,
+	SAFETYCRITICAL
 }

@@ -6,6 +6,7 @@ import generator.TaskGenerator;
 import root.elements.criticality.CriticalityLevel;
 import root.elements.network.Network;
 import root.elements.network.modules.flow.MCFlow;
+import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
@@ -92,16 +93,18 @@ public class CriticalityDelayComputer {
 		switchCritTask.networkPath = new Vector<NetworkAddress>();
 		switchCritTask.setWcet(ComputationConstants.getInstance().switchingCritWctt); // Arbitrary constant Cc 
 		switchCritTask.addNodeToPath(mainNet.getMachineForAddressValue(1).getAddress());
-		switchCritTask.addNodeToPath(mainNet.getMachineForAddressValue(21).getAddress());
-		switchCritTask.addNodeToPath(mainNet.getMachineForAddressValue(31).getAddress());
-		switchCritTask.addNodeToPath(mainNet.getMachineForAddressValue(34).getAddress());
+		boolean validPath = false;
+		Machine currentMachine = mainNet.getMachineForAddressValue(1);
 		
-		/*GlobalLogger.display("MSG SCC WCET-NC:"+switchCritTask.getWcet(CriticalityLevel.NONCRITICAL)
-				+"\tPath:");
-		for(int cptPath=0;cptPath<switchCritTask.getNetworkPath().size();cptPath++) {
-			GlobalLogger.display(switchCritTask.getNetworkPath().get(cptPath).machine.name+"-");
+		while(!validPath) {
+			NetworkAddress newAddr = currentMachine.portsOutput[0].getBindRightMachine().networkAddress;
+			if(switchCritTask.getNetworkPath().contains(newAddr)) {
+				validPath=true;
+			}
+			else {
+				switchCritTask.addNodeToPath(newAddr);
+			}
 		}
-		GlobalLogger.display("\n");*/
 		
 		ISchedulable[] tasks = new ISchedulable[tasksTab.length+1];
 		
@@ -125,7 +128,7 @@ public class CriticalityDelayComputer {
 		
 		/* Computes the result */
 		sDelay = cDelay + mDelay;
-		
+
 		return sDelay;
 	}
 	

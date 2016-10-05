@@ -14,7 +14,11 @@ public class ComputationConstants {
 		 * Please feel free to modify these values 
 		 * and adjust them to your simulation needs
 		 */
-		
+	
+		/** 
+		 * Public static values, settable by developers
+		 */
+	
 		/**
 		 *  Electronical latency in the network */
 		public static final double SWITCHINGLATENCY = 0.20;
@@ -33,7 +37,7 @@ public class ComputationConstants {
 		 * It is computed based on this factor multiplied by the 
 		 * longest period
 		 */
-		public static final double CHANGE_DELAY_FACTOR = 2;
+		public static final double CHANGE_DELAY_FACTOR = 1;
 		
 		/**
 		 *  Number of tests for each load level */
@@ -43,8 +47,25 @@ public class ComputationConstants {
 		 *  Variance for the task generator */
 		public static final double VARIANCE = 0.0055;
 	
+		/**
+		 * Index for WCTT computation on flows generator
+		 */
+		public static final double PERIODINDEX = 5000;
+		
 		public static final int GRAPH_HEIGHT = 1000;
 	
+		
+		/**
+		 *  Private unstatic value, set by XML parsing
+		 */
+		
+		/** 
+		 * If true, we always picks the closest worst-case of each
+		 * transmission time
+		 */
+		private  boolean WORST_CASE_ANALYSIS = true;
+		
+		
 		/**
 		 * Mixed-criticality integration model
 		 */
@@ -69,7 +90,7 @@ public class ComputationConstants {
 		/**
 		 * Delay to occur a criticality switch
 		 */
-		public static final double CRITSWITCHDELAY = ComputationConstants.TIMESCALE;
+		private double CRITSWITCHDELAY = ComputationConstants.TIMESCALE;
 		
 		/**
 		 * Highest WCTT in the network
@@ -85,13 +106,21 @@ public class ComputationConstants {
 		/** 
 		 * Load of the auto-generated taskset
 		 */
-		public double autoLoad;
+		public double autoLoad = -1;
 		
 		//Singloton config manager
 		private static ComputationConstants instance;
 		
 		public ComputationConstants() {
 
+		}
+		
+		public double getCritSwitchDelay() {
+			return this.CRITSWITCHDELAY;
+		}
+		
+		public void setCritSwitchDelay(double critSwitchDelayP) {
+			this.CRITSWITCHDELAY = critSwitchDelayP;
 		}
 		
 		public static ComputationConstants getInstance() {
@@ -154,6 +183,14 @@ public class ComputationConstants {
 		this.CRITPROTOCOL = protP;
 	}
 
+	public boolean getWorstCaseAnalysis() {
+		return WORST_CASE_ANALYSIS;
+	}
+	
+	public void setWorstCaseAnalysis(boolean wcAnalysis) {
+		 this.WORST_CASE_ANALYSIS = wcAnalysis;
+	}
+	
 	/**
 	 *  Precision of the results */
 	public static final int PRECISION = 1000;
@@ -166,5 +203,5 @@ public class ComputationConstants {
 	/** 
 	 * Timescaling for simulation
 	 */
-	public static final double TIMESCALE = 1;
+	public static final double TIMESCALE = 0.1;
 }

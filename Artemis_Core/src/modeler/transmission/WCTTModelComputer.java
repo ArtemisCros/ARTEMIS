@@ -44,29 +44,13 @@ public class WCTTModelComputer {
 	public double getWcet(MCFlow currentFlow) {
 		double transmissionTimeResult = 0.0;
 		
-		if(currentModel == WCTTModel.STRICT) {
-			ArrayList<CriticalityLevel> potentialLevels = new ArrayList<CriticalityLevel>();
-			
-			// First, we filter the potential criticality levels to pick
-			for(CriticalityLevel critLvl: currentFlow.size.keySet()) {
-				if(currentFlow.size.get(critLvl) != -1) {
-					potentialLevels.add(critLvl);
-				}
-			}
-			
-			// Then we select a criticality level
-			int randLevel = rand.nextInt(potentialLevels.size());
-			
-			CriticalityLevel pickedLevel = potentialLevels.get(randLevel);			
-			transmissionTimeResult = currentFlow.size.get(pickedLevel);		
-		}
-		else {
-			/* First, we search for the maxWCTT */
-			double maxWctt = -1;
-			for(CriticalityLevel critLvl: currentFlow.size.keySet()) {
-				if(currentFlow.size.get(critLvl) > maxWctt) {
-					maxWctt = currentFlow.size.get(critLvl);
-				}
+		GlobalLogger.debug("Model:"+currentModel);
+
+		/* First, we search for the maxWCTT */
+		double maxWctt = -1;
+		for(CriticalityLevel critLvl: currentFlow.size.keySet()) {
+			if(currentFlow.size.get(critLvl) > maxWctt) {
+				maxWctt = currentFlow.size.get(critLvl);
 			}
 			
 			switch(currentModel) {
@@ -95,9 +79,6 @@ public class WCTTModelComputer {
 	
 	public double getWcet(double size) {
 		if(size > 0) {
-			if(currentModel == WCTTModel.STRICT) {
-				return size;
-			}
 			if(currentModel == WCTTModel.LINEAR) {
 				return getLinearWCTT(size);
 			}
@@ -160,9 +141,11 @@ public class WCTTModelComputer {
 		Random rand = new Random();
 		double deviation = currentRate/100;
 		double rate = 0.0;
+		double gauss = 0.0;
 		
 		while(rate < 0.2 || rate > 1) {
-			rate =  (rand.nextGaussian()*deviation)+0.6;
+			gauss = rand.nextGaussian();
+			rate =  (gauss*deviation)+0.6;
 		}
 
 		return (rate*size);

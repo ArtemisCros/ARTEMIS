@@ -23,6 +23,7 @@ public class XMLNetworkTags {
 	/* WCTT Model */
 	public static final String TAG_WCTT_COMPUTE = "wcttmodel";
 	public static final String TAG_WCTT_RATE 	= "wcttrate";
+	public static final String TAG_WORST_CASE_ANALYSIS = "wcanalysis";
 	
 	/* Tasks automatic generation */
 	public static final String TAG_AUTOGEN_TASKS= "autogen";

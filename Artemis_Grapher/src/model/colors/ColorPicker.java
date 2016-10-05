@@ -11,7 +11,7 @@ public class ColorPicker {
 	
 	public static Color getColor(int id) {	
 		/* We compute the message color */
-		String colorCode = ColorsList.colors[id%ColorsList.colors.length];
+		String colorCode = ColorsList.getInstance().getColorFromMsg(id);
 		
 		/* We convert from hexadecimal code to 255-based code */
 		int red = Integer.valueOf(colorCode.substring(1, 3), 16);

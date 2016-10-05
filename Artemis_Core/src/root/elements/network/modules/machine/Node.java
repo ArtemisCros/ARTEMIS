@@ -109,7 +109,11 @@ public abstract class Node extends NetworkModule {
 	}
 	
 	public XmlLogger createXMLLog() {
-		xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+ConfigParameters.getInstance().getSimuId()+"/", this.networkAddress.value+".xml");
+		GlobalLogger.debug("Creating XML File"+this.networkAddress.value+".xml");
+		xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+
+				ConfigParameters.getInstance().getSimuId()+"/", 
+				this.networkAddress.value
+				+".xml");
 		xmlLogger.createDocument();
 		xmlLogger.createRoot("machine");
 		//xmlLogger.getRoot().setAttribute("id", this.networkAddress.value);

@@ -94,6 +94,7 @@ public class Machine extends Node {
 		nodeLoad = 0.0;
 		critSwitches = new HashMap<Double, CriticalityLevel>();
 		critWaitingDelay = 0.0;
+		critLevel = CriticalityLevel.NONCRITICAL;
 	}
 	
 	/**
@@ -216,6 +217,7 @@ public class Machine extends Node {
 	/* XML Writing functions */
 	public int writeLogToFile(final double timer) {
 		currentLoad = new BigDecimal(currentLoad).setScale(5, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+		
 		if(currentlyTransmittedMsg != null) {
 			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+timer,
 					"message:"+currentlyTransmittedMsg.getName(), "load:"+currentLoad);		

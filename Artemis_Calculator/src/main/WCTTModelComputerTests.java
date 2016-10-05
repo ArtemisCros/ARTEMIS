@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import root.util.constants.ConfigParameters;
 import logger.GlobalLogger;
 import modeler.transmission.WCTTModel;
 import modeler.transmission.WCTTModelComputer;
@@ -14,6 +15,8 @@ public class WCTTModelComputerTests {
 		if(args.length > 1) {
 			limitPrecision = Integer.parseInt(args[1]);
 		}
+		ConfigParameters.getInstance().setWCTTRate((double)(Integer.parseInt(args[2]))/10);
+		
 		WCTTModelComputer model = new WCTTModelComputer();
 		
 		ArrayList<Occurences> occ = new ArrayList<Occurences>();
@@ -24,12 +27,15 @@ public class WCTTModelComputerTests {
 		
 		String wcttModel = args[0];
 		
-		if(wcttModel.equals("STR")) {model.setModel(WCTTModel.STRICT); }
+		
+		
 		if(wcttModel.equals("LIN")) { model.setModel(WCTTModel.LINEAR); }
 		if(wcttModel.equals("GAU")) {model.setModel(WCTTModel.GAUSSIAN); }
 		if(wcttModel.equals("GCO")) {model.setModel(WCTTModel.COGAUSSIAN); }
 		if(wcttModel.equals("CAP")) {model.setModel(WCTTModel.ANTICOGAUSSIAN); }
 		if(wcttModel.equals("STRP")) {model.setModel(WCTTModel.LINPROB); }
+		
+		GlobalLogger.debug("MODEL:"+model.getModel());
 		
 		for(int precision=0; precision < limitPrecision;precision++) {
 			while(result < 0.61) {
@@ -55,6 +61,7 @@ public class WCTTModelComputerTests {
 				occ.add(new Occurences(value, 0));
 			}
 		}
+		
 		Collections.sort(occ, new Comparator<Occurences>() {
 			public int compare(Occurences left, Occurences right) {
 				if(left.value < right.value) {

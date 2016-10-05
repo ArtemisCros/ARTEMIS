@@ -17,7 +17,7 @@ public class MCFlow extends FrameFlow implements ISchedulable, Cloneable{
 	public double wcet;
 	
 	/* Period of emission */
-	public int period;
+	public double period;
 	
 	public MCFlow(String name) {
 		super(name);
@@ -48,23 +48,23 @@ public class MCFlow extends FrameFlow implements ISchedulable, Cloneable{
 	}
 
 	@Override
-	public int getCurrentPeriod() {
+	public double getCurrentPeriod() {
 		return this.period;
 	}
 
 	@Override
-	public void setCurrentPeriod(int period) {
+	public void setCurrentPeriod(double period) {
 		this.period = period;
 		
 	}
 
 	@Override
-	public int getPeriod() {
+	public double getPeriod() {
 		return this.period;
 	}
 
 	@Override
-	public void setPeriod(int period) {
+	public void setPeriod(double period) {
 		this.period = period;
 	}
 	
@@ -79,7 +79,12 @@ public class MCFlow extends FrameFlow implements ISchedulable, Cloneable{
 	}
 
 	public Double getSize(CriticalityLevel critLvl) {
-		return size.get(critLvl);
+		if(size.get(critLvl) == null) {
+			return -1.0;
+		}
+		else {
+			return size.get(critLvl);
+		}
 	}
 	
 	public HashMap<CriticalityLevel, Double> getSize() {

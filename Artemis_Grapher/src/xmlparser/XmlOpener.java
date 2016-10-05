@@ -70,7 +70,6 @@ public class XmlOpener {
 			plots.add(coordX, graphSize-RANGETICK);
 			plots.add(coordX, graphSize+RANGETICK);
 			
-			//GlobalLogger.debug("ADD "+coordX+" "+(graphSize-RANGETICK)+" "+(graphSize+RANGETICK));
 			seriesList.add(plots);
 		}
 		return seriesList;
@@ -161,7 +160,9 @@ public class XmlOpener {
 			
 			double value = 0;
   		  	double previousValue = 0;
-			
+  		  	String key = "";
+  		  	String previousKey = "";
+  		  	
 		      XMLEventReader eventReader = XMLGraphManager.createXMLEventReader(configFile);
     		  
 		      // read the XML document
@@ -188,8 +189,8 @@ public class XmlOpener {
 		    				  Attribute attr = it.next();
 		    				  
 		    				  if(attr.getName().toString().equals("name")) {
-		    					  String key = configFile.substring(configFile.lastIndexOf("/")+1, configFile.length()-4);
-		    					  machinesName.put(key, attr.getValue().toString());
+		    					  String keyMachine = configFile.substring(configFile.lastIndexOf("/")+1, configFile.length()-4);
+		    					  machinesName.put(keyMachine, attr.getValue().toString());
 		    				  }
 		    			  }
 		    			  
@@ -215,7 +216,7 @@ public class XmlOpener {
 			    			  }
 			    		  }
 			    		  XYTextAnnotation currentAnnotation =
-			    				  new XYTextAnnotation(criticalityLevel, timeValue+1, graphSize+(RANGETICK/2));
+			    				  new XYTextAnnotation(criticalityLevel, timeValue+2, graphSize+(RANGETICK/2));
 			    		  currentAnnotation.setFont(new Font("Arial", Font.BOLD, 22));
 			    		  
 			    		  annotations.add(currentAnnotation);
@@ -242,9 +243,10 @@ public class XmlOpener {
 			    		  plots.get("DEFAULT").add(new GraphPlot(
 			    				  value, graphSize-RANGETICK));
 			    		  
+		    			  
 			    		  if(message != "") {
-			    			  String key = message.substring(3, message.indexOf("_"));
-			    			  
+			    			  key = message.substring(3, message.indexOf("_"));
+
 			    			  if(!key.equals("DEFAULT")) {
 			    					 if(plots.get(key) == null) {
 			    						  plots.put(key, new ArrayList<GraphPlot>());
@@ -259,6 +261,7 @@ public class XmlOpener {
 			    						  if(previousValue == GraphConfig.getInstance().getStartTime()) {
 			    							  plots.get(key).add(new GraphPlot(
 			    									  previousValue-GRAPHPRECISION, graphSize));
+			    							 
 			    							  plots.get(key).add(new GraphPlot(
 			    									  previousValue, graphSize));
 			    						  }
@@ -275,19 +278,36 @@ public class XmlOpener {
 			    						  plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
 			    					  }
 			    					  else {
-			    						  plots.get(key).add(new GraphPlot(previousValue, graphSize));
+			    						  if(!key.equals(previousKey) && previousKey != "DEFAULT") {
+			    							  plots.get(previousKey).add(new GraphPlot(previousValue, graphSize)); 	    				  
+			    							  plots.get(previousKey).add(new GraphPlot(value, graphSize)); 
+						    				  plots.get(previousKey).add(new GraphPlot(value, graphSize-RANGETICK)); 
+						    				  
+						    				  plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK)); 
+						    				  seriesMarked.add(previousKey);
+			    						  }
 			    					  }
 			    					  
 			    					  plots.get(key).add(new GraphPlot(value, graphSize)); 
 			    					  
 			    					 seriesMarked.add(key);
 			    					 previous = true;
+			    					 previousKey = key;
 			    			  }
 			    		  }
 			    		  else {	
-			    			  previous = false;
-			    			  addGroundPoint(plots, seriesMarked, previousValue,
-			    					  value, graphSize);		  
+			    			  if(previous && (!key.equals("DEFAULT"))) {
+			    				  plots.get(key).add(new GraphPlot(previousValue, graphSize)); 	    				  
+			    				  plots.get(key).add(new GraphPlot(value, graphSize)); 
+			    				  seriesMarked.add(key);
+			    			  }
+			    			  else {
+			    				  addGroundPoint(plots, seriesMarked, 
+			    						  previousValue, value, graphSize);
+			    			  }
+			    			  key = "";
+			    			  previousKey = "";
+			    			  previous = false;  			  		  
 			    		  }
 			    		  
 			    		  //We update a set a default point for each serie
@@ -341,7 +361,10 @@ public class XmlOpener {
 			  String key = (String) itKey.next();
 			  if(!key.equals("DEFAULT") && !seriesMarked.contains(key)) { 
   				plots.get(key).add(new GraphPlot(previousValue, graphSize-RANGETICK));
+  			//  GlobalLogger.debug("TIME:"+previousValue+"MSG:"+key+" H:DOWN");
+  			  
 			  	plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
+			 //   GlobalLogger.debug("TIME:"+value+"MSG:"+key+" H:DOWN");
 			  }
 		  }
 	}

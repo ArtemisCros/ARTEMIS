@@ -1,7 +1,11 @@
 package root.util.constants;
 
+import java.util.HashMap;
+import java.util.Vector;
+
 import modeler.transmission.WCTTModel;
 import modeler.transmission.WCTTModelComputer;
+import root.elements.criticality.CriticalityLevel;
 import root.util.tools.PriorityPolicy;
 
 /**
@@ -16,6 +20,12 @@ public class ConfigParameters {
 	private boolean automaticTaskGeneration;
 	private WCTTModel wcttComputerModel;
 	private double wcttRate;
+	
+	private double alphaRate = 0.7;
+	
+	public double getAlphaRate() {
+		return alphaRate;
+	}
 	
 	/* Rate of critical tasks in the random task generator */
 	private double CRITICAL_RATE = 0.3;
@@ -36,7 +46,7 @@ public class ConfigParameters {
 	public static final PriorityPolicy PRIORITY_POLICY = PriorityPolicy.FIFO;
 	
 	public static final boolean MIXED_CRITICALITY = true;
-	public static final MCIncreaseModel MIXED_CRITICALITY_MODEL = MCIncreaseModel.STATIC;
+	public static final MCIncreaseModel MIXED_CRITICALITY_MODEL = MCIncreaseModel.PROBABILISTIC;
 	
 	/* Error margin on the auto-generated load */
 	public static final double ERROR_MARGIN = 0.02;
@@ -48,6 +58,24 @@ public class ConfigParameters {
 	private static ConfigParameters instance = null;
 	
 	public ConfigParameters() {
+	}
+	
+	/** This vector is used to determine the different criticality rates 
+	 * for uniform critical flows generation 
+	 **/
+	private  HashMap<CriticalityLevel, Double> mixedCriticalityRates;
+	
+	public HashMap<CriticalityLevel, Double> getCriticalityRateMatrix() {
+		if(mixedCriticalityRates == null) {
+			mixedCriticalityRates = new HashMap<CriticalityLevel, Double>();
+			mixedCriticalityRates.put(CriticalityLevel.NONCRITICAL, 0.0);
+			mixedCriticalityRates.put(CriticalityLevel.CRITICAL, 0.2);
+			mixedCriticalityRates.put(CriticalityLevel.MISSIONCRITICAL, 0.3);
+			mixedCriticalityRates.put(CriticalityLevel.VEHICLECRITICAL, 0.5);
+			mixedCriticalityRates.put(CriticalityLevel.SAFETYCRITICAL, 0.8);
+			
+		}
+		return mixedCriticalityRates;
 	}
 	
 	public static ConfigParameters getInstance() {
@@ -109,14 +137,13 @@ public class ConfigParameters {
 	}
 	
 	public void setWCTTModel(String wcttModel) {
-		if(wcttModel.equals("STR")) { wcttComputerModel = WCTTModel.STRICT;return; }
+		wcttComputerModel = WCTTModel.LINEAR;
 		if(wcttModel.equals("LIN")) { wcttComputerModel = WCTTModel.LINEAR;return; }
 		if(wcttModel.equals("GAU")) { wcttComputerModel = WCTTModel.GAUSSIAN;return; }
 		if(wcttModel.equals("GCO")) { wcttComputerModel = WCTTModel.COGAUSSIAN;return; }
 		if(wcttModel.equals("CAP")) { wcttComputerModel = WCTTModel.ANTICOGAUSSIAN;return; }
 		if(wcttModel.equals("STRP")) { wcttComputerModel = WCTTModel.LINPROB;return; }
 		
-		wcttComputerModel = WCTTModel.STRICT;
 		return;
 	}
 	

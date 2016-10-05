@@ -28,7 +28,8 @@ public class GraphBuilder {
 	 	    */
 			String nodeName = fileEntry.getName();
 			
-	 	   if(nodeName.endsWith("xml") && (nodeName.compareTo("network.xml") != 0 && !nodeName.contains("critswitches")) &&
+	 	   if(nodeName.endsWith("xml") && (nodeName.compareTo("network.xml") != 0 
+	 			   && !nodeName.contains("critswitches")) &&
 	 			   GraphConfig.getInstance().getNodesList().contains(nodeName)) {   
 	 		  
 	 		   String machineNum = xmlOpener.getFileId(fileEntry.getName());

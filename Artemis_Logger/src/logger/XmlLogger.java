@@ -24,6 +24,21 @@ public class XmlLogger extends Logger{
 	
 	private Element root;
 	
+	/* Empty xml output folder */
+	public static void prepareSimulation(String path) {
+		String pathName = path+ConfigLogger.GENERATED_FILES_PATH+"xml/";
+		
+		File pathToDelete = new File(pathName);
+		if(pathToDelete.exists()) {
+			File[] listFiles = pathToDelete.listFiles();
+			
+			for(int cptFiles=0; cptFiles < listFiles.length; cptFiles++) {
+				listFiles[cptFiles].delete();
+			}
+		}
+		
+	}
+	
 	public XmlLogger(String path, String fileName_) {
 		fileName = path+ConfigLogger.GENERATED_FILES_PATH+"xml/"+fileName_;
 		

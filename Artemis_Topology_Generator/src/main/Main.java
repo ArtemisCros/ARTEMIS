@@ -48,7 +48,7 @@ public class Main {
 		else {
 			double startTime = System.currentTimeMillis();
 
-			generateTopology(networkSize, 0.7);	
+			generateTopology(networkSize, ConfigParameters.getInstance().getAlphaRate());	
 			
 			double endTime = System.currentTimeMillis();
 			

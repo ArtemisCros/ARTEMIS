@@ -9,88 +9,119 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import model.GraphConfig;
+import org.xml.sax.Attributes;
+import org.xml.sax.helpers.DefaultHandler;
 
-public class XMLConfigReader {
+import utils.Errors;
+import logger.GlobalLogger;
+import model.GraphConfig;
+import model.colors.ColorsList;
+
+
+/**
+ * Reads XML config file and sets graph config
+ *  Sets the grapher global config 
+ */	
+public class XMLConfigReader extends DefaultHandler {
 	private boolean endTimeTrigger;
 	private boolean startTimeTrigger;
 	private boolean graphNameTrigger;
 	private boolean nodesNameTrigger;
+	private boolean colorsTrigger;
+	private boolean colorTrigger;
 	
-	/**
-	 * Reads XML config file and sets graph config
-	 *  Sets the grapher global config 
-	 */	
-	public void readFile(String configFile) {
-		  GraphConfig config = GraphConfig.getInstance();
-		  config.setStartTime(0);
-			
-		  XMLEventReader eventReader = XMLGraphManager.createXMLEventReader(configFile);
+	public XMLConfigReader() {
+		GraphConfig config = GraphConfig.getInstance();
+		config.setStartTime(0);
+	}
+	
+	public void startElement(final String uri, final String name, 
+			final String qualif, final Attributes pAttr) {
+
+		 if(qualif.equals(XMLGrapherTags.TAG_ENDTIME)) {
+			  endTimeTrigger = true;
+		  }  
 		  
-		  while (eventReader.hasNext()) {
-	    	  XMLEvent event = null;
-				try {
-					event = eventReader.nextEvent();
-				} catch (XMLStreamException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-			  if(event.isStartElement()) {
-	    		  StartElement element = event.asStartElement();
-	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_ENDTIME)) {
-	    			  endTimeTrigger = true;
-	    		  }  
-	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_STARTTIME)) {
-	    			  startTimeTrigger = true;
-	    		  }  
-	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_GRAPHNAME)) {
-	    			  graphNameTrigger = true;
-	    		  }
-	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_NODES)) {
-	    			  nodesNameTrigger = true;
-	    		  }
-			  }
+		  if(qualif.equals(XMLGrapherTags.TAG_STARTTIME)) {
+			  startTimeTrigger = true;
+		  }  
+		  
+		  if(qualif.equals(XMLGrapherTags.TAG_GRAPHNAME)) {
+			  graphNameTrigger = true;
+		  }
+		  
+		  if(qualif.equals(XMLGrapherTags.TAG_NODES)) {
+			  nodesNameTrigger = true;
+		  }
+		  
+		  if(qualif.equals(XMLGrapherTags.TAG_COLORS)) {
+			  colorsTrigger = true;
+		  }
+		  
+		  if(qualif.equals(XMLGrapherTags.TAG_COLOR) && colorsTrigger) {
+			  colorTrigger = true;
 			  
-			  if(event.isCharacters()) {
-				  Characters element = event.asCharacters();
-				  
-				  if(endTimeTrigger) {			  
-					  GraphConfig.getInstance().setEndTime(Integer.parseInt(element.getData()));
-				  }
-				  if(startTimeTrigger) {
-					  GraphConfig.getInstance().setStartTime(Integer.parseInt(element.getData()));
-				  }
-				  if(graphNameTrigger) {
-					  GraphConfig.getInstance().setGraphName(element.getData());
-				  }
-				  if(nodesNameTrigger) {
-					  String[] nodesList = element.getData().split(",");
-					  ArrayList<String> nodesArrayList = new ArrayList<String>();
-					  
-					  for(int cptNodes=0; cptNodes < nodesList.length; cptNodes++) {
-						  nodesArrayList.add(nodesList[cptNodes].trim()+".xml");
-					  }
-					 GraphConfig.getInstance().setNodesList(nodesArrayList);
-					 
-				  }
-			  }
+			  String msgId = pAttr.getValue(pAttr.getIndex("msg"));
+			  String colorCode = pAttr.getValue(pAttr.getIndex("code"));
 			  
-			  if(event.isEndElement()) {
-				  EndElement element = event.asEndElement();
-	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_ENDTIME)) {
-	    			  endTimeTrigger = false;
-	    		  }
-	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_STARTTIME)) {
-	    			  startTimeTrigger = false;
-	    		  }
-	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_GRAPHNAME)) {
-	    			  graphNameTrigger = false;
-	    		  }
-	    		  if(element.getName().toString().equals(XMLGrapherTags.TAG_NODES)) {
-	    			  nodesNameTrigger = false;
-	    		  }
+			  try{
+				  ColorsList.getInstance().addColor(Integer.parseInt(msgId), colorCode);
+				  GlobalLogger.debug("Id:"+msgId+" Color:"+colorCode);
+			  }
+			  catch(Exception e) {
+				  GlobalLogger.error(Errors.ERROR_MALFORMED_MSG_ID, 
+						  "Error in Message id : a message id may not be"
+						  + "an integer");
 			  }
 		  }
 	}
+	
+	 public void characters(final char[] pCh,final int start,final int length) { 
+		 String value = new String(pCh);
+			value = value.substring(start, start+length);
+		 
+		  if(endTimeTrigger) {			  
+			  GraphConfig.getInstance().setEndTime(Integer.parseInt(value));
+		  }
+		  
+		  if(startTimeTrigger) {
+			  GraphConfig.getInstance().setStartTime(Integer.parseInt(value));
+		  }
+		  
+		  if(graphNameTrigger) {
+			  GraphConfig.getInstance().setGraphName(value);
+		  }
+		  
+		  if(nodesNameTrigger) {
+			  String[] nodesList = value.split(",");
+			  ArrayList<String> nodesArrayList = new ArrayList<String>();
+			  
+			  for(int cptNodes=0; cptNodes < nodesList.length; cptNodes++) {
+				  nodesArrayList.add(nodesList[cptNodes].trim()+".xml");
+			  }
+			 GraphConfig.getInstance().setNodesList(nodesArrayList);
+			 
+		  }
+	}
+	
+	 public void endElement(final String uri,final String name,final String qName) {		 
+		 if(qName.equals(XMLGrapherTags.TAG_ENDTIME)) {
+			  endTimeTrigger = false;
+		  }  
+		  if(qName.equals(XMLGrapherTags.TAG_STARTTIME)) {
+			  startTimeTrigger = false;
+		  }  
+		  if(qName.equals(XMLGrapherTags.TAG_GRAPHNAME)) {
+			  graphNameTrigger = false;
+		  }
+		  if(qName.equals(XMLGrapherTags.TAG_NODES)) {
+			  nodesNameTrigger = false;
+		  }
+		  if(qName.equals(XMLGrapherTags.TAG_COLORS)) {
+			  colorsTrigger = false;
+		  }
+		  if(qName.equals(XMLGrapherTags.TAG_COLOR) && colorsTrigger) {
+			  colorTrigger = false;
+		  }
+	 }
 }

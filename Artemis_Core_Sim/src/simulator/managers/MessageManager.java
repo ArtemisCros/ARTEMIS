@@ -13,7 +13,7 @@ import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 import simulator.generation.MessageGenerator;
-import simulator.generation.WCTTComputer;
+import simulator.generation.WCTTManager;
 
 /* Author : Olivier Cros
  * Bind and generate messages with machines 
@@ -114,7 +114,8 @@ public class MessageManager {
 			}
 			
 			/* Correcting time precision */
-			fromMachine.analyseTime  = new BigDecimal(analyseTime).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue()+ComputationConstants.TIMESCALE;
+			fromMachine.analyseTime  = new BigDecimal(analyseTime)
+				.setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();;
 		}
 		
 		if(fromMachine.inputBuffer.isEmpty() && fromMachine.currentlyTransmittedMsg == null) {
@@ -140,14 +141,22 @@ public class MessageManager {
 	 */
 	public int analyzeMessage(Machine fromMachine, double time) {
 		if(fromMachine.currentlyTransmittedMsg != null) {
-			if(fromMachine.analyseTime > 1)
-				fromMachine.analyseTime  = new BigDecimal(fromMachine.analyseTime).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
-			fromMachine.analyseTime -= ComputationConstants.TIMESCALE;
+			if(fromMachine.analyseTime >= ComputationConstants.TIMESCALE)
+			{
+				fromMachine.analyseTime  = new BigDecimal(fromMachine.analyseTime).
+					setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
 			
-			if(GlobalLogger.DEBUG_ENABLED) {
-				String debug = "TIME:"+time+" ANALYSE TIME:"+fromMachine.analyseTime+" TREATING MSG "+fromMachine.currentlyTransmittedMsg.getName();
-				debug += " MACHINE "+fromMachine.name;
-				GlobalLogger.debug(debug);
+				if(GlobalLogger.DEBUG_ENABLED) {
+					String debug = "TIME:"+time;
+					debug += " ANALYSE TIME:"+fromMachine.analyseTime;
+					debug += " TREATING MSG ";
+					debug += fromMachine.currentlyTransmittedMsg.getName();
+					debug += " MACHINE "+fromMachine.name;
+					
+					GlobalLogger.debug(debug);
+				}
+				
+				fromMachine.analyseTime -= ComputationConstants.TIMESCALE;
 			}
 		}	
 		
@@ -158,7 +167,8 @@ public class MessageManager {
 	/* Check whether to load or send messages */
 	public int prepareMessagesForTransfer(Machine fromMachine, double time) {
 		/* If current packet is no more treated */
-		if(fromMachine.analyseTime <= 0 && fromMachine.currentlyTransmittedMsg != null) {
+		if(fromMachine.analyseTime <=  0 &&
+				fromMachine.currentlyTransmittedMsg != null) {
 			/* Put message in output buffer */
 			fromMachine.sendMessage(fromMachine.currentlyTransmittedMsg);		
 

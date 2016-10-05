@@ -31,6 +31,15 @@ public class Main {
 			simuId = "000";
 		}
 		
+		
+		if(args.length > 1) {
+			double rate = Double.parseDouble(args[1]);
+			ConfigParameters.getInstance().setCriticalRate(rate);
+		}
+		if(args.length > 2) {
+			double load = Double.parseDouble(args[2]);
+			ComputationConstants.getInstance().setAutoLoad(load);
+		}
 		ConfigParameters.getInstance().setSimuId(simuId);
 		double start = System.currentTimeMillis();
 		

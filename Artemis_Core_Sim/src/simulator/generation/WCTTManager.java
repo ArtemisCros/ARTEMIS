@@ -9,13 +9,13 @@ import root.elements.network.modules.machine.Machine;
 import root.util.constants.ComputationConstants;
 import simulator.managers.CriticalityManager;
 
-public class WCTTComputer {
+public class WCTTManager {
 	/** 
 	 * The network criticality manager
 	 */
 	private CriticalityManager critManager;
 	
-	public WCTTComputer(CriticalityManager critManagerP) {
+	public WCTTManager(CriticalityManager critManagerP) {
 		this.critManager = critManagerP;
 	}
 	
@@ -36,19 +36,26 @@ public class WCTTComputer {
 		destination = critManager.checkMessageCritLevel(newflow, transmissionTime);
 		
 		if(destination != currentMachine.getCritLevel()) {
-			if(newflow.getSize(destination) <= newflow.getSize(currentMachine.getCritLevel())) {
+			if(newflow.getSize(destination) <= 
+					newflow.getSize(currentMachine.getCritLevel())) {
 				/* Decrease case */
 				critManager.updateCritTable(currentMachine, destination, time);
 			}
 			else if(newflow.getSize(currentMachine.getCritLevel()) > 0){
 				/* Increase case */
 				// TODO : We suppose switching criticality level delay equal to 1
-				critManager.addNewGlobalCritSwitch(time+ComputationConstants.CRITSWITCHDELAY, destination);
+				critManager.addNewGlobalCritSwitch
+					(time+ComputationConstants.getInstance().getCritSwitchDelay(),
+						destination);
 			}
 			
 		}
 		else {
 			critManager.updateCritTable(currentMachine, destination, time);
+		}
+		
+		if(ComputationConstants.getInstance().getWorstCaseAnalysis()) {
+			transmissionTime = critManager.checkClosestWCTT(newflow, transmissionTime);
 		}
 		
 		return transmissionTime;
@@ -74,7 +81,7 @@ public class WCTTComputer {
 				break;
 			case DYNAMIC :
 				wctt = ((MCFlow)(newMsg)).getMaxWCTT();
-				
+				GlobalLogger.debug("MAX:"+wctt);
 				if(wctt != -1) {
 					wctt = getDynamicWCTT(newMsg, wctt, time, currentNode);
 					((MCFlow)(newMsg)).wcetTask = wctt;
@@ -85,8 +92,11 @@ public class WCTTComputer {
 				break;
 		}
 		
-				
-		
+		GlobalLogger.debug("Generated value:"+wctt);
+		if(ComputationConstants.getInstance().getWorstCaseAnalysis()) {
+			wctt = critManager.checkClosestWCTT(newMsg, wctt);
+		}
+					
 		return wctt;
 	}
 }

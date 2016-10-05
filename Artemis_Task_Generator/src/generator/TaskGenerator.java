@@ -1,6 +1,8 @@
 package generator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 import java.util.Vector;
 
 import org.w3c.dom.Element;
@@ -27,15 +29,19 @@ import modeler.networkbuilder.NetworkBuilder;
 public class TaskGenerator {
 	int numberOfTasks;
 	double networkLoad; 
-	int timeLimit;
+	double timeLimit;
 	double variance;
 	public double globalLoad;
 	private double highestWcet;
+	private int nbCritLevels;
 	
 	public int failSet;
 	
 	private ISchedulable[] tasks;
 	
+	public void setNumberOfTasks(int numberOfTasksP) {
+		numberOfTasks = numberOfTasksP;
+	}
 	
 	public ISchedulable[] getTasks() {
 		return tasks;
@@ -49,9 +55,32 @@ public class TaskGenerator {
 	public TaskGenerator() {
 		numberOfTasks 	= ComputationConstants.getInstance().getGeneratedTasks();
 		networkLoad 	= ComputationConstants.getInstance().getAutoLoad();
-		timeLimit		= ConfigParameters.getInstance().getTimeLimitSimulation();
+		timeLimit		= ComputationConstants.PERIODINDEX;
+				//ConfigParameters.getInstance().getTimeLimitSimulation();
 		variance		= ComputationConstants.VARIANCE;		
 		this.highestWcet= ComputationConstants.getInstance().getHighestWCTT();
+		nbCritLevels = CriticalityLevel.values().length;
+		
+	}
+	
+	public void setCriticalityLevelsNumber(int nbCritLevelsP) {
+		nbCritLevels = nbCritLevelsP;
+	}
+	
+	private void createCriticalityNode(XmlLogger xmlLogger, 
+			Element criticalityNode, 
+			int priorityP, double periodP, int offsetP, double wcetP) {
+		Element priority = xmlLogger.addChild("priority", criticalityNode);
+		priority.appendChild(xmlLogger.source.createTextNode(""+priorityP));
+		
+		Element period = xmlLogger.addChild("period", criticalityNode);
+		period.appendChild(xmlLogger.source.createTextNode(""+periodP));
+		
+		Element offset = xmlLogger.addChild("offset", criticalityNode);
+		offset.appendChild(xmlLogger.source.createTextNode(""+offsetP));
+		
+		Element wcet = xmlLogger.addChild("wcet", criticalityNode);
+		wcet.appendChild(xmlLogger.source.createTextNode(""+wcetP));
 	}
 	
 	public void generateXMLMessagesFile(ISchedulable[] taskList) {
@@ -81,19 +110,26 @@ public class TaskGenerator {
 				}
 				
 				path.appendChild(xmlLogger.source.createTextNode(pathS));
+				createCriticalityNode(xmlLogger, criticality, 
+						taskList[cptMsg].getPriority(),
+						taskList[cptMsg].getPeriod(),
+						taskList[cptMsg].getOffset(),
+						taskList[cptMsg].getWcet(CriticalityLevel.NONCRITICAL));
 				
-				Element priority = xmlLogger.addChild("priority", criticality);
-				priority.appendChild(xmlLogger.source.createTextNode(""+taskList[cptMsg].getPriority()));
 				
-				Element period = xmlLogger.addChild("period", criticality);
-				period.appendChild(xmlLogger.source.createTextNode(""+taskList[cptMsg].getPeriod()));
-				
-				Element offset = xmlLogger.addChild("offset", criticality);
-				offset.appendChild(xmlLogger.source.createTextNode(""+taskList[cptMsg].getOffset()));
-				
-				Element wcet = xmlLogger.addChild("wcet", criticality);
-				wcet.appendChild(xmlLogger.source.createTextNode(""+taskList[cptMsg].getWcet(CriticalityLevel.NONCRITICAL)));
+				if(taskList[cptMsg].getWcet(CriticalityLevel.CRITICAL) > 0) {
+					criticality = xmlLogger.addChild("criticality", message, "level:C");
+					path = xmlLogger.addChild("path", criticality);
+					path.appendChild(xmlLogger.source.createTextNode(pathS));
+					
+					createCriticalityNode(xmlLogger, criticality, 
+							taskList[cptMsg].getPriority(),
+							taskList[cptMsg].getPeriod(),
+							taskList[cptMsg].getOffset(),
+							taskList[cptMsg].getWcet(CriticalityLevel.CRITICAL));
+				}
 			}
+			
 		}
 }
 	
@@ -102,16 +138,91 @@ public class TaskGenerator {
 		return generateTaskList(this.highestWcet);
 	}
 	
+	/**
+	 * Generates a set of utilisations for a given flow, for each of its potential
+	 * criticality levels
+	 * @return
+	 */
+	
+	private HashMap<CriticalityLevel, Double> generateUtilisations() {
+		double currentUtilisation = 0.0;
+		double utilisation = 0.0;
+		double critIncrease = 0.0;
+		CriticalityLevel[] critLevels = CriticalityLevel.values();
+		
+		HashMap<CriticalityLevel, Double> utilisations
+		= new HashMap<CriticalityLevel, Double>();
+		
+		HashMap<CriticalityLevel, Double> rateMatrix = 
+				ConfigParameters.getInstance().getCriticalityRateMatrix();
+		
+		/* We pick a random value to determine if the flow belongs
+		 * to specific criticality levels
+		 */
+		double isTaskCritical = Math.random();
+		currentUtilisation = utilisation;
+		
+		for(int cptCritLevel = 0; cptCritLevel <  nbCritLevels; cptCritLevel++) {
+			CriticalityLevel currentLevel = critLevels[cptCritLevel];
+			
+			/* In case we generate a WCTT for the current level */
+			if(isTaskCritical > (rateMatrix.get(currentLevel))) {	
+				critIncrease = 0.0;
+				
+				/* We generate the utilisation to increase for the current
+				 * criticality level
+				 * TODO : INCREASING MODELS
+				 */
+				if(currentUtilisation == 0) {
+					critIncrease = generateUtilisation();
+				}
+				else {
+					//while(critIncrease <= (currentUtilisation*1.01)) {
+						critIncrease = currentUtilisation+RandomGenerator.genDouble(0, networkLoad/numberOfTasks);
+						
+						/* Generate utilisation from a uniform rule */
+						//critIncrease = generateUtilisation();
+						
+					//}
+				}	
+				
+				/* We keep trace from each previous utilisation,
+				 * to guarantee Vestal hierarchical hypothesis
+				  We guarantee the WCTT to be higher than the 
+				  previous criticality level */
+				currentUtilisation = critIncrease;				
+				
+				utilisations.put(currentLevel, currentUtilisation);
+				
+			}
+			else {
+				utilisations.put(currentLevel, 0.0);
+			}	
+		}
+		
+		return utilisations;
+	}
+	
 	public ISchedulable[] generateSingleSet(double highestWctt) {
+		// TODO : Clean and divide
 		double dataFlow = 1500/ConfigParameters.FLOW_DATARATE;
+		
 		double iTg				= 0.0;
 		double prob				= 0.0;
 		double periodComplete	= 0.0;
-		double criticalUtilisation = -1;
-		double critWcet			= -1;
-		double utilisation 		= 0.0;
+		double currentUtilisation = 0.0;
+
+		
+		HashMap<CriticalityLevel, Double> utilisations
+			= new HashMap<CriticalityLevel, Double>();
+		HashMap<CriticalityLevel, Double> wcetComplete
+			= new HashMap<CriticalityLevel, Double>();
+		
 		double precision 		= 1/ComputationConstants.TIMESCALE;
-		double critIncrease;
+		
+		CriticalityLevel[] critLevels = CriticalityLevel.values();
+		
+		int cptWCTT;
 		
 		/*Generated tasks list */
 		ISchedulable[] tasks = null;
@@ -125,95 +236,63 @@ public class TaskGenerator {
 		
 		for(int cptTask=1; cptTask <= numberOfTasks;  cptTask++) {	
 			ISchedulable newTask;
-			critWcet = -1.0;
 			
 			/* Granularity */
 			iTg = 10;
 			/* First, we generate a random uniform-distributed value (Unifast method)*/
 			prob = RandomGenerator.genDouble(Math.log(timeLimit/10), Math.log(timeLimit + iTg));	
-			periodComplete = Math.min(iTg * (Math.floor(Math.exp(prob)/iTg)), timeLimit);			
-			
-			/* Generate utilisation from a uniform rule */
-			utilisation = generateUtilisation();		
-			
-			/* Computes wcet from utilisation */
-			double wcetComplete = Math.floor(utilisation * periodComplete*precision)/(precision);
-			
-			if(highestWcet != 0 && wcetComplete > highestWcet) {
-				periodComplete = (highestWcet * periodComplete)/wcetComplete;
-				wcetComplete = highestWcet;
-			}
+			periodComplete = Math.min(iTg * (Math.floor(Math.exp(prob)/iTg)), timeLimit);	
 			
 			/* Generate utilisation for critical tasks */
 			if(ConfigParameters.MIXED_CRITICALITY) {
-				double isTaskCritical = Math.random();
+				utilisations = generateUtilisations();
+			}
+			
+			currentUtilisation = 0;
+			
+			/* Now that utilisations are generated, we deduce the WCTT */
+			for(cptWCTT=0; cptWCTT < nbCritLevels; cptWCTT++) {
+				currentUtilisation = utilisations.get(critLevels[cptWCTT]);
 				
-				if(isTaskCritical > (1-ConfigParameters.getInstance().getCriticalRate())) {	
-					while(criticalUtilisation <= utilisation) {
-						
-						/* In case of high wcet tasks */
-						critIncrease = 0.0;
-						
-						/* Depending on the model, we define the increase of wctt for the criticality level */
-						//TODO : Several criticality levels
-						if(ConfigParameters.MIXED_CRITICALITY_MODEL == MCIncreaseModel.STATIC) {
-							critIncrease =  (utilisation/numberOfTasks);
-						}
-						if(ConfigParameters.MIXED_CRITICALITY_MODEL == MCIncreaseModel.PROBABILISTIC) {
-							critIncrease = Math.random() * utilisation;
-						}
-						criticalUtilisation = utilisation + critIncrease;
-						/* Compute critical WCTT */
-						critWcet =  Math.floor(criticalUtilisation * periodComplete*precision)/(precision);
-						
-						if(highestWcet != 0 && critWcet > highestWcet) {
-							periodComplete = (highestWcet * periodComplete)/critWcet;
-							critWcet = highestWcet;
-						}	
-					}
+				if(currentUtilisation != 0) {
+					
+					double value = currentUtilisation*periodComplete;
+					wcetComplete.put(critLevels[cptWCTT], value);
 				}
 				else {
-					criticalUtilisation = -1;
-				}	
+					wcetComplete.put(critLevels[cptWCTT], -1.0);
+				}
 			}
-			
-			/* Switched ethernet constraints */
-			if(wcetComplete > dataFlow ) {
-				periodComplete = (dataFlow * periodComplete)/wcetComplete;
-				wcetComplete = dataFlow;
-			}
-			
+
 			/* Saving results */
 			try {
 				if(ConfigParameters.MIXED_CRITICALITY) {
 					newTask = new MCFlow("");
 				}
 				else {
-					newTask = new NetworkFlow((int)periodComplete, ""+cptTask);
+					newTask = new NetworkFlow(periodComplete, ""+cptTask);
 				}
 				
-				newTask.setCurrentPeriod((int)periodComplete);
-				newTask.setWcet(wcetComplete, CriticalityLevel.NONCRITICAL);
-				newTask.setWcet(critWcet, CriticalityLevel.CRITICAL);		
+				newTask.setCurrentPeriod(periodComplete);
+				for(cptWCTT=0; cptWCTT < nbCritLevels; cptWCTT++) {
+					if(wcetComplete.get(critLevels[cptWCTT]) != null) {
+						newTask.setWcet(wcetComplete.get(critLevels[cptWCTT]), 
+								critLevels[cptWCTT]);
+					}
+				}
+	
 				newTask.setId(cptTask);
 				newTask.setName("MSG"+cptTask);
-				
-				tasks[cptTask-1] = newTask;			
+				tasks[cptTask-1] = newTask;		
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-				
 		}
+		
 		this.tasks = tasks;
 		
 		return tasks;
 	}
-	
-	
-	
-	
-	
-	
 	
 	public ISchedulable[] generateTaskList(double highestWctt) {
 		ISchedulable[] tasks = null;
@@ -223,23 +302,27 @@ public class TaskGenerator {
 		
 		while(!validSet) {
 			tasks = generateSingleSet(highestWctt);
-	
+			
 			if(tasks.length == numberOfTasks) {
 				for(int cptTasks =0; cptTasks < tasks.length; cptTasks++) {
-					globalLoad += (tasks[cptTasks].getCurrentWcet(CriticalityLevel.NONCRITICAL)/tasks[cptTasks].getCurrentPeriod());
+					globalLoad += (tasks[cptTasks].getCurrentWcet(CriticalityLevel.NONCRITICAL)/
+							tasks[cptTasks].getCurrentPeriod());
 				}
 				
 				if(Math.abs(networkLoad - globalLoad) <= errorMargin) {
+					/* Generated set ok */
 					validSet = true;
-			//		GlobalLogger.debug("Set ok, Load:"+networkLoad+" "+globalLoad);
+					//GlobalLogger.debug("Set ok, Load:"+networkLoad+" "+globalLoad);
 				}else {
+					/* Generated set not ok */
 					failSet++;
-			//		GlobalLogger.debug("Set Nok, Load:"+networkLoad+" "+globalLoad);
+					//GlobalLogger.debug("Set Nok, Load:"+networkLoad+" "+globalLoad);
 				}
 			}
 			else {
+				/* Generated set not ok */
 				failSet++;
-			//	GlobalLogger.debug("Set size Nok, Load:"+networkLoad+" "+globalLoad);
+				//GlobalLogger.debug("Set size Nok, Load:"+networkLoad+" "+globalLoad);
 			}
 			globalLoad = 0.0;
 		}
@@ -255,9 +338,21 @@ public class TaskGenerator {
 	public double generateUtilisation() {
 		double utilisation = -1;
 		
-		while(utilisation < 0 || utilisation > 1){
-			utilisation = RandomGaussian.genGauss_(networkLoad/numberOfTasks,
+		double mean = networkLoad/(numberOfTasks);
+		double variance = Math.min(mean, networkLoad-mean);
+		
+		/* We add a multiplier to uniformize load repartition among flows */
+		double limit = 1.15*(networkLoad/(numberOfTasks));
+		
+		/*while(utilisation <= 0.001 || utilisation > 1){
+			utilisation = RandomGaussian.genGauss_(mean,
 					variance);
+		}*/
+		
+		double utilisationMin = 0.001;
+		
+		while(utilisation <= utilisationMin || utilisation > 1) {
+			utilisation = RandomGenerator.genDouble(utilisationMin, 2*mean);
 		}
 		
 		return utilisation;

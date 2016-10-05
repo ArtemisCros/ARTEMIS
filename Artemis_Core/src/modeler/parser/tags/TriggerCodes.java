@@ -27,5 +27,6 @@ public enum TriggerCodes {
 	WCTT_COMPUTE,
 	WCTT_RATE,
 	MC_PROTO,
-	MC_MODEL
+	MC_MODEL,
+	WC_ANALYSIS
 }

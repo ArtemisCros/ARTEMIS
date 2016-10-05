@@ -42,13 +42,30 @@ public class CriticalityManager {
 		criticalityTable = new HashMap<Machine, CriticalityLevel>();
 		
 		ComputationConstants.getInstance().setCritChangeDelay(computeCritChangeDelay(network));
-		//GlobalLogger.debug("WAITING DELAY:"+ComputationConstants.getInstance().getCritChangeDelay());
 		
 		/* We initialize the criticality table */
 		for(int cptNodes=0; cptNodes < network.machineList.size(); cptNodes++) {
 			updateCritTable(network.machineList.get(cptNodes),
 					network.machineList.get(cptNodes).getCritLevel(), 0);
 		}
+	
+		/* In centralized approach */
+		if(ComputationConstants.getInstance().getCritprotocol() == CriticalityProtocol.CENTRALIZED) {
+			computeCriticalitySwitchDelay();
+		}
+	}
+	
+	/**
+	 * 
+	 * Computes the delay needed to switch the criticality level in the network
+	 * @return
+	 */
+	private double computeCriticalitySwitchDelay() {
+		double switchDelay = ComputationConstants.getInstance().TIMESCALE;
+		
+		ComputationConstants.getInstance().setCritSwitchDelay(switchDelay);
+		
+		return switchDelay;
 	}
 	
 	/**
@@ -74,8 +91,8 @@ public class CriticalityManager {
 			}
 		}
 		
-		GlobalLogger.debug("DELAY:"+critChangeDelay*ComputationConstants.CHANGE_DELAY_FACTOR);
 		return critChangeDelay*ComputationConstants.CHANGE_DELAY_FACTOR;
+		//return ComputationConstants.TIMESCALE;
 	}
 
 	/**
@@ -165,7 +182,6 @@ public class CriticalityManager {
 		
 		if(ComputationConstants.getInstance().getCritprotocol() == 
 				CriticalityProtocol.CENTRALIZED) {
-			GlobalLogger.debug("CENTRALIZED");
 			for(Machine node : criticalityTable.keySet()) {
 				nodeLevel = criticalityTable.get(node);
 				
@@ -184,7 +200,8 @@ public class CriticalityManager {
 			critWaitingDelay += ComputationConstants.TIMESCALE;
 			
 			if(critWaitingDelay == ComputationConstants.getInstance().getCritChangeDelay()) {
-				addNewGlobalCritSwitch(time+ComputationConstants.CRITSWITCHDELAY, CriticalityLevel.NONCRITICAL);
+				addNewGlobalCritSwitch(time+ComputationConstants.getInstance().getCritSwitchDelay(),
+						CriticalityLevel.NONCRITICAL);
 			}
 		}
 		
@@ -253,6 +270,31 @@ public class CriticalityManager {
 		return wcttComputer;
 	}
 	
+	/**
+	 *  Gets the closest higher WCTT
+	 */
+	public double checkClosestWCTT(MCFlow flow, double transmissionTime)
+	{
+		double currentWCTT = -1;
+		
+		for(CriticalityLevel critLvl : flow.getSize().keySet()) {	
+		
+			/* If the computed WCTT is compliant with the level */
+			if(transmissionTime <= flow.getSize().get(critLvl) 
+					&& (currentWCTT > flow.getSize().get(critLvl) || currentWCTT == -1)) {
+				
+				/* We compute the closest superior WCTT 
+				 * and the corresponding criticality level
+				 */
+				if(flow.getSize().get(critLvl) != -1) {
+						currentWCTT = flow.getSize().get(critLvl) ;
+				}
+			}
+		}
+
+		return currentWCTT;
+	}
+	
 	/** 
 	 * Checks the closest WCTT 
 	 **/
@@ -278,6 +320,8 @@ public class CriticalityManager {
 
 		return level;
 	}
+	
+	
 	
 	/* XML Logger */
 	public void generateMCSwitchesLog() {
