@@ -1,11 +1,6 @@
 package model.colors;
 
 import java.awt.Color;
-import java.util.Random;
-
-import root.util.constants.ConfigParameters;
-import utils.ConfigLogger;
-import logger.GlobalLogger;
 
 public class ColorPicker {
 	

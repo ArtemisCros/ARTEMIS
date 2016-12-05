@@ -7,10 +7,10 @@ import java.util.Vector;
 import org.junit.Before;
 import org.junit.Test;
 
-import root.elements.network.modules.CriticalityLevel;
+import root.elements.criticality.CriticalityLevel;
+import root.elements.network.modules.flow.MCFlow;
+import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.task.ISchedulable;
-import root.elements.network.modules.task.MCMessage;
-import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigParameters;
 import simulator.policies.FIFOSchedulingPolicy;
 import simulator.policies.FIFOStarSchedulingPolicy;
@@ -29,10 +29,10 @@ public class TestSchedulingPolicies {
 		for(int cptMsg=0;cptMsg<=5;cptMsg++) {
 			try {
 				if(ConfigParameters.MIXED_CRITICALITY) {
-					buffer.addElement(new MCMessage(""+cptMsg));
+					buffer.addElement(new MCFlow(""+cptMsg));
 				}
 				else {
-					buffer.addElement(new NetworkMessage(cptMsg, ""+cptMsg));
+					buffer.addElement(new NetworkFlow(cptMsg, ""+cptMsg));
 				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

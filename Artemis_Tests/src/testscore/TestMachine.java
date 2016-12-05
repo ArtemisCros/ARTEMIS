@@ -6,10 +6,10 @@ import logger.XmlLogger;
 import org.junit.Before;
 import org.junit.Test;
 
+import root.elements.network.modules.flow.MCFlow;
+import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
-import root.elements.network.modules.task.MCMessage;
-import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 
@@ -35,11 +35,11 @@ public class TestMachine {
 		try {
 			ISchedulable messageTest;
 			if(ConfigParameters.MIXED_CRITICALITY) {
-				messageTest = new MCMessage("test");
+				messageTest = new MCFlow("test");
 				messageTest.setWcet(10);
 			}
 			else {
-				messageTest = new NetworkMessage(10, "test");
+				messageTest = new NetworkFlow(10, "test");
 			}
 			
 			messageTest.setOffset(0);
@@ -64,11 +64,11 @@ public class TestMachine {
 		try {
 			ISchedulable messageTest;
 			if(ConfigParameters.MIXED_CRITICALITY) {
-				messageTest = new MCMessage("test");
+				messageTest = new MCFlow("test");
 				messageTest.setWcet(10);
 			}
 			else {
-				messageTest = new NetworkMessage(10, "test");
+				messageTest = new NetworkFlow(10, "test");
 			}
 			
 			messageTest.setOffset(0);

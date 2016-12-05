@@ -1,26 +1,11 @@
 package modeler.parser;
 
-import java.util.HashMap;
-import java.util.Vector;
-
 import org.xml.sax.Attributes;
-import org.xml.sax.helpers.DefaultHandler;
-
-import logger.GlobalLogger;
 import modeler.parser.tags.TriggerCodes;
 import modeler.parser.tags.XMLNetworkTags;
 import root.elements.criticality.CriticalityLevel;
-import root.elements.criticality.CriticalitySwitch;
 import root.elements.network.Network;
-import root.elements.network.modules.flow.MCFlow;
-import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.machine.Machine;
-import root.elements.network.modules.task.ISchedulable;
-import root.util.Utils;
-import root.util.constants.ComputationConstants;
-import root.util.constants.ConfigParameters;
-import root.util.tools.NetworkAddress;
-import utils.Errors;
 
 
 /**

@@ -1,12 +1,8 @@
 package modeler.transmission;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Random;
 
-import javax.swing.text.html.HTMLDocument.Iterator;
-
-import logger.GlobalLogger;
 import root.elements.criticality.CriticalityLevel;
 import root.elements.network.modules.flow.MCFlow;
 import root.util.constants.ComputationConstants;
@@ -43,8 +39,6 @@ public class WCTTModelComputer {
 	
 	public double getWcet(MCFlow currentFlow) {
 		double transmissionTimeResult = 0.0;
-		
-		GlobalLogger.debug("Model:"+currentModel);
 
 		/* First, we search for the maxWCTT */
 		double maxWctt = -1;

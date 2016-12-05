@@ -1,13 +1,9 @@
 package root.elements.network.modules.flow;
 
 import java.util.HashMap;
-import java.util.Vector;
-
-import logger.GlobalLogger;
 import root.elements.criticality.CriticalityLevel;
 import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ConfigParameters;
-import root.util.tools.NetworkAddress;
 
 public class MCFlow extends FrameFlow implements ISchedulable, Cloneable{	
 	/* Size in bytes */

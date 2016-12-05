@@ -154,8 +154,12 @@ public class CriticalityManager {
 				CriticalityProtocol.CENTRALIZED) {
 			if(criticalityTable.get(machine) != level) {
 				criticalityTable.put(machine, level);
+				
+				if(GlobalLogger.DEBUG_ENABLED) {
 				GlobalLogger.debug("UPDATE CRITICALITY TABLE FROM "+ancient+
 						" TO "+level+" FOR MACHINE "+machine.name);
+			
+				}
 			}
 		}
 		
@@ -164,8 +168,11 @@ public class CriticalityManager {
 			if(level.compareTo(ancient) > 0) {
 				addNewLocalCritSwtch(time+ComputationConstants.TIMESCALE,
 						level, machine);
-				GlobalLogger.debug("UPDATE CRITICALITY TABLE FROM "+ancient+
+				
+				if(GlobalLogger.DEBUG_ENABLED) {
+					GlobalLogger.debug("UPDATE CRITICALITY TABLE FROM "+ancient+
 						" TO "+level+" FOR MACHINE "+machine.name);
+				}
 			}
 		}
 	}
@@ -182,6 +189,7 @@ public class CriticalityManager {
 		
 		if(ComputationConstants.getInstance().getCritprotocol() == 
 				CriticalityProtocol.CENTRALIZED) {
+			
 			for(Machine node : criticalityTable.keySet()) {
 				nodeLevel = criticalityTable.get(node);
 				
@@ -241,7 +249,9 @@ public class CriticalityManager {
 	 */
 	public void addNewLocalCritSwtch(double time, CriticalityLevel level, Machine localMachine) {
 		if(localMachine.getCritSwitches().get(time) == null) {
-			GlobalLogger.log("CRIT LVL SWITCH TO:"+level+" AT:"+(time+ComputationConstants.TIMESCALE)+" IN MACHINE:"+localMachine.name);
+			if(GlobalLogger.DEBUG_ENABLED) {
+				GlobalLogger.log("CRIT LVL SWITCH TO:"+level+" AT:"+(time+ComputationConstants.TIMESCALE)+" IN MACHINE:"+localMachine.name);
+			}
 			localMachine.getCritSwitches().put(time, level);
 		}
 	}
@@ -301,9 +311,15 @@ public class CriticalityManager {
 	public CriticalityLevel checkMessageCritLevel(MCFlow flow, double transmissionTime) {
 		double currentWCTT = -1;
 		CriticalityLevel level = CriticalityLevel.NONCRITICAL;
+		CriticalityLevel[] levels = new CriticalityLevel[flow.getSize().keySet().size()];
+		flow.getSize().keySet().toArray(levels);
 		
-		for(CriticalityLevel critLvl : flow.getSize().keySet()) {	
+		int cptCritLvl;
+		int size = levels.length;
+		CriticalityLevel critLvl;
 		
+		for(cptCritLvl=0;cptCritLvl<size;) {	
+			critLvl = levels[cptCritLvl];
 			/* If the computed WCTT is compliant with the level */
 			if(transmissionTime <= flow.getSize().get(critLvl) 
 					&& (currentWCTT > flow.getSize().get(critLvl) || currentWCTT == -1)) {
@@ -312,10 +328,11 @@ public class CriticalityManager {
 				 * and the corresponding criticality level
 				 */
 				if(flow.getSize().get(critLvl) != -1) {
-						currentWCTT = flow.getSize().get(critLvl) ;
-						level = critLvl;
+					currentWCTT = flow.getSize().get(critLvl) ;
+					level = critLvl;
 				}
 			}
+			cptCritLvl++;
 		}
 
 		return level;

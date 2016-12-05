@@ -1,13 +1,8 @@
 package socketmgr;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
-
-import logger.GlobalLogger;
 
 public class SocketOpener {
 	private Socket client;

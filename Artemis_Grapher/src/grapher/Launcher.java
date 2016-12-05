@@ -11,13 +11,14 @@ import logger.GlobalLogger;
 public class Launcher {
 
 	public static void main(String[] args) {
-		/* Launch grapher */
+		/* Launch grapher */		
+		GlobalLogger.log("------------ LAUNCHING GRAPHER ------------");
 		ConfigParameters.getInstance().setSimuId(args[0]);
-		
-		MainGrapher mainGrapher = new MainGrapher();	
+		MainGrapher mainGrapher = new MainGrapher();
 		
 		mainGrapher.drawGraph();
+       
 		
-		GlobalLogger.log("DONE");
+		GlobalLogger.log("------------ GRAPHER DONE ------------");
 	}
 }

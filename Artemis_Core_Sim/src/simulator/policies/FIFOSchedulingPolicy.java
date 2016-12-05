@@ -2,7 +2,6 @@ package simulator.policies;
 
 import java.util.Vector;
 
-import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.NetworkMessage;
 
 public class FIFOSchedulingPolicy implements ISchedulingPolicy{

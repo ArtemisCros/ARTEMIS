@@ -2,7 +2,6 @@ package simulator.generation;
 
 import java.math.BigDecimal;
 
-import logger.GlobalLogger;
 import root.elements.criticality.CriticalityLevel;
 import root.elements.network.modules.flow.MCFlow;
 import root.elements.network.modules.machine.Machine;
@@ -66,7 +65,8 @@ public class WCTTManager {
 	 * @param newMsg the message, currentLvl the current criticality level
 	 * @return WCTT
 	 */
-	public double getWCTTFromMCModel(MCFlow newMsg, CriticalityLevel currentLvl, double time, Machine currentNode) {
+	public double getWCTTFromMCModel(MCFlow newMsg, CriticalityLevel currentLvl, 
+										double time, Machine currentNode) {
 		double wctt = 0.0;
 		
 		switch(ComputationConstants.getInstance().getCritmodel()) {
@@ -75,13 +75,13 @@ public class WCTTManager {
 				if(wctt != -1) {
 					wctt = critManager.getWCTTModelComputer().getWcet(wctt);
 
-					wctt = new BigDecimal(wctt).setScale(1, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+					wctt = new BigDecimal(wctt).setScale(1, 
+							BigDecimal.ROUND_HALF_DOWN).doubleValue();
 					((MCFlow)(newMsg)).wcetTask = wctt;
 				}
 				break;
 			case DYNAMIC :
 				wctt = ((MCFlow)(newMsg)).getMaxWCTT();
-				GlobalLogger.debug("MAX:"+wctt);
 				if(wctt != -1) {
 					wctt = getDynamicWCTT(newMsg, wctt, time, currentNode);
 					((MCFlow)(newMsg)).wcetTask = wctt;
@@ -92,7 +92,6 @@ public class WCTTManager {
 				break;
 		}
 		
-		GlobalLogger.debug("Generated value:"+wctt);
 		if(ComputationConstants.getInstance().getWorstCaseAnalysis()) {
 			wctt = critManager.checkClosestWCTT(newMsg, wctt);
 		}

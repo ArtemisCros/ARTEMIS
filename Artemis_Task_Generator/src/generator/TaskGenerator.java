@@ -11,7 +11,6 @@ import root.elements.criticality.CriticalityLevel;
 import root.elements.network.Network;
 import root.elements.network.modules.flow.AbstractFlow;
 import root.elements.network.modules.flow.MCFlow;
-import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ComputationConstants;
@@ -226,13 +225,7 @@ public class TaskGenerator {
 		
 		/*Generated tasks list */
 		ISchedulable[] tasks = null;
-		
-		if(ConfigParameters.MIXED_CRITICALITY) {
-			tasks = new MCFlow[numberOfTasks];
-		}
-		else {
-			tasks = new NetworkFlow[numberOfTasks];
-		}
+		tasks = new MCFlow[numberOfTasks];
 		
 		for(int cptTask=1; cptTask <= numberOfTasks;  cptTask++) {	
 			ISchedulable newTask;
@@ -266,12 +259,7 @@ public class TaskGenerator {
 
 			/* Saving results */
 			try {
-				if(ConfigParameters.MIXED_CRITICALITY) {
-					newTask = new MCFlow("");
-				}
-				else {
-					newTask = new NetworkFlow(periodComplete, ""+cptTask);
-				}
+				newTask = new MCFlow("");
 				
 				newTask.setCurrentPeriod(periodComplete);
 				for(cptWCTT=0; cptWCTT < nbCritLevels; cptWCTT++) {

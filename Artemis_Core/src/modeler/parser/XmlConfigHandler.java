@@ -1,7 +1,5 @@
 package modeler.parser;
 
-import java.util.HashMap;
-
 import logger.GlobalLogger;
 import modeler.parser.tags.TriggerCodes;
 import modeler.parser.tags.XMLNetworkTags;

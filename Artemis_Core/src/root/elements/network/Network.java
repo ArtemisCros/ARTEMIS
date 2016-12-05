@@ -10,7 +10,6 @@ import root.elements.SimulableElement;
 import root.elements.criticality.CriticalitySwitch;
 import root.elements.network.address.AddressGenerator;
 import root.elements.network.modules.flow.MCFlow;
-import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.link.Link;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
@@ -72,12 +71,7 @@ public class Network extends SimulableElement{
  			/* For each generated message, we add its load to each machine in its path */
  			for(int i=0;i<currentMachine.messageGenerator.size();i++) {
  				ISchedulable currentMsg;
- 				if(ConfigParameters.MIXED_CRITICALITY) {
- 					currentMsg = (MCFlow) currentMachine.messageGenerator.get(i);
- 				}
- 				else {
- 					currentMsg = (NetworkFlow) currentMachine.messageGenerator.get(i);
- 				}
+ 				currentMsg = (MCFlow) currentMachine.messageGenerator.get(i);
  				
  				
  				for(int pathNodeCpt=0;pathNodeCpt<currentMsg.getNetworkPath().size();pathNodeCpt++) {
@@ -192,12 +186,7 @@ public class Network extends SimulableElement{
 			
 			for(int j=0;j<currentMachine.messageGenerator.size();j++) {
 				ISchedulable currentMsg;
-				if(ConfigParameters.MIXED_CRITICALITY) {
-					currentMsg = (MCFlow) currentMachine.messageGenerator.get(j);
-				}
-				else {
-					currentMsg = (NetworkFlow) currentMachine.messageGenerator.get(j);
-				}
+				currentMsg = (MCFlow) currentMachine.messageGenerator.get(j);
 				
 				networkDescription +="\t\tMSG:"+currentMsg.getName()+" WCET:"+currentMsg.getWcet();	
 				networkDescription +=" PATH:";
@@ -270,12 +259,7 @@ public class Network extends SimulableElement{
 		for(int machCpt =0; machCpt<machineList.size();machCpt++) {		
 			for(int msgCpt=0;msgCpt<machineList.get(machCpt).messageGenerator.size();msgCpt++) {
 				ISchedulable currentMessage;
-				if(ConfigParameters.MIXED_CRITICALITY) {
-					 currentMessage = (MCFlow) machineList.get(machCpt).messageGenerator.get(msgCpt);
-				}
-				else {
-					 currentMessage = (NetworkFlow) machineList.get(machCpt).messageGenerator.get(msgCpt);
-				}
+				currentMessage = (MCFlow) machineList.get(machCpt).messageGenerator.get(msgCpt);
 				
 				currentMessage.displayPath();
 			}

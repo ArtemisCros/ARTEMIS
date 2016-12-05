@@ -2,20 +2,12 @@ package xmlparser;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Event;
 import java.awt.Font;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.Stroke;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLEventReader;
@@ -25,18 +17,10 @@ import javax.xml.stream.XMLStreamException;
 import logger.GlobalLogger;
 import main.GraphBuilder;
 import model.GraphConfig;
-import model.GraphLoadPoint;
-import modeler.parser.XmlConfigHandler;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYDifferenceRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
@@ -100,7 +84,7 @@ public class XMLGraphManager {
 			currentDataset.addSeries(series.get(series.size()-1));
 			
 			Color rendererColor = xmlOpener.getMessageCodes().get(series.get(cptSeries).getKey());
-			GlobalLogger.debug("Color:"+rendererColor.toString()+" Id:"+series.get(cptSeries).getKey());
+			//GlobalLogger.debug("Color:"+rendererColor.toString()+" Id:"+series.get(cptSeries).getKey());
 			XYDifferenceRenderer currentRenderer = new XYDifferenceRenderer(rendererColor, rendererColor, false);		
 			
 			plot.setDataset(datasetNum+cptSeries, currentDataset);
@@ -177,6 +161,7 @@ public class XMLGraphManager {
 	    		   +ConfigLogger.GENERATED_FILES_PATH+"xml/";
 		   
 	       File folder = new File(networkFolderName); 
+	       GlobalLogger.debug("Folder:"+folder);
 	       
 	       /* Sorting the files by node order in the network */
 	       ArrayList<String> orderedFileName  = gBuilder.sortXMLGraphFiles(folder, xmlOpener);      
@@ -192,8 +177,9 @@ public class XMLGraphManager {
 	       xyplot.setRangeAxis(range);
 
 	       int min = this.configureAxes(xyplot);  
-	       
-	       for(fileNum=0;fileNum<orderedFileName.size();fileNum++) {		       
+	     
+	       for(fileNum=0;fileNum<orderedFileName.size();fileNum++) {	
+	    	   GlobalLogger.debug("File:"+orderedFileName.get(fileNum));
 		       /* To organize the different graphs, we define their position on the height of the y axis */
 		       /* Starting from xml infos, we build the different graphs */
 	    	   
@@ -214,8 +200,8 @@ public class XMLGraphManager {
 		       /* Configuration and graph marking */  
 	 		   String annotation = orderedFileName.get(fileNum);
 	 	       annotation = annotation.substring(0, annotation.length()-4);
-	 	       annotation = xmlOpener.getMachineName(annotation);
-	 	       
+	 	       //annotation = xmlOpener.getMachineName(annotation);
+	 	     
 	 	       // Node legend
 	 	      XYTextAnnotation nodeAnnotation = new XYTextAnnotation(annotation, min-(min/2), (fileNum*5)-1);
 	 	      nodeAnnotation.setFont(new Font("Arial", Font.BOLD, 35));	      

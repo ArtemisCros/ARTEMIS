@@ -8,7 +8,6 @@ import org.xml.sax.Attributes;
 import root.elements.criticality.CriticalityLevel;
 import root.elements.network.Network;
 import root.elements.network.modules.flow.MCFlow;
-import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
 import root.util.Utils;
@@ -89,12 +88,10 @@ public class XmlMessageHandler extends XmlDefaultHandler{
 		//End of message markup : creating a message
 		 if(qName == XMLNetworkTags.TAG_MESSAGE) {
 			 try {
-				 ISchedulable newMsg;
-				 
-				 if(ConfigParameters.MIXED_CRITICALITY) {
-					newMsg = new MCFlow(""); 
-					for(int cptCrit=0;cptCrit < criticalities.size();cptCrit++) {
-						/* Associating a wcet to each criticality level */
+				 ISchedulable newMsg;		 
+				newMsg = new MCFlow(""); 
+				for(int cptCrit=0;cptCrit < criticalities.size();cptCrit++) {
+					/* Associating a wcet to each criticality level */
 						final String rawWcet = currMsgProp.get(criticalities.get(cptCrit));
 						double wcet;
 						if(rawWcet == null) {
@@ -108,14 +105,7 @@ public class XmlMessageHandler extends XmlDefaultHandler{
 						newMsg.setWcet(wcet, critLvl);
 						
 						newMsg.setName("MSG"+currMsgProp.get("ID"));
-					}
-				 }
-				 else {
-				//	 GlobalLogger.debug(currMsgProp.get("WCET"));
-					newMsg = new NetworkFlow(Double.parseDouble(currMsgProp.get("WCET")),
-							"MSG"+currMsgProp.get("ID")); 
-					
-				 }
+				}
 				
 				if(currMsgProp.containsKey("PERI")) {
 				//	GlobalLogger.debug(currMsgProp.get("PERI"));

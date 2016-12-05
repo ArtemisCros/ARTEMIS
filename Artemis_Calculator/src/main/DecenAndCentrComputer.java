@@ -3,7 +3,6 @@ package main;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import logger.FileLogger;
 import logger.GlobalLogger;
 import models.CentrDecentrResults;
 import models.TrajectoryFIFOModel;

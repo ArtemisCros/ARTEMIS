@@ -27,7 +27,7 @@ public class GraphBuilder {
 	 	    * Defaultly, we use the id number to class it
 	 	    */
 			String nodeName = fileEntry.getName();
-			
+			//GlobalLogger.debug("Node:"+nodeName);
 	 	   if(nodeName.endsWith("xml") && (nodeName.compareTo("network.xml") != 0 
 	 			   && !nodeName.contains("critswitches")) &&
 	 			   GraphConfig.getInstance().getNodesList().contains(nodeName)) {   

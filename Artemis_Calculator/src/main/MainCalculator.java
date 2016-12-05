@@ -1,15 +1,9 @@
 package main;
 
 
-import generator.TaskGenerator;
 import logger.FileLogger;
-import logger.GlobalLogger;
-import modeler.networkbuilder.NetworkBuilder;
-import computations.CriticalityDelayComputer;
 import computations.DelayComputerCritSwitch;
-import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ComputationConstants;
-import root.util.constants.ConfigParameters;
 
 /**
  * ARTEMIS Calculator main

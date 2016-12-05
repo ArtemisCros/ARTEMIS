@@ -1,10 +1,7 @@
 package root.util.constants;
 
 import java.util.HashMap;
-import java.util.Vector;
-
 import modeler.transmission.WCTTModel;
-import modeler.transmission.WCTTModelComputer;
 import root.elements.criticality.CriticalityLevel;
 import root.util.tools.PriorityPolicy;
 

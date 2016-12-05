@@ -2,8 +2,6 @@ package model.colors;
 
 import java.util.HashMap;
 
-import root.util.constants.ComputationConstants;
-
 /** 
  * Build the association messages/color according to
  * input xml file

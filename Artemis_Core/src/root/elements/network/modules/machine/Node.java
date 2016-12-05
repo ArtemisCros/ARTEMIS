@@ -1,6 +1,5 @@
 package root.elements.network.modules.machine;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -109,14 +108,18 @@ public abstract class Node extends NetworkModule {
 	}
 	
 	public XmlLogger createXMLLog() {
-		GlobalLogger.debug("Creating XML File"+this.networkAddress.value+".xml");
+		String fileName = this.networkAddress.value+".xml";
+		
+		if(GlobalLogger.DEBUG_ENABLED){
+			GlobalLogger.debug("Creating XML File "+fileName);
+		}
+		
 		xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+
 				ConfigParameters.getInstance().getSimuId()+"/", 
-				this.networkAddress.value
-				+".xml");
+				fileName);
 		xmlLogger.createDocument();
 		xmlLogger.createRoot("machine");
-		//xmlLogger.getRoot().setAttribute("id", this.networkAddress.value);
+		xmlLogger.getRoot().setAttribute("id", ""+this.networkAddress.value);
 		xmlLogger.getRoot().setAttribute("name", this.name);
 		
 		return xmlLogger;

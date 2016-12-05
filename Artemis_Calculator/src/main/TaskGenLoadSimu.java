@@ -1,6 +1,5 @@
 package main;
 
-import logger.FileLogger;
 import logger.GlobalLogger;
 import generator.GenerationLauncher;
 import root.util.constants.ComputationConstants;

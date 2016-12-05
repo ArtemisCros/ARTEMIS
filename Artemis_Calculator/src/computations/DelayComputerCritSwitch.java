@@ -1,7 +1,6 @@
 package computations;
 
 import generator.TaskGenerator;
-import logger.FileLogger;
 import modeler.networkbuilder.NetworkBuilder;
 import root.elements.criticality.CriticalityLevel;
 import root.util.constants.ComputationConstants;

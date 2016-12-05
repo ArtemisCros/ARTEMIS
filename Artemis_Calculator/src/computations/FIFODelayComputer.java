@@ -6,7 +6,6 @@ import models.TrajectoryFIFOModel;
 import models.TrajectoryFIFOSModel;
 import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ComputationConstants;
-import root.util.constants.ConfigParameters;
 
 /**
  * Compares FIFO and FIFO* transmission delays

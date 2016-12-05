@@ -1,10 +1,7 @@
 package framegen;
 
-import java.nio.ByteBuffer;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
-
-import javax.xml.bind.DatatypeConverter;
 
 import utils.Errors;
 import logger.GlobalLogger;

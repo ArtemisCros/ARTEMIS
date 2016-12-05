@@ -108,7 +108,11 @@ public class NetworkBuilder {
 			
 			/* Generate log files for configuration */
 			mainNet.generateNetworkGraph();
-			mainNet.displayNetwork();
+			
+			//Debug purposes
+			if(GlobalLogger.DEBUG_ENABLED) {
+				mainNet.displayNetwork();
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -6,11 +6,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import logger.GlobalLogger;
-import logger.XmlLogger;
 import root.elements.criticality.CriticalityLevel;
-import root.elements.network.modules.NetworkModule;
-import root.elements.network.modules.flow.MCFlow;
-import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.link.Link;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.NetworkMessage;
@@ -188,14 +184,17 @@ public class Machine extends Node {
 		NetworkMessage currentMsg;
 		String message = "InputBuffer de la machine "+networkAddress.value+"|";
 		
-		for(int cptMsgInput = 0; cptMsgInput < inputBuffer.size(); cptMsgInput++) {
-			currentMsg = inputBuffer.elementAt(cptMsgInput);
-
-			message += currentMsg.getName()+" ";
+		if(GlobalLogger.DEBUG_ENABLED) {
+			for(int cptMsgInput = 0; cptMsgInput < inputBuffer.size(); cptMsgInput++) {
+				currentMsg = inputBuffer.elementAt(cptMsgInput);
+	
+				message += currentMsg.getName()+" ";
+			}
+			
+			message += "|";
+			
+			GlobalLogger.debug(message);
 		}
-		
-		message += "|";
-		//GlobalLogger.log(message);
 		return 0;
 	}
 	
@@ -222,9 +221,9 @@ public class Machine extends Node {
 			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+timer,
 					"message:"+currentlyTransmittedMsg.getName(), "load:"+currentLoad);		
 		}
-		else {
+		/*else {
 			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+timer+"", "load:"+currentLoad);
-		}
+		}*/
 		
 		if(this.getCritSwitches().get(timer) != null) {
 			xmlLogger.addChild(

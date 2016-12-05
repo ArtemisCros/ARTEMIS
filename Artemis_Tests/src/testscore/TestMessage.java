@@ -4,10 +4,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import root.elements.criticality.CriticalityLevel;
+import root.elements.criticality.CriticalitySwitch;
 import root.elements.network.Network;
-import root.elements.network.modules.CriticalityLevel;
-import root.elements.network.modules.CriticalitySwitch;
-import root.elements.network.modules.task.MCMessage;
+import root.elements.network.modules.flow.MCFlow;
 
 public class TestMessage {
 	@Before 
@@ -17,9 +17,9 @@ public class TestMessage {
 	
 	@Test
 	public void testSetWcetMC() {
-		MCMessage testMsg = null;
+		MCFlow testMsg = null;
 		try {
-			testMsg = new MCMessage("test");
+			testMsg = new MCFlow("test");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

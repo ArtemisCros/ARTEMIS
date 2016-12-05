@@ -3,7 +3,6 @@ package models;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import logger.GlobalLogger;
 import root.elements.criticality.CriticalityLevel;
 import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ComputationConstants;

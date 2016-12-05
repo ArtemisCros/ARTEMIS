@@ -2,13 +2,6 @@ package xmlparser;
 
 import java.util.ArrayList;
 
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Characters;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -66,7 +59,7 @@ public class XMLConfigReader extends DefaultHandler {
 			  
 			  try{
 				  ColorsList.getInstance().addColor(Integer.parseInt(msgId), colorCode);
-				  GlobalLogger.debug("Id:"+msgId+" Color:"+colorCode);
+				 // GlobalLogger.debug("Id:"+msgId+" Color:"+colorCode);
 			  }
 			  catch(Exception e) {
 				  GlobalLogger.error(Errors.ERROR_MALFORMED_MSG_ID, 

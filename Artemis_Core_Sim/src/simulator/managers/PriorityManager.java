@@ -4,7 +4,6 @@ import java.util.Vector;
 
 import logger.GlobalLogger;
 import root.elements.network.modules.flow.MCFlow;
-import root.elements.network.modules.flow.NetworkFlow;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigParameters;

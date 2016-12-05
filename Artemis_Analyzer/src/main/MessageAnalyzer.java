@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
 
-import javax.security.auth.callback.ConfirmationCallback;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;

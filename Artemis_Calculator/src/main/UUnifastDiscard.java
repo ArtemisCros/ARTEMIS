@@ -1,9 +1,6 @@
 package main;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-
 import root.elements.criticality.CriticalityLevel;
 import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ComputationConstants;

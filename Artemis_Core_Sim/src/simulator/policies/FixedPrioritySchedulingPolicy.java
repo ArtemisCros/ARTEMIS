@@ -2,12 +2,7 @@ package simulator.policies;
 
 import java.util.Vector;
 
-import root.elements.network.modules.flow.AbstractFlow;
-import root.elements.network.modules.flow.MCFlow;
-import root.elements.network.modules.flow.NetworkFlow;
-import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.NetworkMessage;
-import root.util.constants.ConfigParameters;
 
 /* Fixed priority scheduling */
 public class FixedPrioritySchedulingPolicy implements ISchedulingPolicy {

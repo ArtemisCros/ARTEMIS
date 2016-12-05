@@ -13,7 +13,6 @@ import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 import simulator.generation.MessageGenerator;
-import simulator.generation.WCTTManager;
 
 /* Author : Olivier Cros
  * Bind and generate messages with machines 
@@ -33,7 +32,8 @@ public class MessageManager {
 	private MessageGenerator msgGenerator;
 	
 	/* Waiting messages, in links */
-	/* this buffer is used to store all the messages currently transmitted in the links */
+	/* this buffer is used to store all the messages currently
+	 *  transmitted in the links */
 	public Vector<NetworkMessage> linkBuffer;
 	
 	public MessageManager() {
@@ -57,10 +57,12 @@ public class MessageManager {
 	
 	/* Association between Network criticality switches and the criticality manager data */
 	public int associateCritSwitches() {
-		for(int cptSwitch=0;cptSwitch<network.critSwitches.size();cptSwitch++) {
+		int size = network.critSwitches.size();
+		for(int cptSwitch=0;cptSwitch<size;) {
 			/* We associate CriticalitySwitches to the criticality manager */
 			criticalityManager.addNewGlobalCritSwitch(network.critSwitches.get(cptSwitch).getTime(), 
 					network.critSwitches.get(cptSwitch).getCritLvl());
+			cptSwitch++;
 		}
 		
 		return 0;
@@ -69,16 +71,20 @@ public class MessageManager {
 	public int filterCriticalMessages(Machine fromMachine, double time) {
 		/* First, we check changes in criticality level */
 		criticalityManager.updateCriticalityLevel(time);
+		int size =fromMachine.inputBuffer.size();
 		
 		/* We filter the messages unadapted to current criticality level */
 		CriticalityLevel critLvl = fromMachine.getCritLevel();
 		
-		for(int cptMsg=0;cptMsg < fromMachine.inputBuffer.size(); cptMsg++) {
-			NetworkMessage currentMessage = fromMachine.inputBuffer.get(cptMsg);
-			
-			if(!currentMessage.critLevel.contains(critLvl) && 
-					(fromMachine.getCritLevel() != CriticalityLevel.NONCRITICAL)) {
-				fromMachine.inputBuffer.remove(currentMessage);
+		if(fromMachine.getCritLevel() != CriticalityLevel.NONCRITICAL) {
+			for(int cptMsg=0;cptMsg < size;) {
+				NetworkMessage currentMessage = fromMachine.inputBuffer.get(cptMsg);
+				
+				if(!currentMessage.critLevel.contains(critLvl)) {
+					fromMachine.inputBuffer.remove(currentMessage);
+					size = fromMachine.inputBuffer.size();
+				}
+				cptMsg++;
 			}
 		}
 		
@@ -166,9 +172,13 @@ public class MessageManager {
 	
 	/* Check whether to load or send messages */
 	public int prepareMessagesForTransfer(Machine fromMachine, double time) {
+		
 		/* If current packet is no more treated */
 		if(fromMachine.analyseTime <=  0 &&
 				fromMachine.currentlyTransmittedMsg != null) {
+			GlobalLogger.debug("PREPARING MSG "+
+				fromMachine.currentlyTransmittedMsg.name+" FOR TRANSMISSION");
+			
 			/* Put message in output buffer */
 			fromMachine.sendMessage(fromMachine.currentlyTransmittedMsg);		
 
@@ -181,6 +191,9 @@ public class MessageManager {
 	
 	/* Transfer a message from a fromMachine output buffer to destination input buffer */
 	public int sendMessages(Machine fromMachine, double time) {
+		double timerArrival = ConfigParameters.getInstance().getElectronicalLatency();
+		timerArrival = time+timerArrival;
+		
 		/* For each output port of current machine */
 		while(!fromMachine.outputBuffer.isEmpty()) {
 			NetworkMessage currentMsg;
@@ -189,26 +202,39 @@ public class MessageManager {
 	
 			/* If there's still nodes in the message's path */
 			if(currentMsg.getCurrentNode() < currentMsg.networkPath.size()) {
+				GlobalLogger.debug("SENDING MSG "+
+						currentMsg.name+" FOR TRANSMISSION");
+				
 				linkBuffer.add(currentMsg);
 				/* Adding the electronical latency to transmission time */
-				currentMsg.setTimerArrival(time+ConfigParameters.getInstance().getElectronicalLatency());
+				currentMsg.setTimerArrival(timerArrival);
 			}	
-			fromMachine.outputBuffer.remove(currentMsg);
-			
+			fromMachine.outputBuffer.remove(currentMsg);			
 		}
+		
+		return 0;
+	}
+	
+	public int transmitMessages(double time) { 
 		/* Sending messages to their new destination */
-		for(int cptMsg=0;cptMsg<linkBuffer.size();cptMsg++) {
+		int size = linkBuffer.size();
+		for(int cptMsg=0;cptMsg<size;) {
+			//GlobalLogger.debug("CPTMSG:"+cptMsg+" "+time +"/"+linkBuffer.get(cptMsg).getTimerArrival());
 			if(time == linkBuffer.get(cptMsg).getTimerArrival()) {
-				
 				/* We put the message in the code, then clear it from path */
 				NetworkAddress nextAddress = linkBuffer.get(cptMsg).networkPath.elementAt(
 						linkBuffer.get(cptMsg).getCurrentNode());
 				linkBuffer.get(cptMsg).setCurrentNode(linkBuffer.get(cptMsg).getCurrentNode()+1);;
 				
+				GlobalLogger.debug("TRANSMITTING MSG "+linkBuffer.get(cptMsg).name
+						+" TO "+nextAddress.machine.name);
+				
 				/* Message transmission */
 				nextAddress.machine.inputBuffer.add(linkBuffer.get(cptMsg));
 				linkBuffer.remove(linkBuffer.get(cptMsg));
+				size = linkBuffer.size();
 			}
+			cptMsg++;
 		}
 		
 		return 0;

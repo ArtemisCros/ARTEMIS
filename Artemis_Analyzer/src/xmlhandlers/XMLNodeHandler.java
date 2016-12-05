@@ -2,7 +2,6 @@ package xmlhandlers;
 
 import java.util.HashMap;
 
-import logger.GlobalLogger;
 import main.Message;
 
 import org.xml.sax.Attributes;

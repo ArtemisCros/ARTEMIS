@@ -3,10 +3,7 @@ package main;
 import generator.TopologyGenerator;
 import generator.XMLGenerator;
 
-import java.util.HashMap;
-
 import logger.GlobalLogger;
-import models.CentrDecentrResults;
 import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import utils.ConfigLogger;

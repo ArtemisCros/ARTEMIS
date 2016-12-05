@@ -18,6 +18,8 @@ import model.GraphConfig;
 import model.GraphLoadPoint;
 import model.GraphPlot;
 import model.GraphPlots;
+import model.GraphPlotter;
+import model.GraphPosition;
 import model.colors.ColorPicker;
 
 import org.jfree.chart.annotations.XYTextAnnotation;
@@ -150,16 +152,16 @@ public class XmlOpener {
 			annotations = new Vector<XYTextAnnotation>();
 			critSwitchesInstants = new ArrayList<Double>();
 			
-			ArrayList<XYSeries> pointSeries;
-			GraphPlots plots = new GraphPlots();
-			boolean previous = false;
+			ArrayList<XYSeries> pointSeries;		
+			GraphPlotter plotter = new GraphPlotter(graphSize);
 			
 			/*We manually compute the simulation time limit, for optimizing graph size */
 			double timeLength = -1;
 			ArrayList<String> seriesMarked = new ArrayList<String>();
 			
-			double value = 0;
-  		  	double previousValue = 0;
+			double value = GraphConfig.getInstance().getStartTime();
+  		  	double previousValue = GraphConfig.getInstance().getStartTime();
+  		  	
   		  	String key = "";
   		  	String previousKey = "";
   		  	
@@ -167,10 +169,11 @@ public class XmlOpener {
     		  
 		      // read the XML document
     		  String message = "";
+    		  String prevMessage = "";
     		  
-    		  plots.put("DEFAULT", new ArrayList<GraphPlot>());
+    		  plotter.getPlots().put("DEFAULT", new ArrayList<GraphPlot>());
     		  for(double time= GraphConfig.getInstance().getStartTime()-GRAPHPRECISION; time < GraphConfig.getInstance().getEndTime();time+=GRAPHPRECISION) {
-				  plots.get("DEFAULT").add(new GraphPlot(time, graphSize-RANGETICK));
+				  plotter.addPoint(time, GraphPosition.DOWN, "DEFAULT");
 			  }
     		  
 		      while (eventReader.hasNext()) {
@@ -239,95 +242,173 @@ public class XmlOpener {
 			    						  attr.getValue().toString());
 			    			  }
 			    		  }
+			    		  
 			    		  // We add the default point
-			    		  plots.get("DEFAULT").add(new GraphPlot(
-			    				  value, graphSize-RANGETICK));
+			    		  plotter.addPoint(value, GraphPosition.DOWN, "DEFAULT");
 			    		  
+		    			  key = message.substring(3, message.indexOf("_"));
 		    			  
-			    		  if(message != "") {
-			    			  key = message.substring(3, message.indexOf("_"));
-
-			    			  if(!key.equals("DEFAULT")) {
-			    					 if(plots.get(key) == null) {
-			    						  plots.put(key, new ArrayList<GraphPlot>());
-			    						  
-			    						  /* We add the new message code to the message list
-			    						   * We will use it later for color computing */
-			    						  if(messageCodes.get(key) == null) {				  
-			    							  messageCodes.put(key, ColorPicker.getColor(Integer.parseInt(key)));
-			    						  }
-			    						  
-			    						  /* Adds default values for the beginning of the graph */
-			    						  if(previousValue == GraphConfig.getInstance().getStartTime()) {
-			    							  plots.get(key).add(new GraphPlot(
-			    									  previousValue-GRAPHPRECISION, graphSize));
-			    							 
-			    							  plots.get(key).add(new GraphPlot(
-			    									  previousValue, graphSize));
-			    						  }
-			    						  else {
-			    							  for(double time= GraphConfig.getInstance().getStartTime(); time < previousValue;time+=GRAPHPRECISION) {
-			    									  plots.get(key).add(new GraphPlot(
-			    											  time, graphSize-RANGETICK));
-			    							  }
-			    						  }
-			    					  }	   
-			    					 
-			    					  if(!previous) {		
-			    						  plots.get(key).add(new GraphPlot(previousValue, graphSize-RANGETICK)); 
-			    						  plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
+		    			  //GlobalLogger.debug("Key:"+key);
+		    			  if(!key.equals("DEFAULT")) {
+		    				  if(plotter.getPlots().get(key) == null) {
+		    					  plotter.getPlots().put(key, new ArrayList<GraphPlot>());
+	    						  
+	    						  /* We add the new message code to the message list
+	    						   * We will use it later for color computing */
+	    						  if(messageCodes.get(key) == null) {				  
+	    							  messageCodes.put(key, ColorPicker.getColor(Integer.parseInt(key)));
+	    						  }
+	    						  
+	    						  /* Adds default values for the beginning of the graph */
+	    						  if(previousValue == GraphConfig.getInstance().getStartTime()) {
+	    							  plotter.addPoint(previousValue-GRAPHPRECISION, GraphPosition.DOWN, key);
+	    							  plotter.addPoint(previousValue, GraphPosition.UP, key);
+	    						  }
+	    						  else {
+	    							  for(double time= GraphConfig.getInstance().getStartTime(); time < previousValue;time+=GRAPHPRECISION) {
+	    								  plotter.addPoint(time, GraphPosition.DOWN, key);
+	    							  }
+	    						  }
+	    					  }
+		    				  
+		    				  if(prevMessage.equals("")) {
+		    					  // First message in the node
+		    					  
+	    						  prevMessage = message;
+	    						  // There has not been any previous message
+	    						  for(double time=previousValue; time<value;time+=GRAPHPRECISION) {
+		    						  plotter.addPoint(time, GraphPosition.DOWN, key);
+		    					  }
+	    						  plotter.addPoint(value, GraphPosition.UP, key);
+	    						  previousValue = value;
+	    						  previousKey = key;
+		    				  }
+		    				  else {
+		    					  if(prevMessage.equals(message)) {
+		    						//We still send the same message		    						  
+		    						  for(double time=previousValue; time<value;time+=GRAPHPRECISION) {
+		    							  plotter.addPoint(time, GraphPosition.UP, key);
 			    					  }
-			    					  else {
-			    						  if(!key.equals(previousKey) && previousKey != "DEFAULT") {
-			    							  plots.get(previousKey).add(new GraphPlot(previousValue, graphSize)); 	    				  
-			    							  plots.get(previousKey).add(new GraphPlot(value, graphSize)); 
-						    				  plots.get(previousKey).add(new GraphPlot(value, graphSize-RANGETICK)); 
-						    				  
-						    				  plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK)); 
-						    				  seriesMarked.add(previousKey);
-			    						  }
+		    						  plotter.addPoint(value, GraphPosition.UP, key);
+		    						  previousValue = value;
+		    						  previousKey = key;
+		    					  }
+		    					  else {
+		    						  prevMessage = message;
+		    						// There has been a previous message
+		    						  for(double time=previousValue; time<value;time+=GRAPHPRECISION) {	    
+			    						  plotter.addPoint(time, GraphPosition.DOWN, previousKey);
+			    					  }
+		    						  
+			    					  for(double time=previousValue; time<value;time+=GRAPHPRECISION) {	    
+			    						  plotter.addPoint(time, GraphPosition.DOWN, key);
 			    					  }
 			    					  
-			    					  plots.get(key).add(new GraphPlot(value, graphSize)); 
+			    					  plotter.addPoint(value, GraphPosition.DOWN, key);
+			    					  plotter.addPoint(value, GraphPosition.UP, key);
 			    					  
-			    					 seriesMarked.add(key);
-			    					 previous = true;
-			    					 previousKey = key;
-			    			  }
-			    		  }
-			    		  else {	
-			    			  if(previous && (!key.equals("DEFAULT"))) {
-			    				  plots.get(key).add(new GraphPlot(previousValue, graphSize)); 	    				  
-			    				  plots.get(key).add(new GraphPlot(value, graphSize)); 
-			    				  seriesMarked.add(key);
-			    			  }
-			    			  else {
-			    				  addGroundPoint(plots, seriesMarked, 
-			    						  previousValue, value, graphSize);
-			    			  }
-			    			  key = "";
-			    			  previousKey = "";
-			    			  previous = false;  			  		  
-			    		  }
-			    		  
-			    		  //We update a set a default point for each serie
+			    					  previousValue = value;
+			    					  previousKey = key;
+		    					  }
+		    				  }
+		    			  }
+		    			  //We update a set of default points for each serie
 			    		  if(value > previousValue) {
-			    			  updateDefaultSet(plots, seriesMarked, 
+			    			  updateDefaultSet(plotter.getPlots(), seriesMarked, 
 			    					  previousValue, value, graphSize);
 			    			
-				    		  previousValue = value;
 				    		  seriesMarked = new ArrayList<String>();
 			    		  }
+		    			  
+		    			  seriesMarked.add(key);
 		    		  }
 		    	  }
 		      }
-
-			pointSeries = buildPlotSerial(plots);
+			    		
+			pointSeries = buildPlotSerial(plotter.getPlots());
 			 
 			simulationTimeLimit = timeLength;
 			
 		    return pointSeries;
 	}
+//			    		  if(message != "") {
+//			    			  key = message.substring(3, message.indexOf("_"));
+//
+//			    			  if(!key.equals("DEFAULT")) {
+//			    					 if(plots.get(key) == null) {
+//			    						  plots.put(key, new ArrayList<GraphPlot>());
+//			    						  
+//			    						  /* We add the new message code to the message list
+//			    						   * We will use it later for color computing */
+//			    						  if(messageCodes.get(key) == null) {				  
+//			    							  messageCodes.put(key, ColorPicker.getColor(Integer.parseInt(key)));
+//			    						  }
+//			    						  
+//			    						  /* Adds default values for the beginning of the graph */
+//			    						  if(previousValue == GraphConfig.getInstance().getStartTime()) {
+//			    							  plots.get(key).add(new GraphPlot(
+//			    									  previousValue-GRAPHPRECISION, graphSize));
+//			    							 
+//			    							  plots.get(key).add(new GraphPlot(
+//			    									  previousValue, graphSize));
+//			    						  }
+//			    						  else {
+//			    							  for(double time= GraphConfig.getInstance().getStartTime(); time < previousValue;time+=GRAPHPRECISION) {
+//			    									  plots.get(key).add(new GraphPlot(
+//			    											  time, graphSize-RANGETICK));
+//			    							  }
+//			    						  }
+//			    					  }	   
+//			    					 
+//			    					  if(!previous) {		
+//			    						  plots.get(key).add(new GraphPlot(previousValue, graphSize-RANGETICK)); 
+//			    						  plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK));
+//			    					  }
+//			    					  else {
+//			    						  if(!key.equals(previousKey) && previousKey != "DEFAULT") {
+//			    							  plots.get(previousKey).add(new GraphPlot(previousValue, graphSize)); 	    				  
+//			    							  plots.get(previousKey).add(new GraphPlot(value, graphSize)); 
+//						    				  plots.get(previousKey).add(new GraphPlot(value, graphSize-RANGETICK)); 
+//						    				  
+//						    				  plots.get(key).add(new GraphPlot(value, graphSize-RANGETICK)); 
+//						    				  seriesMarked.add(previousKey);
+//			    						  }
+//			    					  }
+//			    					  
+//			    					  plots.get(key).add(new GraphPlot(value, graphSize)); 
+//			    					  
+//			    					 seriesMarked.add(key);
+//			    					 previous = true;
+//			    					 previousKey = key;
+//			    			  }
+//			    		  }
+//			    		  else {	
+//			    			  if(previous && (!key.equals("DEFAULT"))) {
+//			    				  plots.get(key).add(new GraphPlot(previousValue, graphSize)); 	    				  
+//			    				  plots.get(key).add(new GraphPlot(value, graphSize)); 
+//			    				  seriesMarked.add(key);
+//			    			  }
+//			    			  else {
+//			    				  addGroundPoint(plots, seriesMarked, 
+//			    						  previousValue, value, graphSize);
+//			    			  }
+//			    			  key = "";
+//			    			  previousKey = "";
+//			    			  previous = false;  			  		  
+//			    		  }
+//			    		  
+//			    		  //We update a set of default points for each serie
+//			    		  if(value > previousValue) {
+//			    			  updateDefaultSet(plots, seriesMarked, 
+//			    					  previousValue, value, graphSize);
+//			    			
+//				    		  previousValue = value;
+//				    		  seriesMarked = new ArrayList<String>();
+//			    		  }
+//		    		  }
+//		    	  }
+//		      }
+
 	
 	/**
 	 * Updates the default set of points (bottom line of the graph of
