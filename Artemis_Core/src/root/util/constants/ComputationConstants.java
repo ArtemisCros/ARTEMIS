@@ -27,6 +27,11 @@ public class ComputationConstants {
 		
 		public static final double LOADEND = 1.0;	
 		
+		/** Minimum path size when auto generating messages */
+		public static final double LIMITPATHSIZE = 5;
+		
+		private static double WAITINGDELAYBEFORESWITCHBACK = 50;
+		
 		/**
 		 *  Load variation step*/
 		public static final double LOADSTEP = 0.005;
@@ -115,14 +120,6 @@ public class ComputationConstants {
 
 		}
 		
-		public double getCritSwitchDelay() {
-			return this.CRITSWITCHDELAY;
-		}
-		
-		public void setCritSwitchDelay(double critSwitchDelayP) {
-			this.CRITSWITCHDELAY = critSwitchDelayP;
-		}
-		
 		public static ComputationConstants getInstance() {
 			if(instance == null) {
 				instance = new ComputationConstants();
@@ -139,7 +136,21 @@ public class ComputationConstants {
 			return this.CRITCHANGEDELAY;
 		}
 		
-
+		public void setWaitingDelay(double value) {
+			this.WAITINGDELAYBEFORESWITCHBACK = value;
+		}
+		
+		public double getWaitingDelay() {
+			return this.WAITINGDELAYBEFORESWITCHBACK;
+		}
+		
+		public double getCritSwitchDelay() {
+			return this.CRITSWITCHDELAY;
+		}
+		
+		public void setCritSwitchDelay(double critSwitchDelayP) {
+			this.CRITSWITCHDELAY = critSwitchDelayP;
+		}
 
 	public int getGeneratedTasks() {
 		return generatedTasks;

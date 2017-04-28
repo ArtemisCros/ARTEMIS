@@ -1,7 +1,9 @@
 package modeler.networkbuilder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
+import logger.GlobalLogger;
 import root.elements.network.modules.link.Link;
 import root.elements.network.modules.machine.Machine;
 import root.util.tools.DijkstraWeight;
@@ -32,7 +34,8 @@ public class DijkstraBuilder {
 			networkNodes.add(node);
 			nodeList.add(node);
 		}
- 		/* Attribute a null weight to destination node */
+ 		
+ 		/* Attribute a zero weight to destination node */
  		getNodeForAddress(nodeList, destination).weight = 0;
 
  		/* Main loop */
@@ -41,8 +44,8 @@ public class DijkstraBuilder {
  			nodeList.remove(node); 
  			
  			/* Calculer les voisins de node */
- 			for (DijkstraWeight nodea : findNearNodes(networkNodes, node)) {
-				updateWeight(node, nodea);
+ 			for (DijkstraWeight nodea : findNearNodes(networkNodes, node)) {	
+				updateWeight(nodea, node);
 			}
  		}
  			
@@ -52,7 +55,8 @@ public class DijkstraBuilder {
  		
  		int currentWeight = 0;
  		
- 		while(true) {
+ 		addressPath.add(source);
+ 		while(true) {	
  			currentWeight = 100000000;
  			for (DijkstraWeight nodea : findNearNodes(networkNodes, currentNode)) {
 				if(nodea.weight < currentWeight) {
@@ -60,14 +64,15 @@ public class DijkstraBuilder {
 					currentAddr = nodea.address;
 				}
 			}
- 			
+
+	 		addressPath.add(currentAddr);
  			if(destination.value == currentAddr.value)
  				break;
- 			
- 			addressPath.add(0, currentAddr);
  			currentNode = getNodeForAddress(networkNodes, currentAddr);
  		}
- 		addressPath.add(0, source);
+ 		
+ 		//Collections.reverse(addressPath);
+ 		
  		return addressPath;
  		
 	}
@@ -89,9 +94,11 @@ public class DijkstraBuilder {
 		
 		Machine currentMachine = node.address.machine;
 		for (Link link : currentMachine.portsOutput) {
+			
 			if(link != null) {
+				
 				Machine nearNode = link.getBindRightMachine();
-
+			//	GlobalLogger.debug("Port not null "+node.address.machine.name+" connected to "+nearNode.name);
 				if(nearNode.getAddress().value != node.address.value) {
 					rst.add(getNodeForAddress(nodeList, nearNode.getAddress()));
 				}			

@@ -49,7 +49,7 @@ public class PathComputer {
 		/* Basic topology : 5 consecutive nodes */
 		
 		for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {
-			tasks[cptTasks].networkPath = new Vector<NetworkAddress>();
+			tasks[cptTasks].networkPath = new ArrayList<NetworkAddress>();
 			
 			if(cptTasks == 0) {
 				limit = 1;
@@ -91,23 +91,50 @@ public class PathComputer {
 				
 			/* Lower the weight of switches */
 			if(!currentMachine.name.startsWith("S")) {
-				currentWeight = targetAverageLoad;
+				currentWeight = Math.min(targetAverageLoad, 1);
 			}
 			else {
-				currentWeight = (targetAverageLoad*endSystems)/mainNet.machineList.size();
+				currentWeight = Math.min((targetAverageLoad*endSystems)/mainNet.machineList.size(), 1);
 			}
-			
-		//	GlobalLogger.debug("Node:"+currentMachine.name+" Weight:"+currentWeight);
-			
 			nodeSet.add(new NetworkNode(currentMachine, currentWeight));
 		}
 		
 		return nodeSet;
 	}
 	
-	private int pickMachineAmongSet(Machine currentMachine, ArrayList<NetworkNode> nodeSet, Vector<NetworkAddress> path,
-			double msgUse) {
+	/**
+	 * Check if the node can be part of the path to compute or not
+	 * @param currentMachine The node to check
+	 * @param path The already computed path
+	 * @param selectedNode The node we would like to add
+	 * @param msgUse the current node weight
+	 * @param endSystem Authorization to add end system to the path : used to force specific path sizes
+	 * @return
+	 */
+	private boolean checkNode(Machine currentMachine, ArrayList<NetworkAddress> path, NetworkNode selectedNode, double msgUse,
+			boolean endSystem) {
+		
+			if(currentMachine.name.equals(selectedNode.currentNode.name)) {
+				if(!path.contains(selectedNode.currentNode.networkAddress)) {
+					/* We check that adding the new node will not create an overload */
+					if(selectedNode.weight - msgUse >= 0.0){
+						/* If we're not at the limit, we dont grant the potential to add an end-system to the list */
+						if(endSystem || (!endSystem && !selectedNode.currentNode.name.startsWith("ES"))) {
+							return true;
+						}
+					}
+				}
+			}
+		
+		return false;
+	}
+	
+	private int pickMachineAmongSet(Machine currentMachine, ArrayList<NetworkNode> nodeSet,
+			ArrayList<NetworkAddress> path,
+			double msgUse, boolean endSystem) {
 		int selected = -1;
+		
+		NetworkNode selectedNode;
 		
 		/* Prepare the list of possible nodes to pick */
 		ArrayList<NetworkNode> nodesToPick = new ArrayList<NetworkNode>();
@@ -119,23 +146,23 @@ public class PathComputer {
 			}
 			
 			for(int cptNode=0;cptNode<nodeSet.size();cptNode++) {	
-				if(currentMachine.portsOutput[cptMachine].getBindRightMachine().name.equals(nodeSet.get(cptNode).currentNode.name)) {
-					if(!path.contains(nodeSet.get(cptNode).currentNode.networkAddress)) {
-						if(nodeSet.get(cptNode).weight - msgUse >= 0.0){
-							nodesToPick.add(nodeSet.get(cptNode));
-							break;
-						}
-					}
+				selectedNode = nodeSet.get(cptNode);
+				
+				if(currentMachine.portsOutput[cptMachine].getBindRightMachine().name.equals(selectedNode.currentNode.name)) {
+					/* If we can select the node */
+					if(checkNode(currentMachine.portsOutput[cptMachine].getBindRightMachine(), 
+							path, selectedNode, msgUse, endSystem)) {
+						nodesToPick.add(nodeSet.get(cptNode));
+						break;
+					} 
 				}
+				
 				if(currentMachine.portsInput[cptMachine] != null) {
-					if(currentMachine.portsInput[cptMachine].getBindLeftMachine().name.equals(nodeSet.get(cptNode).currentNode.name)) {
-						if(!path.contains(nodeSet.get(cptNode).currentNode.networkAddress)) {
-							if(nodeSet.get(cptNode).weight - msgUse >= 0.0){
-								nodesToPick.add(nodeSet.get(cptNode));
-								break;
-							}
-						}
-					}
+					if(checkNode(currentMachine.portsInput[cptMachine].getBindLeftMachine(), 
+							path, selectedNode, msgUse, endSystem)) {
+						nodesToPick.add(nodeSet.get(cptNode));
+						break;
+					} 
 				}
 			}
 		}
@@ -165,12 +192,14 @@ public class PathComputer {
 	}
 	
 	
-	public Vector<NetworkAddress> computePath(ArrayList<NetworkNode> nodeSet, double msgUse) {
-		Vector<NetworkAddress> pathToCompute = new Vector<NetworkAddress>();
+	public ArrayList<NetworkAddress> computePath(ArrayList<NetworkNode> nodeSet, double msgUse) {
+		ArrayList<NetworkAddress> pathToCompute = new ArrayList<NetworkAddress>();
 		Network mainNet = nBuilder.getMainNetwork();
 		double maxWeight = 0.0;
 		int selected = -1;
 		NetworkAddress newNode = null;
+		double limit =  Math.floor(ComputationConstants.LIMITPATHSIZE *
+				ComputationConstants.getInstance().getGeneratedTasks()/nodeSet.size())+1;
 		
 		/* Pick first node */
 		for(int cptNode=0;cptNode<nodeSet.size();cptNode++) {
@@ -192,20 +221,33 @@ public class PathComputer {
 		//selected = -1;
 		
 		/* Pick all other nodes */
-		while((newNode == null) || (!newNode.machine.name.startsWith("ES") || pathToCompute.size() < 3)) {
+		/* We force each message to go through a specific portion of network, equal to nodes/nbOfMessages */
+		while((newNode == null) || pathToCompute.size() < limit) {
 			if(newNode == null) {
 				newNode = nodeSet.get(selected).currentNode.networkAddress;
 			}
+			/* We want to guarantee a minimum length for each message path */
 			selected =  pickMachineAmongSet(newNode.machine,
-					nodeSet, pathToCompute, msgUse);
-			if(selected == -1)
-				break;
-			newNode = nodeSet.get(selected).currentNode.networkAddress;
+							nodeSet, pathToCompute, msgUse, (pathToCompute.size() >= limit-1));
 			
+			if(selected == -1) {
+				if(pathToCompute.size() < limit-1) {
+					selected =  pickMachineAmongSet(newNode.machine,
+							nodeSet, pathToCompute, msgUse, true);
+					
+					if(selected == -1)
+						break;
+				}
+				else {
+					break;
+				}
+				
+			}
+
+			newNode = nodeSet.get(selected).currentNode.networkAddress;				
 			nodeSet.get(selected).weight -= msgUse;
-			
 			pathToCompute.add(newNode);
-			//GlobalLogger.debug("New node");
+			
 		}
 		
 		
@@ -215,7 +257,7 @@ public class PathComputer {
 	/* Link messages to a probabilistic computed path */
 	public double linkToPath(ISchedulable[] tasks) {
 		/* Read the topology */
-		Vector<NetworkAddress> pathToCompute = new Vector<NetworkAddress>();
+		ArrayList<NetworkAddress> pathToCompute = new ArrayList<NetworkAddress>();
 		double msgUse = 0.0;
 		
 		ArrayList<NetworkNode> nodeSet = computeNodeWeight();
@@ -235,16 +277,6 @@ public class PathComputer {
 				break;
 			}
 			tasks[cptTasks].setNetworkPath(pathToCompute);
-			
-			/*GlobalLogger.display("MSG NUMBER:"+cptTasks+" WCET-NC:"+tasks[cptTasks].getWcet(CriticalityLevel.NONCRITICAL)
-					+"\tWCET-C:"+tasks[cptTasks].getWcet(CriticalityLevel.CRITICAL)
-					+"\tPeriod:"+tasks[cptTasks].getPeriod()
-					+"\tPath:");
-			
-			for(int cptPath=0;cptPath<pathToCompute.size();cptPath++) {
-				GlobalLogger.display(pathToCompute.get(cptPath).machine.name+"/"+pathToCompute.get(cptPath).machine.networkAddress.value+"-");
-			}
-			GlobalLogger.display("\n");*/
 		}
 		
 		return computeAverageLoad(tasks);
@@ -261,64 +293,65 @@ public class PathComputer {
 		double maxLoad = 0.0;
 		double wcet = 0.0;
 		double load = 0.0;
+		double minLoad = 1.0;
 		
 		HashMap<String, String>nodeLoads = new HashMap<String, String>();	
 		critLevelLoads =
-			new HashMap<CriticalityLevel, Double>();
-		HashMap<CriticalityLevel, Integer> numberOfMessages = 
-			new HashMap<CriticalityLevel, Integer>();
-		
+			new HashMap<CriticalityLevel, Double>();	
 		
 		for(int cptTasks=0;cptTasks<tasks.length;cptTasks++) {
 			currentLoad = 0.0;
-			msgUse = 0.0;
-			
-			//if(tasks[cptTasks].getWcet(CriticalityLevel.CRITICAL) == -1) {
-				msgUse = (double)tasks[cptTasks].getCurrentWcet(CriticalityLevel.NONCRITICAL)/(double)tasks[cptTasks].getPeriod();
-				//}
-			//else {
-			//	msgUse = (double)tasks[cptTasks].getCurrentWcet(CriticalityLevel.CRITICAL)/(double)tasks[cptTasks].getPeriod();
-			//}
+			msgUse = 0.0;		
+			msgUse = (double)tasks[cptTasks].getCurrentWcet(CriticalityLevel.NONCRITICAL)/(double)tasks[cptTasks].getPeriod();
 			
 			for(int cptPath=0;cptPath<tasks[cptTasks].getNetworkPath().size();cptPath++) {
+				currentLoad = 0.0;
 				if(nodeLoads.get(tasks[cptTasks].getNetworkPath().get(cptPath).machine.name) != null) {
 					currentLoad = Double.parseDouble(
 							nodeLoads.get(tasks[cptTasks].getNetworkPath().get(cptPath).machine.name));
+					
 				}
 				nodeLoads.put(tasks[cptTasks].getNetworkPath().get(cptPath).machine.name,
 						""+(msgUse+currentLoad));
+				
 			}
 		}
 	
 		double average = 0.0;
+		double averageSwitchs = 0.0;
+		double nbSwitches = 0;
 		for (String nodeKey : nodeLoads.keySet()) {
-			currentLoad = Double.parseDouble( nodeLoads.get(nodeKey));
-			//GlobalLogger.debug("NODE  "+nodeKey+"\tLOAD:"+currentLoad);
+			currentLoad = Double.parseDouble(nodeLoads.get(nodeKey));
 			if(currentLoad > maxLoad) {
 				maxLoad = currentLoad;
 			}
+			if(minLoad > currentLoad) {
+				minLoad = currentLoad;
+			}
 			average += currentLoad;	
+			if(nodeKey.startsWith("S")) {
+				averageSwitchs += currentLoad;
+				nbSwitches++;
+			}
 		}
 		average = average/nodeLoads.keySet().size();
+		averageSwitchs = averageSwitchs/nbSwitches;
 		/* Displays
 		 * TARGET LOAD / AVERAGE LOAD / MAX LOAD
 		 */
-		//GlobalLogger.display(+ComputationConstants.getInstance().getAutoLoad()
-		//		+" "+average+"\n");
-			//	+" "+maxLoad+"\nMSG\t");
+		GlobalLogger.debug("TGT:"+ComputationConstants.getInstance().getAutoLoad()+"\t"
+				+"AVG:"+average+"\t"
+				+"AVS:"+averageSwitchs+"\t"
+				+"MAX:"+maxLoad+"\t"
+				+"MIN:"+minLoad+"\n");
 		
 		/* We display the list of WCTT for each criticality level of each flow */
 		for(int cptSize = 0; cptSize < CriticalityLevel.values().length; cptSize++) {
 			CriticalityLevel level = CriticalityLevel.values()[cptSize];
-			
-		//	GlobalLogger.display(level.toString().substring(0,  4)+"\t");
 		}
 		
-	//	GlobalLogger.display("\n");
-		//GlobalLogger.display("Period\t\n");
 		
 		for(int cptTasksDbg = 0; cptTasksDbg < tasks.length;cptTasksDbg++) {
-			//GlobalLogger.display("Msg "+tasks[cptTasksDbg].getId()+"\t");
 			load = 0.0;
 			for(int cptSize = 0; cptSize < CriticalityLevel.values().length; cptSize++) {
 				CriticalityLevel level = CriticalityLevel.values()[cptSize];

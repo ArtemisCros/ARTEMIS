@@ -109,13 +109,13 @@ public class XmlMessageHandler extends XmlDefaultHandler{
 				
 				if(currMsgProp.containsKey("PERI")) {
 				//	GlobalLogger.debug(currMsgProp.get("PERI"));
-					newMsg.setPeriod(Integer.parseInt(currMsgProp.get("PERI")));
+					newMsg.setPeriod(Double.parseDouble(currMsgProp.get("PERI")));
 				}
 				
 				if(currMsgProp.containsKey("OFFS")) {
 				//	GlobalLogger.debug(currMsgProp.get("OFFS"));
-					newMsg.setOffset(Integer.parseInt(currMsgProp.get("OFFS")));
-					newMsg.setNextSend(Integer.parseInt(currMsgProp.get("OFFS")));
+					newMsg.setOffset(Double.parseDouble(currMsgProp.get("OFFS")));
+					newMsg.setNextSend(Double.parseDouble(currMsgProp.get("OFFS")));
 				}				
 				
 
@@ -137,7 +137,8 @@ public class XmlMessageHandler extends XmlDefaultHandler{
 				currentMachine.associateMessage(newMsg);
 				currMsgProp.clear();
 			} catch (NumberFormatException e) {
-				GlobalLogger.error(Errors.WCET_NOT_AN_INT, "WCET is not an int");
+				GlobalLogger.error(Errors.WCET_NOT_AN_INT, "WCET is not a double");
+				e.printStackTrace();
 			}  
 		 }
 	 }

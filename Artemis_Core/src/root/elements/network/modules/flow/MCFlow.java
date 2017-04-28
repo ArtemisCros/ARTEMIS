@@ -6,13 +6,18 @@ import root.elements.network.modules.task.ISchedulable;
 import root.util.constants.ConfigParameters;
 
 public class MCFlow extends FrameFlow implements ISchedulable, Cloneable{	
-	/* Size in bytes */
+	
 	/* Each different size corresponds to a criticality level */
+	/**
+	 *  Size in bytes 
+	 *  */
 	public HashMap<CriticalityLevel, Double> size;
 	
 	public double wcet;
 	
-	/* Period of emission */
+	/**
+	 *  Period of emission
+	 */
 	public double period;
 	
 	public MCFlow(String name) {

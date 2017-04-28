@@ -3,16 +3,18 @@ package root.elements.network.modules.machine;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import org.w3c.dom.Element;
+
 import logger.GlobalLogger;
 import logger.XmlLogger;
-import root.elements.network.modules.NetworkModule;
+import root.elements.SimulableElement;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 import utils.ConfigLogger;
 
-public abstract class Node extends NetworkModule {
+public abstract class Node extends SimulableElement {
 	/**
 	 *  Address of the machine
 	 */
@@ -97,10 +99,8 @@ public abstract class Node extends NetworkModule {
 	}
 	
 	public int sendMessage(final NetworkMessage msg) {
-		if(GlobalLogger.DEBUG_ENABLED) {
-			String debug = "PUSHING "+msg.getName()+" MACHINE "+this.name;
-			GlobalLogger.debug(debug);
-		}
+		String debug = "PUSHING "+msg.getName()+" MACHINE "+this.name;
+		GlobalLogger.debug(debug);
 		
 		outputBuffer.add(msg);
 
@@ -110,18 +110,17 @@ public abstract class Node extends NetworkModule {
 	public XmlLogger createXMLLog() {
 		String fileName = this.networkAddress.value+".xml";
 		
-		if(GlobalLogger.DEBUG_ENABLED){
-			GlobalLogger.debug("Creating XML File "+fileName);
-		}
-		
 		xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+
 				ConfigParameters.getInstance().getSimuId()+"/", 
 				fileName);
+
 		xmlLogger.createDocument();
-		xmlLogger.createRoot("machine");
-		xmlLogger.getRoot().setAttribute("id", ""+this.networkAddress.value);
-		xmlLogger.getRoot().setAttribute("name", this.name);
+		Element root = xmlLogger.createRoot("machine");
+		root.setAttribute("id", ""+this.networkAddress.value);
+		root.setAttribute("name", this.name);
 		
+		xmlLogger.saveIntoFile();
+
 		return xmlLogger;
 	}
 }

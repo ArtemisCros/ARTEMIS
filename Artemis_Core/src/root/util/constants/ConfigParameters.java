@@ -42,6 +42,11 @@ public class ConfigParameters {
 	
 	public static final PriorityPolicy PRIORITY_POLICY = PriorityPolicy.FIFO;
 	
+	/**
+	 *  Simulation default log file 
+	 **/
+	public static final String SIMULOGFILE = "simu.log";
+	
 	public static final boolean MIXED_CRITICALITY = true;
 	public static final MCIncreaseModel MIXED_CRITICALITY_MODEL = MCIncreaseModel.PROBABILISTIC;
 	
@@ -60,19 +65,27 @@ public class ConfigParameters {
 	/** This vector is used to determine the different criticality rates 
 	 * for uniform critical flows generation 
 	 **/
-	private  HashMap<CriticalityLevel, Double> mixedCriticalityRates;
+	private HashMap<CriticalityLevel, Double> mixedCriticalityRates;
 	
 	public HashMap<CriticalityLevel, Double> getCriticalityRateMatrix() {
 		if(mixedCriticalityRates == null) {
 			mixedCriticalityRates = new HashMap<CriticalityLevel, Double>();
 			mixedCriticalityRates.put(CriticalityLevel.NONCRITICAL, 0.0);
-			mixedCriticalityRates.put(CriticalityLevel.CRITICAL, 0.2);
-			mixedCriticalityRates.put(CriticalityLevel.MISSIONCRITICAL, 0.3);
-			mixedCriticalityRates.put(CriticalityLevel.VEHICLECRITICAL, 0.5);
-			mixedCriticalityRates.put(CriticalityLevel.SAFETYCRITICAL, 0.8);
+			mixedCriticalityRates.put(CriticalityLevel.CRITICAL, 0.8);
+			mixedCriticalityRates.put(CriticalityLevel.MISSIONCRITICAL, 0.85);
+			mixedCriticalityRates.put(CriticalityLevel.VEHICLECRITICAL, 0.9);
+			mixedCriticalityRates.put(CriticalityLevel.SAFETYCRITICAL, 0.95);
 			
 		}
 		return mixedCriticalityRates;
+	}
+	
+	public void setCriticalityRate(CriticalityLevel level, Double rate) {
+		if(mixedCriticalityRates == null) {
+			mixedCriticalityRates = new HashMap<CriticalityLevel, Double>();
+		}
+		
+		mixedCriticalityRates.put(level, rate);
 	}
 	
 	public static ConfigParameters getInstance() {
@@ -135,6 +148,7 @@ public class ConfigParameters {
 	
 	public void setWCTTModel(String wcttModel) {
 		wcttComputerModel = WCTTModel.LINEAR;
+		if(wcttModel.equals("STR")) { wcttComputerModel = WCTTModel.STRICT;return; }
 		if(wcttModel.equals("LIN")) { wcttComputerModel = WCTTModel.LINEAR;return; }
 		if(wcttModel.equals("GAU")) { wcttComputerModel = WCTTModel.GAUSSIAN;return; }
 		if(wcttModel.equals("GCO")) { wcttComputerModel = WCTTModel.COGAUSSIAN;return; }

@@ -111,7 +111,6 @@ public class TopologyGenerator {
 		String linksList[];
 		
 		/* Displays the network graph in a .dot file */
-		if(GlobalLogger.DEBUG_ENABLED) {
 			FileLogger.logToFile("digraph Network {",ConfigLogger.RESSOURCES_PATH+"/"+
 					ConfigParameters.getInstance().getSimuId()+"/input/"+ "network_"+depth+".dot");
 			
@@ -140,6 +139,5 @@ public class TopologyGenerator {
 			
 			FileLogger.logToFile("}", ConfigLogger.RESSOURCES_PATH+"/"+
 					ConfigParameters.getInstance().getSimuId()+"/input/"+"network_"+depth+".dot");
-		}
 	}
 }

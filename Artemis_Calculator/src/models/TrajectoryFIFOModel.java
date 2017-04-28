@@ -53,7 +53,7 @@ public class TrajectoryFIFOModel implements IComputationModel{
 		return responseTime;
 	}
 	
-	public boolean isNodePresent(Vector<NetworkAddress> path, NetworkAddress indexNode) {
+	public boolean isNodePresent(ArrayList<NetworkAddress> path, NetworkAddress indexNode) {
 		for(int cptPath=0; cptPath < path.size(); cptPath++) {
 			if(path.get(cptPath).value == indexNode.value) {
 				return true;

@@ -179,10 +179,10 @@ public class XMLGraphManager {
 	       int min = this.configureAxes(xyplot);  
 	     
 	       for(fileNum=0;fileNum<orderedFileName.size();fileNum++) {	
-	    	   GlobalLogger.debug("File:"+orderedFileName.get(fileNum));
 		       /* To organize the different graphs, we define their position on the height of the y axis */
 		       /* Starting from xml infos, we build the different graphs */
 	    	   
+	    	   GlobalLogger.debug("File:"+orderedFileName.get(fileNum));
 	    	   ArrayList<XYSeries> plotSeries = xmlOpener.readFile(number, 
 	    			   networkFolderName+orderedFileName.get(fileNum),
 	    			   fileNum*5);   	   	  
@@ -199,7 +199,10 @@ public class XMLGraphManager {
 
 		       /* Configuration and graph marking */  
 	 		   String annotation = orderedFileName.get(fileNum);
-	 	       annotation = annotation.substring(0, annotation.length()-4);
+	 		   //xmlOpener.getMachineName(""+fileNum);
+	 		   annotation = annotation.substring(0, annotation.length()-4);
+	 		   annotation = xmlOpener.getMachineName(annotation);
+	 	       //
 	 	       //annotation = xmlOpener.getMachineName(annotation);
 	 	     
 	 	       // Node legend

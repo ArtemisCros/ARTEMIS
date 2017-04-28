@@ -33,7 +33,7 @@ public class XmlLogger extends Logger{
 			File[] listFiles = pathToDelete.listFiles();
 			
 			for(int cptFiles=0; cptFiles < listFiles.length; cptFiles++) {
-				listFiles[cptFiles].delete();
+				listFiles[cptFiles].delete();		
 			}
 		}
 		

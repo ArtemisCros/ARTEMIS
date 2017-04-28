@@ -9,5 +9,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Artemis_Logger"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Artemis_Task_Generator"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Artemis_Topology_Generator"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Artemis_Analyzer"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

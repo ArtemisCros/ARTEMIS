@@ -1,5 +1,6 @@
 package computations;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import root.elements.criticality.CriticalityLevel;
@@ -85,7 +86,7 @@ public class CriticalityDelayComputer {
 		double sDelay = 0.0;
 		
 		/* Creating the criticality switch message */
-		switchCritTask.networkPath = new Vector<NetworkAddress>();
+		switchCritTask.networkPath = new ArrayList<NetworkAddress>();
 		switchCritTask.setWcet(ComputationConstants.getInstance().switchingCritWctt); // Arbitrary constant Cc 
 		switchCritTask.addNodeToPath(mainNet.getMachineForAddressValue(1).getAddress());
 		boolean validPath = false;

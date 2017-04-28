@@ -1,14 +1,14 @@
 package root.elements.network.modules.task;
 
-import root.elements.network.modules.NetworkModule;
+import root.elements.SimulableElement;
 
-public class Task extends NetworkModule {
+public class Task extends SimulableElement {
 	public int id;
 	
 	/* Optional */
 	public int deadline;
 	public int priority;
-	public int offset;
+	public double offset;
 	
 	/* Do we want to observe the worst case of this particular packet ? */
 	public boolean observed;

@@ -2,6 +2,7 @@ package simulator.generation;
 
 import java.math.BigDecimal;
 
+import logger.GlobalLogger;
 import root.elements.criticality.CriticalityLevel;
 import root.elements.network.modules.flow.MCFlow;
 import root.elements.network.modules.machine.Machine;
@@ -32,25 +33,28 @@ public class WCTTManager {
 		CriticalityLevel destination = currentMachine.getCritLevel();
 				
 		transmissionTime = critManager.getWCTTModelComputer().computeDynamicWCTT(newflow);
+		
 		destination = critManager.checkMessageCritLevel(newflow, transmissionTime);
 		
 		if(destination != currentMachine.getCritLevel()) {
 			if(newflow.getSize(destination) <= 
 					newflow.getSize(currentMachine.getCritLevel())) {
 				/* Decrease case */
-				critManager.updateCritTable(currentMachine, destination, time);
+				//critManager.updateCritTable(currentMachine, destination, time);
 			}
 			else if(newflow.getSize(currentMachine.getCritLevel()) > 0){
 				/* Increase case */
-				// TODO : We suppose switching criticality level delay equal to 1
-				critManager.addNewGlobalCritSwitch
-					(time+ComputationConstants.getInstance().getCritSwitchDelay(),
-						destination);
+				critManager.addNewLocalCritSwtch(time+ComputationConstants.getInstance().getCritSwitchDelay(),
+						destination, currentMachine);
+				
+//				critManager.addNewGlobalCritSwitch
+//					(time+ComputationConstants.getInstance().getCritSwitchDelay(),
+//						destination);
 			}
 			
 		}
 		else {
-			critManager.updateCritTable(currentMachine, destination, time);
+			//critManager.updateCritTable(currentMachine, destination, time);
 		}
 		
 		if(ComputationConstants.getInstance().getWorstCaseAnalysis()) {
@@ -74,7 +78,7 @@ public class WCTTManager {
 				wctt = ((MCFlow)(newMsg)).getSize(currentLvl);
 				if(wctt != -1) {
 					wctt = critManager.getWCTTModelComputer().getWcet(wctt);
-
+					
 					wctt = new BigDecimal(wctt).setScale(1, 
 							BigDecimal.ROUND_HALF_DOWN).doubleValue();
 					((MCFlow)(newMsg)).wcetTask = wctt;
@@ -82,6 +86,7 @@ public class WCTTManager {
 				break;
 			case DYNAMIC :
 				wctt = ((MCFlow)(newMsg)).getMaxWCTT();
+				
 				if(wctt != -1) {
 					wctt = getDynamicWCTT(newMsg, wctt, time, currentNode);
 					((MCFlow)(newMsg)).wcetTask = wctt;

@@ -1,6 +1,6 @@
 package simulator.managers;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import logger.GlobalLogger;
 import logger.XmlLogger;
@@ -10,236 +10,181 @@ import root.elements.criticality.CriticalityProtocol;
 import root.elements.network.Network;
 import root.elements.network.modules.flow.MCFlow;
 import root.elements.network.modules.machine.Machine;
-import root.elements.network.modules.machine.Node;
 import root.elements.network.modules.task.NetworkMessage;
 import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
+import simulator.protocols.MCCentralizedProtocol;
+import simulator.protocols.MCDecentralizedProtocol;
+import simulator.protocols.MCManagementProtocol;
 import utils.ConfigLogger;
 
 public class CriticalityManager {
-	
-	/**
-	 * Delay used to determine if we need to switch the criticality level or not
-	 */
-	private double critWaitingDelay;
-	
 	/**
 	 * The current network
 	 */
 	private Network network;
 	
 	/**
-	 * The table getting all the criticality levels each nodes wants to switch to
-	 * Used in centralized protocol only
+	 * MC Management protocol
+	 * @param networkP
 	 */
-	private HashMap<Machine, CriticalityLevel> criticalityTable;
+	private MCManagementProtocol mcProtocol;
+	
+	/**
+	 * WCTT Model Computer, to compute real transmission time according to WCTT
+	 */
+	private WCTTModelComputer wcttComputer;
+	
+	/**
+	 * MC management protocol in use
+	 */
+	private CriticalityProtocol currentMCProtocol;
 	
 	public CriticalityManager(Network networkP) {
-		this.network = networkP;
-		critWaitingDelay = 0.0;
-		
+		currentMCProtocol = ComputationConstants.getInstance().getCritprotocol();
+		network = networkP;
 		wcttComputer = new WCTTModelComputer();
-		criticalityTable = new HashMap<Machine, CriticalityLevel>();
 		
-		ComputationConstants.getInstance().setCritChangeDelay(computeCritChangeDelay(network));
+		// We compute the maximum delay before switching criticality back
+		ComputationConstants.getInstance().setWaitingDelay(network.computeMaxPeriod());
+		GlobalLogger.debug("MAX PERIOD:"+ComputationConstants.getInstance().getWaitingDelay());
 		
-		/* We initialize the criticality table */
-		for(int cptNodes=0; cptNodes < network.machineList.size(); cptNodes++) {
-			updateCritTable(network.machineList.get(cptNodes),
-					network.machineList.get(cptNodes).getCritLevel(), 0);
-		}
-	
-		/* In centralized approach */
-		if(ComputationConstants.getInstance().getCritprotocol() == CriticalityProtocol.CENTRALIZED) {
-			computeCriticalitySwitchDelay();
-		}
-	}
-	
-	/**
-	 * 
-	 * Computes the delay needed to switch the criticality level in the network
-	 * @return
-	 */
-	private double computeCriticalitySwitchDelay() {
-		double switchDelay = ComputationConstants.getInstance().TIMESCALE;
 		
-		ComputationConstants.getInstance().setCritSwitchDelay(switchDelay);
-		
-		return switchDelay;
-	}
-	
-	/**
-	 *  Computes the minimum delay of a criticality phase
-	 * @param networkP the global network
-	 * @return the waiting delay
-	 */
-	
-	private double computeCritChangeDelay(Network networkP) {
-		double critChangeDelay = 0.0;
-		
-		if(ConfigParameters.MIXED_CRITICALITY) {		
-			for(int cptMachine=0; cptMachine < networkP.machineList.size(); cptMachine++) {
-				Node currentNode = networkP.machineList.get(cptMachine);
-				
-				for(int cptFlow=0;cptFlow < currentNode.messageGenerator.size(); cptFlow++) {
-						MCFlow flow = (MCFlow)currentNode.messageGenerator.get(cptFlow);
-						
-						if(critChangeDelay < flow.getPeriod()) {
-							critChangeDelay = flow.getPeriod();
-						}
-				}			
-			}
+		if(currentMCProtocol == CriticalityProtocol.CENTRALIZED) {
+			mcProtocol = new MCCentralizedProtocol(networkP);
 		}
 		
-		return critChangeDelay*ComputationConstants.CHANGE_DELAY_FACTOR;
-		//return ComputationConstants.TIMESCALE;
+		if(currentMCProtocol == CriticalityProtocol.DECENTRALIZED) {
+			mcProtocol = new MCDecentralizedProtocol(networkP);
+		}
 	}
 
-	/**
-	 * Displays the current state
-	 * of the criticality table
-	 * Mainly used for debug purposes
-	 */
-	public void displayCritTable() {
-		for(Node node : criticalityTable.keySet()) {
-			GlobalLogger.display("NODE:"+node.name+" "
-					+ "LEVEL:"+criticalityTable.get(node)+"\n");
-		}
-	}
-	
-	/**
-	 * In case of a criticality switch at the current time, we update the 
-	 * criticality level of each machine
-	 * @param time the current time
-	 */
-	public void updateCriticalityLevel(double time) {
-		Machine currentMachine = null;
-		CriticalityLevel destination = null;
-		
-		/* We update the criticality level of each machine in case of a switch */
-		for(int cptMachine=0;cptMachine < network.machineList.size(); cptMachine++) {
-			currentMachine = network.machineList.get(cptMachine);
-			
-			if(currentMachine.getCritSwitches().get(time) != null) {
-				currentMachine.setCritLevel(currentMachine.getCritSwitches().get(time));
-				destination = currentMachine.getCritLevel();
-			}
-		}
 
-		if(ComputationConstants.getInstance().getCritprotocol() == CriticalityProtocol.CENTRALIZED) {
-			if(destination != null) {
-				this.setCritTable(destination);
-			}
-		}
+	public WCTTModelComputer getWCTTModelComputer() {
+		return wcttComputer;
 	}
 	
-	private void setCritTable(CriticalityLevel level) {
-		/* In case of a change in the criticality level
-		 * We update all the criticality table */
-		for(Machine node : criticalityTable.keySet()) {
-			criticalityTable.put(node, level);
-		}
+	public Network getNetwork() {
+		return network;
 	}
-	
-	/** Updates the criticality table 
-	 * Supposed to be managed by the central node 
-	 * At each message transmission, we update the criticality table
-	 * @param machine The node to update
+	 
+	/**
+	 * Update the criticality level of a given machine 
 	 */
-	public void updateCritTable(Machine machine, CriticalityLevel level,
-			double time) {
-		CriticalityLevel ancient = machine.getCritLevel();
+	private void updateCriticalityLevel(Machine fromMachine, CriticalityLevel level) {
+		fromMachine.setCritLevel(level);
+	}
+	
+	public void switchLevel(Machine fromMachine, double time) {
+		if(currentMCProtocol == CriticalityProtocol.CENTRALIZED) {
+			((MCCentralizedProtocol)mcProtocol).sendNewCritChangeMessage(fromMachine, time);
+		}
+	}
+	
+	public boolean isCritSwitch(NetworkMessage mltcstMsg) {
+		if(currentMCProtocol == CriticalityProtocol.CENTRALIZED) {
+			return  ((MCCentralizedProtocol)mcProtocol).isCritSwitch(mltcstMsg);
+		}
 		
-		if(ComputationConstants.getInstance().getCritprotocol() == 
-				CriticalityProtocol.CENTRALIZED) {
-			if(criticalityTable.get(machine) != level) {
-				criticalityTable.put(machine, level);
-				
-				if(GlobalLogger.DEBUG_ENABLED) {
-				GlobalLogger.debug("UPDATE CRITICALITY TABLE FROM "+ancient+
-						" TO "+level+" FOR MACHINE "+machine.name);
+		return false;
+	}
+	
+	
+	public ArrayList<NetworkMessage> buildClones(ArrayList<Machine> neighbours, NetworkMessage currentMsg) {
+		if(currentMCProtocol == CriticalityProtocol.CENTRALIZED) {
+			return  ((MCCentralizedProtocol)mcProtocol).buildMessages(neighbours, currentMsg);
+		}
+		
+		return null;
+	}
+	
+	public void performCriticalitySwitch(NetworkMessage mltcstMsg, double time) {
+		if(currentMCProtocol == CriticalityProtocol.CENTRALIZED) {
+			double delay = time - mltcstMsg.getEmissionDate();
+			CriticalityLevel level = mltcstMsg.getCriticalityLevel();
 			
-				}
+			// If there is a critSwitch
+			for(Machine machine : network.machineList) {
+				/* We switch the criticality level of all nodes */
+				updateCriticalityLevel(machine, level);
+				
+				machine.critSwitchesDates.put(time, level);
+				
+				/* Logging into xml the crit switch */
+				machine.criticalitySwitchesXMLLog(time, delay);
+				
+				machine.critWaitingDelay = 0.0;
+				
+				/* We update the criticality table */
+			//	((MCCentralizedProtocol)mcProtocol).setCritTable(level);
 			}
 		}
 		
-		if(ComputationConstants.getInstance().getCritprotocol() == 
-				CriticalityProtocol.DECENTRALIZED) {
-			if(level.compareTo(ancient) > 0) {
-				addNewLocalCritSwtch(time+ComputationConstants.TIMESCALE,
-						level, machine);
-				
-				if(GlobalLogger.DEBUG_ENABLED) {
-					GlobalLogger.debug("UPDATE CRITICALITY TABLE FROM "+ancient+
-						" TO "+level+" FOR MACHINE "+machine.name);
+	}
+
+	
+	/**
+	 * Manages if there is a need to call for a decrease of the criticality level
+	 */
+	public void manageCritDecreases(Machine fromMachine, double time, NetworkMessage message) {
+		if(currentMCProtocol == CriticalityProtocol.CENTRALIZED) {
+			 ((MCCentralizedProtocol)mcProtocol).manageCritDecreases(fromMachine, time, message);
+		}	
+		
+		if (currentMCProtocol == CriticalityProtocol.DECENTRALIZED) {
+			CriticalityLevel level = CriticalityLevel.NONCRITICAL;
+			
+			if(message != null) {
+				/* If the node is transmitting a non-critical message */
+				if(message.getCriticalityLevel().compareTo(fromMachine.getCritLevel()) < 0) {
+					level = message.getCriticalityLevel();
+					fromMachine.critWaitingDelay += ComputationConstants.TIMESCALE;
+				}
+				else {
+					fromMachine.critWaitingDelay = 0;
+				}
+			}
+			else {
+				/* If there is no transmission */
+				fromMachine.critWaitingDelay += ComputationConstants.TIMESCALE;
+			}		
+			
+			// If we did wait more than the waiting delay, we come back to a lower level
+			if(fromMachine.critWaitingDelay >= ComputationConstants.getInstance().getWaitingDelay()) {
+				if(fromMachine.getCritLevel() != CriticalityLevel.NONCRITICAL) {
+					fromMachine.critWaitingDelay = 0;
+					fromMachine.setCritLevel(level);
+					fromMachine.critSwitchesDates.put(time, level);
+					fromMachine.criticalitySwitchesXMLLog(time, -1);
 				}
 			}
 		}
 	}
 	
-	
-	/** We parse all the criticality table
-	 * in order to establish if we need
-	 * to change the criticality level
-	 * or not
-	 **/
-	public int updateCriticalityState(double time) {
-		CriticalityLevel currentLevel = null;
-		CriticalityLevel nodeLevel;
+	/**
+	 * Determines if there is a criticality switch needed in the node
+	 */
+	public boolean critSwitchRequired(Machine fromMachine, double time, NetworkMessage message) {		
+		if(currentMCProtocol == CriticalityProtocol.CENTRALIZED) {
+			boolean ifCritSwitch = ((MCCentralizedProtocol)mcProtocol).isSCCRunning(fromMachine, time, message);
+			
+			return ifCritSwitch;
+		}
 		
-		if(ComputationConstants.getInstance().getCritprotocol() == 
-				CriticalityProtocol.CENTRALIZED) {
-			
-			for(Machine node : criticalityTable.keySet()) {
-				nodeLevel = criticalityTable.get(node);
+		if(currentMCProtocol == CriticalityProtocol.DECENTRALIZED) {
+			GlobalLogger.debug("MSG:"+message.getCriticalityLevel()+" MCH:"+fromMachine.getCritLevel());
+			if(message.getCriticalityLevel().compareTo(fromMachine.getCritLevel()) > 0) {
+				GlobalLogger.debug("CRIT CHANGE TO "+message.getCriticalityLevel()+" FOR MACHINE "+fromMachine.name);
+				fromMachine.setCritLevel(message.getCriticalityLevel());
 				
-				if(currentLevel == null || currentLevel.compareTo(nodeLevel) < 0) {
-					currentLevel = nodeLevel;
-				}
+				fromMachine.critSwitchesDates.put(time, message.getCriticalityLevel());
+				fromMachine.criticalitySwitchesXMLLog(time, -1);
 				
-				/* If there is at least a node staying at the current level */
-				if(nodeLevel == node.getCritLevel() || currentLevel == node.getCritLevel()) {
-					critWaitingDelay = 0.0;
-					return 1;
-				}
-			}
-			
-			/* In case all nodes needs to switch back to non-critical */
-			critWaitingDelay += ComputationConstants.TIMESCALE;
-			
-			if(critWaitingDelay == ComputationConstants.getInstance().getCritChangeDelay()) {
-				addNewGlobalCritSwitch(time+ComputationConstants.getInstance().getCritSwitchDelay(),
-						CriticalityLevel.NONCRITICAL);
 			}
 		}
 		
-		if(ComputationConstants.getInstance().getCritprotocol() == 
-				CriticalityProtocol.DECENTRALIZED) {
-			for(Machine machine: network.machineList) {
-				if(ConfigParameters.getInstance().MIXED_CRITICALITY) {
-					NetworkMessage currentMessage = machine.currentlyTransmittedMsg;
-					
-					if(machine.getCritLevel() != CriticalityLevel.NONCRITICAL) {
-						if(currentMessage == null ||
-								currentMessage.currentCritLevel.compareTo(machine.getCritLevel()) <0) {
-							machine.critWaitingDelay+= ComputationConstants.TIMESCALE;
-						}
-						else {
-							machine.critWaitingDelay = 0;
-						}
-					}
-				
-					if(machine.critWaitingDelay >= computeCritChangeDelay(network)) {
-						addNewLocalCritSwtch(time+ComputationConstants.TIMESCALE, CriticalityLevel.NONCRITICAL, machine);
-						machine.critWaitingDelay = 0;
-					}
-				}
-			}
-		}
-		
-		return 0;
+		return false;
 	}
-	
 	
 	/** 
 	 * Adds a local criticality switch in a machine
@@ -249,9 +194,6 @@ public class CriticalityManager {
 	 */
 	public void addNewLocalCritSwtch(double time, CriticalityLevel level, Machine localMachine) {
 		if(localMachine.getCritSwitches().get(time) == null) {
-			if(GlobalLogger.DEBUG_ENABLED) {
-				GlobalLogger.log("CRIT LVL SWITCH TO:"+level+" AT:"+(time+ComputationConstants.TIMESCALE)+" IN MACHINE:"+localMachine.name);
-			}
 			localMachine.getCritSwitches().put(time, level);
 		}
 	}
@@ -270,15 +212,31 @@ public class CriticalityManager {
 		}
 	}
 	
-	
 	/**
-	 * WCTT Model Computer, to compute real transmission time according to WCTT
+	 *  XML Logger 
 	 */
-	private WCTTModelComputer wcttComputer;
-
-	public WCTTModelComputer getWCTTModelComputer() {
-		return wcttComputer;
+	public void generateMCSwitchesLog() {
+		String name = "critswitches";
+		
+		XmlLogger xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+
+				ConfigParameters.getInstance().getSimuId()+"/", name+".xml");
+		
+		xmlLogger.createDocument();
+		xmlLogger.createRoot("CritSwitches");
+		
+		for(Machine machine:network.machineList) {	
+			for(double time : machine.getCritSwitches().keySet()) {
+				xmlLogger.addChild(
+					"timer", xmlLogger.getRoot(), 
+					"value:"+time,
+					"level:"+ machine.getCritSwitches().get(time)
+						.toString().substring(0, 2),
+					"machine:"+ machine.networkAddress.value);		
+			}
+		}	
 	}
+	
+	
 	
 	/**
 	 *  Gets the closest higher WCTT
@@ -336,32 +294,5 @@ public class CriticalityManager {
 		}
 
 		return level;
-	}
-	
-	
-	
-	/* XML Logger */
-	public void generateMCSwitchesLog() {
-		String name = "critswitches";
-		
-		XmlLogger xmlLogger = new XmlLogger(ConfigLogger.RESSOURCES_PATH+"/"+
-				ConfigParameters.getInstance().getSimuId()+"/", name+".xml");
-		xmlLogger.createDocument();
-		xmlLogger.createRoot("CritSwitches");
-		
-		for(Machine machine:network.machineList) {
-			
-			for(double time : machine.getCritSwitches().keySet()) {
-				xmlLogger.addChild(
-					"timer", xmlLogger.getRoot(), 
-					"value:"+time,
-					"level:"+ machine.getCritSwitches().get(time)
-						.toString().substring(0, 2),
-					"machine:"+ machine.networkAddress.value);
-				
-				
-			}
-		}
-			
 	}
 }

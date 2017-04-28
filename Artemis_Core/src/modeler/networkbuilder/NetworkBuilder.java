@@ -66,8 +66,7 @@ public class NetworkBuilder {
 	}
 	
 	public void prepareMessages() {
-		if(GlobalLogger.DEBUG_ENABLED)
-			GlobalLogger.debug("Messages input path:" +inputPath+"input/messages.xml");
+		GlobalLogger.debug("Messages input path:" +inputPath+"input/messages.xml");
 		
 		parseMessagesFile(inputPath+"/input/messages.xml", parser, mainNet);
 	}
@@ -110,9 +109,7 @@ public class NetworkBuilder {
 			mainNet.generateNetworkGraph();
 			
 			//Debug purposes
-			if(GlobalLogger.DEBUG_ENABLED) {
-				mainNet.displayNetwork();
-			}
+			mainNet.displayNetwork();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -135,6 +132,8 @@ public class NetworkBuilder {
 			e.printStackTrace();
 		}
 	}
+	
+	
 	public Network getMainNetwork() {
 		return mainNet;
 	}

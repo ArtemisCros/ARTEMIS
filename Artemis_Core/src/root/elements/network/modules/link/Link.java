@@ -1,6 +1,6 @@
 package root.elements.network.modules.link;
 
-import root.elements.network.modules.NetworkModule;
+import root.elements.SimulableElement;
 import root.elements.network.modules.machine.Machine;
 import root.util.tools.NetworkAddress;
 
@@ -9,7 +9,7 @@ import root.util.tools.NetworkAddress;
  * Class used for representing a link between two network address(with a machine linked to each of it)
  */
 
-public class Link extends NetworkModule {
+public class Link extends SimulableElement {
 	/* First machine */
 	public NetworkAddress bindLeft;
 	

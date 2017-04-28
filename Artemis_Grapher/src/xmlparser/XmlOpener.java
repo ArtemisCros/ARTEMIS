@@ -246,7 +246,16 @@ public class XmlOpener {
 			    		  // We add the default point
 			    		  plotter.addPoint(value, GraphPosition.DOWN, "DEFAULT");
 			    		  
-		    			  key = message.substring(3, message.indexOf("_"));
+			    		  if(message.contains("SCC")) {
+			    			  key = message;
+			    		  }
+			    		  else if(message.contains("MLTCST")) {
+			    			  key = "MLT";
+			    		  }
+			    		  else {
+			    			  key = message.substring(3, message.indexOf("_"));
+			    		  }
+		    			 
 		    			  
 		    			  //GlobalLogger.debug("Key:"+key);
 		    			  if(!key.equals("DEFAULT")) {
@@ -255,8 +264,16 @@ public class XmlOpener {
 	    						  
 	    						  /* We add the new message code to the message list
 	    						   * We will use it later for color computing */
-	    						  if(messageCodes.get(key) == null) {				  
-	    							  messageCodes.put(key, ColorPicker.getColor(Integer.parseInt(key)));
+	    						  if(messageCodes.get(key) == null) {	
+	    							  if(key.contains("SCC")) {
+	    								  messageCodes.put(key, Color.BLACK);
+	    							  }
+	    							  else if(key.contains("MLT")) {
+	    								  messageCodes.put(key, Color.GRAY);
+	    							  }
+	    							  else {
+	    								  messageCodes.put(key, ColorPicker.getColor(Integer.parseInt(key)));
+	    							  }   							  
 	    						  }
 	    						  
 	    						  /* Adds default values for the beginning of the graph */

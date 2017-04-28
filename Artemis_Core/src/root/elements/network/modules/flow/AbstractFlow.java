@@ -7,9 +7,11 @@
 
 package root.elements.network.modules.flow;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import logger.GlobalLogger;
+import root.elements.network.modules.frames.DataFrame;
 import root.elements.network.modules.task.ISchedulable;
 import root.elements.network.modules.task.Task;
 import root.util.tools.NetworkAddress;
@@ -23,7 +25,8 @@ import root.util.tools.NetworkAddress;
 public abstract class AbstractFlow extends Task implements ISchedulable, Cloneable{
 	/**
 	 *  Destination addresses */
-	public Vector<NetworkAddress> networkPath;
+	public ArrayList<NetworkAddress> networkPath;
+	
 	
 	/** Wcet of the current task (computed at emission time) **/
 	public double wcetTask;
@@ -44,7 +47,7 @@ public abstract class AbstractFlow extends Task implements ISchedulable, Cloneab
 	public AbstractFlow(String name) {
 		super();	
 		
-		this.networkPath = new Vector<NetworkAddress>();
+		this.networkPath = new ArrayList<NetworkAddress>();
 		this.name = name;
 		currentNode = 0;
 		wcetTask = -1;
@@ -94,22 +97,22 @@ public abstract class AbstractFlow extends Task implements ISchedulable, Cloneab
 	}
 	
 	@Override
-	public int getOffset() {
+	public double getOffset() {
 		return this.offset;
 	}
 
 	@Override
-	public void setOffset(int offset) {
+	public void setOffset(double offset) {
 		this.offset = offset;
 	}
 	
 	@Override
-	public Vector<NetworkAddress> getNetworkPath() {
+	public ArrayList<NetworkAddress> getNetworkPath() {
 		return this.networkPath;
 	}
 
 	@Override
-	public void setNetworkPath(Vector<NetworkAddress> path) {
+	public void setNetworkPath(ArrayList<NetworkAddress> path) {
 		this.networkPath = path;
 	}
 	
@@ -146,7 +149,7 @@ public abstract class AbstractFlow extends Task implements ISchedulable, Cloneab
 	}
 	
 	/* Builds the network path with the given node list */
-	public int buildNetworkPath(final Vector<NetworkAddress> pPath) {
+	public int buildNetworkPath(final ArrayList<NetworkAddress> pPath) {
 		networkPath.addAll(pPath);
 		return 0;
 	}
@@ -158,7 +161,7 @@ public abstract class AbstractFlow extends Task implements ISchedulable, Cloneab
 	
 	/* Build the shorter path between source and destination */
 	public int buildNetworkPath(final NetworkAddress pSource) {
-		NetworkAddress destination = networkPath.firstElement();
+		NetworkAddress destination = networkPath.get(0);
 		return 0;
 	}
 	

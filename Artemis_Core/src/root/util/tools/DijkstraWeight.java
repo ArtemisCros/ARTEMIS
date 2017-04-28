@@ -1,5 +1,6 @@
 package root.util.tools;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -10,11 +11,11 @@ import java.util.Vector;
 public class DijkstraWeight {
 	public int weight;
 	public NetworkAddress address;
-	public Vector<NetworkAddress> parents;
+	public ArrayList<NetworkAddress> parents;
 	
 	public DijkstraWeight(int weight, NetworkAddress addr) {
 		address = addr;
 		this.weight = weight;
-		parents = new Vector<NetworkAddress>();
+		parents = new ArrayList<NetworkAddress>();
 	}
 }

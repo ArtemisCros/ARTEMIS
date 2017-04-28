@@ -77,6 +77,7 @@ public class XmlNetworkHandler extends XmlDefaultHandler{
 			int idAddr = 0;
 			currMachName = "";
 			int speed = 1;
+			String central = "N";
 			
 			for(int cptAttr=0;cptAttr < pAttr.getLength();cptAttr++) {
 				if(pAttr.getLocalName(cptAttr).compareTo("id") == 0) {
@@ -92,6 +93,9 @@ public class XmlNetworkHandler extends XmlDefaultHandler{
 				if(pAttr.getLocalName(cptAttr).compareTo("speed") == 0) {
 					speed = Integer.parseInt(pAttr.getValue(cptAttr));
 				}
+				if(pAttr.getLocalName(cptAttr).compareTo("central") == 0) {
+					central = pAttr.getValue(cptAttr);
+				}
 			}
 			
 			/* We check if machine has already been created in the network */
@@ -104,6 +108,9 @@ public class XmlNetworkHandler extends XmlDefaultHandler{
 			/* The basic criticality level of each machine is non-critical */
 			currentMachine.setCritLevel(CriticalityLevel.NONCRITICAL);
 			
+			if(central.equals("Y")) {
+				mainNet.setCentralNode(currentMachine);
+			}
 			return 1;
 		}
 		if(qualif == XMLNetworkTags.TAG_MACHINELINK) {

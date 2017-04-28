@@ -29,13 +29,11 @@ public class Main {
 		ConfigParameters.getInstance().setSimuId(simuId);
 		double start = System.currentTimeMillis();
 		
-		GenerationLauncher launcher = new GenerationLauncher();
-		launcher.prepareGeneration();
-		launcher.launchGeneration();		
+		MessageGeneratorLauncher.launchMessageGenerator();
 		
 		double end = System.currentTimeMillis();
 		
 		System.out.println("Taskset generated in "+(end-start)+" ms");
-	}
+	}		
 
 }

@@ -3,9 +3,12 @@ package xmlhandlers;
 import java.util.Vector;
 
 import main.Message;
+import root.elements.criticality.CriticalityLevel;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
+
+import logger.GlobalLogger;
 
 /**
  * Parses and builds each message parameters
@@ -20,14 +23,18 @@ public class XmlMessageHandler extends DefaultHandler {
 	/** XML Triggers **/
 	private boolean pathTrigger;
 	private boolean periodTrigger;
+	private boolean wcttTrigger;
 	
 	private String currentMsgCode;
+	
+	public int critFlows;
 	
 	private String critLevel;
 	
 	public XmlMessageHandler() {
 		messagesSet = new Vector<Message>();
 		currentMsgCode = "";
+		critFlows = 0;
 	}
 	
 	public void startElement(final String uri, final String name, final String qualif, final Attributes pAttr) {
@@ -42,10 +49,15 @@ public class XmlMessageHandler extends DefaultHandler {
 		if(qualif.equals("period")) {
 			periodTrigger = true;
 		}
+		if(qualif.equals("wcet")) {
+			wcttTrigger = true;
+		}
+		
 		if(qualif.equals("criticality")) {
 			Message msg;
 			critLevel = pAttr.getValue("level");
 			 int index = findMessage(currentMsgCode);
+			 
 			 if(index == -1) {
 				 msg = new Message();
 				 msg.identifier = currentMsgCode;
@@ -81,10 +93,21 @@ public class XmlMessageHandler extends DefaultHandler {
 		 if(pathTrigger) {
 			 String value = new String(pCh);
 			 value = value.substring(start, start+length);
+			 String[] nodes;
 			 
-			 String[] nodes = value.split(",");
+			 if(value.contains(",")) {
+				 nodes = value.split(",");	 
+			 }
+			 else {
+				 nodes = new String[1];
+				 nodes[0] = value;
+			 }
+			 
 			 String firstNode = nodes[0];
 			 String lastNode = nodes[nodes.length-1];
+			 if(lastNode == null) {
+				 lastNode = firstNode;
+			 }
 			 
 			 int index = findMessage(currentMsgCode);
 			 if(index == -1) {
@@ -92,6 +115,7 @@ public class XmlMessageHandler extends DefaultHandler {
 				 msg.identifier = currentMsgCode;
 				 msg.sourceNodeId = firstNode;
 				 msg.destNodeId = lastNode;
+				 
 				 messagesSet.add(msg);
 			 }
 			 else {
@@ -108,6 +132,7 @@ public class XmlMessageHandler extends DefaultHandler {
 			 if(index == -1) {
 				 msg = new Message();
 				 msg.identifier = currentMsgCode;
+				 
 				 if(!critLevel.equals("") && !msg.critLevels.contains(critLevel)) {
 					 msg.critLevels.add(critLevel);
 				 }
@@ -116,6 +141,37 @@ public class XmlMessageHandler extends DefaultHandler {
 			 }
 			 else {
 				 messagesSet.get(index).period = Double.parseDouble(value);
+			 }
+		 }
+		 
+		 if(wcttTrigger) {
+			 String value = new String(pCh);
+			 value = value.substring(start, start+length);
+			 
+			 double wctt = Double.parseDouble(value);
+			 
+			 int index = findMessage(currentMsgCode);
+			 if(index == -1) {
+				 msg = new Message();
+				 msg.identifier = currentMsgCode;
+				 messagesSet.add(msg);
+			 }
+			 
+			 /* in case of a negative WCTT, we delete the current criticality level
+			  * from the set of criticality levels for the current message 
+			  */
+			 if(wctt == -1) {
+				messagesSet.get(index).critLevels.remove(critLevel);
+			 }
+			 else {
+				 if(critLevel.equals("C")) {
+					 messagesSet.get(index).wctt.put(CriticalityLevel.CRITICAL, wctt);
+					 critFlows++;
+				 }
+				 
+				 if(critLevel.equals("NC"))
+					 messagesSet.get(index).wctt.put(CriticalityLevel.NONCRITICAL, wctt);
+				 	
 			 }
 		 }
 	 }
@@ -132,6 +188,9 @@ public class XmlMessageHandler extends DefaultHandler {
 		 }
 		 if(qName.equals("period")) {
 				periodTrigger = false;
+			}
+		 if(qName.equals("wcet")) {
+			 wcttTrigger = false;
 			}
 	 }
 }

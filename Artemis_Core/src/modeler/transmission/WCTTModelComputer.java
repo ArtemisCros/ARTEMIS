@@ -64,8 +64,7 @@ public class WCTTModelComputer {
 					transmissionTimeResult =  0.0; 
 					break;
 			}
-		}
-		
+		}	
 		transmissionTimeResult =  (Math.floor(transmissionTimeResult/ComputationConstants.TIMESCALE)*ComputationConstants.TIMESCALE);
 		
 		return transmissionTimeResult;
@@ -73,6 +72,9 @@ public class WCTTModelComputer {
 	
 	public double getWcet(double size) {
 		if(size > 0) {
+			if(currentModel == WCTTModel.STRICT) {
+				return size;
+			}
 			if(currentModel == WCTTModel.LINEAR) {
 				return getLinearWCTT(size);
 			}

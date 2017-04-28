@@ -1,5 +1,6 @@
 package root.elements.network.modules.task;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import root.elements.criticality.CriticalityLevel;
@@ -40,10 +41,10 @@ public interface ISchedulable {
 	void setNextSend(double nextSend);
 	
 	/* Network path getter */
-	Vector<NetworkAddress> getNetworkPath();
+	ArrayList<NetworkAddress> getNetworkPath();
 	
 	/* Network path setter */
-	void setNetworkPath(Vector<NetworkAddress> path);
+	void setNetworkPath(ArrayList<NetworkAddress> path);
 	
 	/* message id getter */
 	int getId();
@@ -81,9 +82,9 @@ public interface ISchedulable {
 	public void setWcet(double wcet, CriticalityLevel critLvl);
 	
 	/* Get message offset */
-	public int getOffset();
+	public double getOffset();
 	/* Set message offset */
-	public void setOffset(int offset);
+	public void setOffset(double offset);
 	
 	/* Get next message activation time */
 	public double getTimerArrival();

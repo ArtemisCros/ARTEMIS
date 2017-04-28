@@ -23,18 +23,27 @@ public class Machine extends Node {
 	 */
 	public double speed;
 	
+
+	/** 
+	 * Multicast messages which went through the node
+	 */
+	private ArrayList<String> mltcstMsgs;
+	
 	/** 
 	 * Delay to wait before switching back to a lower criticality level
 	 */
 	public double critWaitingDelay;
 	
 	/**
-	 * List of the crit switches likely to occur in the node
+	 * List of the crit switches triggers ordered by the simulator
 	 *  Mixed-criticality management 
 	 **/
 	private HashMap<Double, CriticalityLevel> critSwitches;
 	
-	
+	/**
+	 * List of effective crit switches dates, for xml log
+	 */
+	public HashMap<Double, CriticalityLevel> critSwitchesDates;
 	
 	/** 
 	 * Indicates the total load for the node 
@@ -82,17 +91,37 @@ public class Machine extends Node {
 		name = pName;
 		openPorts(ConfigParameters.CONST_PORT_NUMBER);
 		networkAddress = pAddr;
+		
 		outputBuffer = new Vector<NetworkMessage>();
 		inputBuffer  = new Vector<NetworkMessage>();
 		messageGenerator = new ArrayList<ISchedulable>();
 		analyseTime = 0;
 		needReload = true;
 		nodeLoad = 0.0;
+		
 		critSwitches = new HashMap<Double, CriticalityLevel>();
+		critSwitchesDates = new HashMap<Double, CriticalityLevel>();
 		critWaitingDelay = 0.0;
 		critLevel = CriticalityLevel.NONCRITICAL;
+		mltcstMsgs = new ArrayList<String>();
+	}
+
+	/**
+	 * Add a multicast message when its transitting through the machine
+	 * @param id
+	 */
+	public void addMltcstMsg(String id) {
+		mltcstMsgs.add(id);
 	}
 	
+	public ArrayList<String> getMltcstMsg() {
+		return mltcstMsgs;
+	}
+	
+ 	public String toString() {
+ 		return this.name;
+ 	}
+ 	
 	/**
 	 * Machine constructor
 	 * @param pAddr network address
@@ -184,17 +213,15 @@ public class Machine extends Node {
 		NetworkMessage currentMsg;
 		String message = "InputBuffer de la machine "+networkAddress.value+"|";
 		
-		if(GlobalLogger.DEBUG_ENABLED) {
-			for(int cptMsgInput = 0; cptMsgInput < inputBuffer.size(); cptMsgInput++) {
-				currentMsg = inputBuffer.elementAt(cptMsgInput);
-	
-				message += currentMsg.getName()+" ";
-			}
-			
-			message += "|";
-			
-			GlobalLogger.debug(message);
+		for(int cptMsgInput = 0; cptMsgInput < inputBuffer.size(); cptMsgInput++) {
+			currentMsg = inputBuffer.elementAt(cptMsgInput);
+
+			message += currentMsg.getName()+" ";
 		}
+		
+		message += "|";
+		
+		GlobalLogger.debug(message);
 		return 0;
 	}
 	
@@ -213,23 +240,28 @@ public class Machine extends Node {
 		this.critSwitches = critSwitches;
 	}
 	
-	/* XML Writing functions */
-	public int writeLogToFile(final double timer) {
+	public int logMachineStateXML(final double timer) {
 		currentLoad = new BigDecimal(currentLoad).setScale(5, BigDecimal.ROUND_HALF_DOWN).doubleValue();
 		
 		if(currentlyTransmittedMsg != null) {
 			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+timer,
 					"message:"+currentlyTransmittedMsg.getName(), "load:"+currentLoad);		
 		}
-		/*else {
-			xmlLogger.addChild("timer", xmlLogger.getRoot(), "value:"+timer+"", "load:"+currentLoad);
-		}*/
 		
-		if(this.getCritSwitches().get(timer) != null) {
+		return 0;
+	}
+	
+	/* XML Writing functions 
+	 * Save criticality switches*/
+	public int criticalitySwitchesXMLLog(final double timer, double delay) {
+		delay = Math.floor(delay*100)/100;
+		
+		if(this.critSwitchesDates.get(timer) != null) {
 			xmlLogger.addChild(
 					"critswitch", xmlLogger.getRoot(), 
 					"value:"+timer,
-					"level:"+ this.getCritSwitches().get(timer)
+					"mltdel:"+delay,
+					"level:"+ this.critSwitchesDates.get(timer)
 						.toString().substring(0, 2));
 		}
 		

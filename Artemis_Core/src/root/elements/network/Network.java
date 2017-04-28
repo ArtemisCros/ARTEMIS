@@ -7,12 +7,14 @@ import logger.FileLogger;
 import logger.GlobalLogger;
 import modeler.networkbuilder.DijkstraBuilder;
 import root.elements.SimulableElement;
+import root.elements.criticality.CriticalityProtocol;
 import root.elements.criticality.CriticalitySwitch;
 import root.elements.network.address.AddressGenerator;
 import root.elements.network.modules.flow.MCFlow;
 import root.elements.network.modules.link.Link;
 import root.elements.network.modules.machine.Machine;
 import root.elements.network.modules.task.ISchedulable;
+import root.util.constants.ComputationConstants;
 import root.util.constants.ConfigParameters;
 import root.util.tools.NetworkAddress;
 import utils.ConfigLogger;
@@ -26,6 +28,11 @@ public class Network extends SimulableElement{
 	 * List of the network links
 	 */
 	public ArrayList<Link> linkList;
+	
+	/**
+	 * Central node (when using centralized protocol)
+	 */
+	private Machine centralNode;
 	
 	/** 
 	 * List of the machines
@@ -58,7 +65,44 @@ public class Network extends SimulableElement{
 		networkPathBuilder = new DijkstraBuilder(this.machineList);
 		critSwitches = new Vector<CriticalitySwitch>();
  	}
+ 	
+ 	/**
+ 	 * Algorithm to determine the central node
+ 	 * of the network
+ 	 */
+ 	public void setCentralNode(Machine centralNodeP) {
+ 		if(ComputationConstants.getInstance().getCritprotocol() == 
+				CriticalityProtocol.CENTRALIZED) {
+ 			this.centralNode = centralNodeP;
+ 			
+ 			//GlobalLogger.debug("Central node:"+this.centralNode);
+ 		}
+ 	}
 	
+ 	/** Computes the maximum delay to wait before
+ 	 * a criticality switch back to lower levels
+ 	 * (equal to the maximum period)
+ 	 * @return
+ 	 */
+	public double computeMaxPeriod() {
+		double maxPeriod = 0.0;
+		
+		for(Machine mach:this.machineList) {
+			for(ISchedulable msg : mach.messageGenerator) {
+				if(msg.getPeriod() > maxPeriod) {
+					
+					maxPeriod = msg.getPeriod();
+				}
+			}
+		}
+		
+		return maxPeriod;
+	}
+	
+ 	public Machine getCentralNode() {
+ 		return centralNode;
+ 	}
+ 	
  	/* Compute network load for each machine */
  	public int computeLoads() {
  		/* The load to compute */
@@ -85,14 +129,6 @@ public class Network extends SimulableElement{
  			}
  		}
  		
- 		/* We display the results (debug purposes) */
- 		/*for(int cptMachine=0; cptMachine < machineList.size(); cptMachine++) {
- 			if(GlobalLogger.DEBUG_ENABLED) {
- 				String debug = "Machine "+machineList.get(cptMachine).name+
- 	 					" load:"+machineList.get(cptMachine).nodeLoad;
- 				GlobalLogger.debug(debug);
- 			}			
- 		}*/
  		return 0;
  	}
  	
@@ -240,13 +276,11 @@ public class Network extends SimulableElement{
 
 	public void showCritSwitches() {
 		for(int cptCrit=0;cptCrit < critSwitches.size();cptCrit++) {
-			if(GlobalLogger.DEBUG_ENABLED) {
-				final double time = critSwitches.get(cptCrit).getTime();
-				final String debug = "CRIT SWITCH AT TIME:"+time+" TO LVL:"
-						+critSwitches.get(cptCrit).getCritLvl();
-				
-				GlobalLogger.debug(debug);
-			}			
+			final double time = critSwitches.get(cptCrit).getTime();
+			final String debug = "CRIT SWITCH AT TIME:"+time+" TO LVL:"
+					+critSwitches.get(cptCrit).getCritLvl();
+			
+			GlobalLogger.debug(debug);		
 		}
 	}
 	/**

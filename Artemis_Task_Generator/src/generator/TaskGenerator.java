@@ -34,6 +34,8 @@ public class TaskGenerator {
 	private double highestWcet;
 	private int nbCritLevels;
 	
+	private int criticalFlows;
+	
 	public int failSet;
 	
 	private ISchedulable[] tasks;
@@ -58,7 +60,8 @@ public class TaskGenerator {
 				//ConfigParameters.getInstance().getTimeLimitSimulation();
 		variance		= ComputationConstants.VARIANCE;		
 		this.highestWcet= ComputationConstants.getInstance().getHighestWCTT();
-		nbCritLevels = CriticalityLevel.values().length;
+		nbCritLevels = 2;//CriticalityLevel.values().length;
+		criticalFlows = 0;
 		
 	}
 	
@@ -68,7 +71,7 @@ public class TaskGenerator {
 	
 	private void createCriticalityNode(XmlLogger xmlLogger, 
 			Element criticalityNode, 
-			int priorityP, double periodP, int offsetP, double wcetP) {
+			int priorityP, double periodP, double offsetP, double wcetP) {
 		Element priority = xmlLogger.addChild("priority", criticalityNode);
 		priority.appendChild(xmlLogger.source.createTextNode(""+priorityP));
 		
@@ -114,18 +117,23 @@ public class TaskGenerator {
 						taskList[cptMsg].getPeriod(),
 						taskList[cptMsg].getOffset(),
 						taskList[cptMsg].getWcet(CriticalityLevel.NONCRITICAL));
+				//GlobalLogger.display("NC:"+taskList[cptMsg].getWcet(CriticalityLevel.NONCRITICAL));
 				
 				
 				if(taskList[cptMsg].getWcet(CriticalityLevel.CRITICAL) > 0) {
 					criticality = xmlLogger.addChild("criticality", message, "level:C");
 					path = xmlLogger.addChild("path", criticality);
 					path.appendChild(xmlLogger.source.createTextNode(pathS));
-					
+					{
 					createCriticalityNode(xmlLogger, criticality, 
 							taskList[cptMsg].getPriority(),
 							taskList[cptMsg].getPeriod(),
 							taskList[cptMsg].getOffset(),
 							taskList[cptMsg].getWcet(CriticalityLevel.CRITICAL));
+					//GlobalLogger.display(" C:"+taskList[cptMsg].getWcet(CriticalityLevel.CRITICAL));
+					}
+					
+					
 				}
 			}
 			
@@ -176,13 +184,7 @@ public class TaskGenerator {
 					critIncrease = generateUtilisation();
 				}
 				else {
-					//while(critIncrease <= (currentUtilisation*1.01)) {
-						critIncrease = currentUtilisation+RandomGenerator.genDouble(0, networkLoad/numberOfTasks);
-						
-						/* Generate utilisation from a uniform rule */
-						//critIncrease = generateUtilisation();
-						
-					//}
+					critIncrease = currentUtilisation+RandomGenerator.genDouble(0, networkLoad/numberOfTasks);
 				}	
 				
 				/* We keep trace from each previous utilisation,
@@ -191,6 +193,7 @@ public class TaskGenerator {
 				  previous criticality level */
 				currentUtilisation = critIncrease;				
 				
+				//GlobalLogger.debug("Current:"+currentUtilisation+" Lvl:"+currentLevel);
 				utilisations.put(currentLevel, currentUtilisation);
 				
 			}
@@ -226,7 +229,7 @@ public class TaskGenerator {
 		/*Generated tasks list */
 		ISchedulable[] tasks = null;
 		tasks = new MCFlow[numberOfTasks];
-		
+
 		for(int cptTask=1; cptTask <= numberOfTasks;  cptTask++) {	
 			ISchedulable newTask;
 			
@@ -247,8 +250,7 @@ public class TaskGenerator {
 			for(cptWCTT=0; cptWCTT < nbCritLevels; cptWCTT++) {
 				currentUtilisation = utilisations.get(critLevels[cptWCTT]);
 				
-				if(currentUtilisation != 0) {
-					
+				if(currentUtilisation != 0) {		
 					double value = currentUtilisation*periodComplete;
 					wcetComplete.put(critLevels[cptWCTT], value);
 				}
@@ -295,26 +297,33 @@ public class TaskGenerator {
 				for(int cptTasks =0; cptTasks < tasks.length; cptTasks++) {
 					globalLoad += (tasks[cptTasks].getCurrentWcet(CriticalityLevel.NONCRITICAL)/
 							tasks[cptTasks].getCurrentPeriod());
+					
+					if(tasks[cptTasks].getWcet(CriticalityLevel.CRITICAL) >= 0) {
+						criticalFlows++;
+					}
 				}
 				
 				if(Math.abs(networkLoad - globalLoad) <= errorMargin) {
 					/* Generated set ok */
 					validSet = true;
-					//GlobalLogger.debug("Set ok, Load:"+networkLoad+" "+globalLoad);
+					GlobalLogger.debug("Set ok, Load:"+networkLoad+" "+globalLoad);
 				}else {
 					/* Generated set not ok */
 					failSet++;
-					//GlobalLogger.debug("Set Nok, Load:"+networkLoad+" "+globalLoad);
+					GlobalLogger.debug("Set Nok, Load:"+networkLoad+" "+globalLoad);
+					criticalFlows = 0;
 				}
 			}
 			else {
 				/* Generated set not ok */
 				failSet++;
-				//GlobalLogger.debug("Set size Nok, Load:"+networkLoad+" "+globalLoad);
+				GlobalLogger.debug("Set size Nok, Load:"+networkLoad+" "+globalLoad);
+				criticalFlows = 0;
 			}
 			globalLoad = 0.0;
 		}
 		
+		//GlobalLogger.display(criticalFlows+"\t");
 		return tasks;
 	}
 	

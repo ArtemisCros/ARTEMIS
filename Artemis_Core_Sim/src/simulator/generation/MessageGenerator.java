@@ -56,8 +56,7 @@ public class MessageGenerator {
 			
 			for(cptCritLvl=0;cptCritLvl<critLvlSize;) {
 				critLvl = CriticalityLevel.values()[cptCritLvl];
-			//}
-			//for(CriticalityLevel critLvl : CriticalityLevel.values()) {
+
 				if(currentMsg.getWcet(critLvl) > 0) {
 					newMsg.critLevel.add(critLvl);
 				}
@@ -81,8 +80,10 @@ public class MessageGenerator {
 					newMsg.networkPath = currentMsg.getNetworkPath();
 					newMsg.currentNode = 1;
 					newMsg.priority = currentMsg.getPriority();
+					newMsg.setEmissionDate(currentTime);
 					
-					newMsg.currentCritLevel = critManager.checkMessageCritLevel((MCFlow)currentMsg, wctt);  
+					CriticalityLevel newLevel = critManager.checkMessageCritLevel((MCFlow)currentMsg, wctt);
+					newMsg.setCriticalityLevel(newLevel);  
 					
 					/* We put the copy in the input buffer of the generating node */
 					fromMachine.inputBuffer.add(newMsg);
